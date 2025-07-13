@@ -1,71 +1,36 @@
 "use client";
 
-import { getStockData } from "@/services/earning-service";
 import { useParams } from "next/navigation";
-// chart 그리기 ㄱㅂㅈ~~
 import { useEffect, useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import StockChart from "@/components/earning/chart/chart";
+import { getStockData } from "@/services/earning-service";
 
 export default function EarningReleasePage() {
   const { symbol } = useParams();
-  const [stockData, setStockData] = useState({});
+  const [stockData, setStockData] = useState([]);
 
   useEffect(() => {
-    async function fetchStockData() {
+    async function fetchData() {
       try {
-        const data = await getStockData(symbol);
-        if (data?.output2) {
-          console.log("Fetched stock data:", data.output2);
-          setStockData(data.output2.reverse());
+        const res = await getStockData(symbol);
+        if (res?.output2) {
+          setStockData(res.output2.reverse());
         } else {
-          console.error("No output2 data received for symbol:", symbol);
+          console.error("No output2 for symbol", symbol);
         }
-      } catch (error) {
-        console.error("Error fetching stock data:", error);
+      } catch (e) {
+        console.error(e);
       }
     }
-
-    fetchStockData();
+    fetchData();
   }, [symbol]);
 
   return (
-    <div className="p-6">
-      ({symbol})
-      <div>
-        <h1 className="text-2xl font-bold">Chart for {symbol}</h1>
-        <div>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={Object.values(stockData)}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="xymd" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="open"
-                stroke="#8884d8"
-                name="시가"
-              />
-              <Line
-                type="monotone"
-                dataKey="clos"
-                stroke="#82ca9d"
-                name="종가"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-6">Chart for {symbol}</h1>
+        <div style={{ display: "flex", justifyContent: "flex-start" }}>
+          <StockChart stockData={stockData} />
         </div>
       </div>
-    </div>
   );
 }
