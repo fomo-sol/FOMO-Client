@@ -15,9 +15,9 @@ export default function Navbar() {
         <div className="relative">
           <input
             className="bg-white text-black rounded-2xl focus:outline-none text-center"
-            style={{ width: "170px" }}
-          ></input>
-          <Image
+            style={{ width: "170px", height: "30px" }}
+          />
+          <img
             src="/icon_search.svg"
             alt="Search_icon"
             width={24}
@@ -25,6 +25,7 @@ export default function Navbar() {
             className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
           />
         </div>
+
         <Link href="/fomc">FOMC</Link>
         <Link href="/earning">실적발표</Link>
         <Link href="/calendar">
