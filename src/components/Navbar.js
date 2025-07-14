@@ -25,7 +25,6 @@ export default function Navbar() {
             className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
           />
         </div>
-
         <Link href="/fomc">FOMC</Link>
         <Link href="/earning">실적발표</Link>
         <Link href="/calendar">
