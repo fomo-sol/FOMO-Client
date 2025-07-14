@@ -4,7 +4,7 @@ export async function getStockData(symbol) {
   symbol = symbol.toUpperCase(); // Ensure the symbol is in uppercase
   try {
     const response = await fetch(
-      `http://localhost:4000/api/hantu?SYMB=${symbol}`
+      `http://localhost:4000/api/earnings/hantu?SYMB=${symbol}`
     );
     if (!response.ok) {
       throw new Error("Network response was not ok");
