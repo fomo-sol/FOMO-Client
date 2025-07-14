@@ -29,7 +29,7 @@ export default function EarningReleasePage() {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">Chart for {symbol}</h1>
         <div style={{ display: "flex", justifyContent: "flex-start" }}>
-          <StockChart stockData={stockData} />
+          <StockChart stockData={stockData} symbol={symbol} />
         </div>
       </div>
   );
