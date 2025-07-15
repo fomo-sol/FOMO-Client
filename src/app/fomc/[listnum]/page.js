@@ -4,10 +4,14 @@ import TabSection from "@/components/fomc/tabSection";
 import NasdaqGraph from "@/components/fomc/NasdaqGraph";
 import Sp500Graph from "@/components/fomc/Sp500Graph";
 import FearGreedGauge from "@/components/earning/chart/fearGreed";
+import { useRouter } from "next/navigation";
+import FOMCSidebar from "@/components/fomc/Sidebar";
 
 export default function FOMCItemPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("연설");
   const [activeLangTab, setActiveLangTab] = useState("한국어");
+  const [showSidebar, setShowSidebar] = useState(false);
 
   const fileMap = {
     연설: {
@@ -43,8 +47,37 @@ export default function FOMCItemPage() {
         <div className="flex gap-6">
           {/* 왼쪽 영역 */}
           <div className="w-[460px] flex flex-col gap-6">
-            {/* 제목 */}
-            <h1 className="text-2xl font-bold mb-2">FOMC | 1차 (2025.07.10)</h1>
+            {/* 제목 + 뒤로가기 */}
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() => setShowSidebar((prev) => !prev)}
+                className="w-[29px] h-[28px] flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="29"
+                  height="28"
+                  viewBox="0 0 29 28"
+                  fill="none"
+                >
+                  <path
+                    d="M14.5 27C17.4632 27 19.7788 26.8455 21.5938 26.4561C23.399 26.0686 24.6444 25.4617 25.5332 24.6035C27.3262 22.8722 28 19.7977 28 14C28 8.20228 27.3262 5.12785 25.5332 3.39648C24.6444 2.5383 23.399 1.93136 21.5938 1.54395C19.7788 1.1545 17.4632 1 14.5 1C11.5368 1 9.2212 1.1545 7.40625 1.54395C5.601 1.93136 4.35563 2.5383 3.4668 3.39648C1.67382 5.12785 1 8.20228 1 14C1 19.7977 1.67382 22.8722 3.4668 24.6035C4.35563 25.4617 5.601 26.0686 7.40625 26.4561C9.2212 26.8455 11.5368 27 14.5 27Z"
+                    stroke="#FFFEFE"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12.0832 9.33337L16.9165 14L12.0832 18.6667"
+                    stroke="#FFFEFE"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <h1 className="text-2xl font-bold">FOMC | 1차 (2025.07.10)</h1>
+            </div>
 
             {/* 그래프 및 게이지 */}
             <div>
@@ -124,6 +157,26 @@ export default function FOMCItemPage() {
           </div>
         </div>
       </div>
+      {showSidebar && (
+        <div
+          className="fixed top-0 left-0 h-full w-[412px] z-50 backdrop-blur-md"
+          style={{
+            backgroundColor: "rgba(36, 41, 50, 0.90)",
+            boxShadow: "0 4px 4px rgba(0, 0, 0, 0.25)",
+          }}
+        >
+          <button
+            onClick={() => setShowSidebar(false)}
+            className="absolute top-4 right-4 z-50 bg-black/50 rounded-full p-1 text-white"
+          >
+            ✕
+          </button>
+
+          <div className="p-4 pt-12 text-white">
+            <FOMCSidebar />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
