@@ -1,14 +1,21 @@
 // 실적발표 관련 함수들
 
 export async function getStockData(symbol) {
-  symbol = symbol.toUpperCase(); // Ensure the symbol is in uppercase
+  return getStockDataByDate(symbol);
+}
+
+// 날짜 기준으로 100일 이전 데이터 불러오기 (BYMD: YYYYMMDD)
+export async function getStockDataByDate(symbol, bymd) {
+  symbol = symbol.toUpperCase();
+
   try {
-    const response = await fetch(
-      `http://localhost:4000/api/earnings/hantu?SYMB=${symbol}`
-    );
+    const query = bymd ? `SYMB=${symbol}&BYMD=${bymd}` : `SYMB=${symbol}`;
+    const response = await fetch(`http://localhost:4000/api/earnings/hantu?${query}`);
+
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
+
     const data = await response.json();
     return data;
   } catch (error) {
