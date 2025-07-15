@@ -27,12 +27,12 @@ export default function EarningReleasePage() {
   }, [symbol]);
 
   return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">{symbol}</h1>
-        <div style={{ display: "flex", justifyContent: "flex-start" }}>
-          <StockChart stockData={stockData} symbol={symbol} />
-          {/*<FearGreedGauge/>*/}
-        </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">{symbol}</h1>
+      <div style={{ display: "flex", justifyContent: "flex-start" }}>
+        <StockChart stockData={stockData} symbol={symbol} />
+        {/* <FearGreedGauge /> */}
       </div>
+    </div>
   );
 }
