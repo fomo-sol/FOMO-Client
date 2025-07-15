@@ -1,0 +1,4 @@
+/* src/app/interest/scrollbar.css */
+::-webkit-scrollbar {
+  display: none;
+}
