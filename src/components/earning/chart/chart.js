@@ -9,16 +9,16 @@ export default function StockChart({ stockData, symbol }) {
   const lineCloseRef = useRef(null);
   const volumeSeriesRef = useRef(null);
   const isFetchingRef = useRef(false);
+  const trendLinesRef = useRef([]);
 
   const [tooltip, setTooltip] = useState(null);
   const [localStockData, setLocalStockData] = useState(stockData || []);
   const localStockDataRef = useRef(localStockData);
-
+  const [clickPoints, setClickPoints] = useState([]);
 
   useEffect(() => {
     localStockDataRef.current = localStockData;
   }, [localStockData]);
-
 
   useEffect(() => {
     setLocalStockData(stockData || []);
@@ -27,23 +27,42 @@ export default function StockChart({ stockData, symbol }) {
   function formatDate(xymd) {
     return `${xymd.slice(0, 4)}-${xymd.slice(4, 6)}-${xymd.slice(6, 8)}`;
   }
+
   function getTimestamp(xymd) {
     return new Date(formatDate(xymd)).getTime() / 1000;
   }
 
-  // 최초 1회만 차트 생성함 흠.
+  function drawTrendLine(p1, p2) {
+    const trendSeries = chartRef.current.addLineSeries({
+      color: "orange",
+      lineWidth: 2,
+      priceLineVisible: false,
+      crossHairMarkerVisible: false,
+    });
+    trendSeries.setData([p1, p2]);
+
+    const clickHandler = (param) => {
+      const price = param.seriesPrices.get(trendSeries);
+      if (price !== undefined) {
+        chartRef.current.removeSeries(trendSeries);
+        trendLinesRef.current = trendLinesRef.current.filter(s => s !== trendSeries);
+        chartRef.current.unsubscribeClick(clickHandler);
+      }
+    };
+
+    chartRef.current.subscribeClick(clickHandler);
+    trendLinesRef.current.push(trendSeries);
+  }
+
   useEffect(() => {
     if (!chartContainerRef.current || !symbol) return;
-
     if (chartRef.current) return;
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: 250,
       layout: {
-        background: {
-          color: "#081835",
-        },
+        background: { color: "#081835" },
         textColor: "#ffffff",
       },
       grid: { vertLines: { visible: false }, horzLines: { visible: false } },
@@ -60,9 +79,23 @@ export default function StockChart({ stockData, symbol }) {
       scaleMargins: { top: 0.85, bottom: 0 },
     });
 
-    chart.applyOptions({
-      height: 250,
-    })
+    chart.applyOptions({ height: 250 });
+
+    chart.subscribeClick((param) => {
+      if (!param.time || !param.seriesPrices) return;
+      const price = param.seriesPrices.get(lineOpenRef.current);
+      if (price === undefined) return;
+
+      const newPoint = { time: param.time, value: price };
+
+      setClickPoints((prev) => {
+        if (prev.length === 1) {
+          drawTrendLine(prev[0], newPoint);
+          return [];
+        }
+        return [newPoint];
+      });
+    });
 
     chart.subscribeCrosshairMove((param) => {
       if (!param.time || !param.point) {
@@ -109,16 +142,10 @@ export default function StockChart({ stockData, symbol }) {
           const data = await getStockDataByDate(symbol, oldest);
           if (data?.output2) {
             const newData = data.output2.reverse();
-            const filtered = newData.filter(
-                (nd) => !localStockDataRef.current.some((sd) => sd.xymd === nd.xymd)
-            );
+            const filtered = newData.filter((nd) => !localStockDataRef.current.some((sd) => sd.xymd === nd.xymd));
             if (filtered.length > 0) {
-              // 현재 스크롤 위치 저장
               const scrollPos = chartRef.current.timeScale().scrollPosition();
-
               setLocalStockData((prev) => [...filtered, ...prev]);
-
-              // 스크롤 위치 보정: 추가 데이터 개수만큼 밀어내기
               setTimeout(() => {
                 chartRef.current.timeScale().scrollToPosition(scrollPos + filtered.length);
               }, 0);
@@ -142,10 +169,8 @@ export default function StockChart({ stockData, symbol }) {
     };
   }, [symbol]);
 
-  // localStockData 바뀔 때마다  갱신
   useEffect(() => {
-    if (!chartRef.current) return;
-    if (localStockData.length === 0) return;
+    if (!chartRef.current || localStockData.length === 0) return;
 
     const openData = localStockData.map((item) => ({
       time: formatDate(item.xymd),
@@ -169,7 +194,6 @@ export default function StockChart({ stockData, symbol }) {
     lineOpenRef.current.setData(openData);
     lineCloseRef.current.setData(closeData);
     volumeSeriesRef.current.setData(volumeData);
-
   }, [localStockData]);
 
   function formatVolume(value) {
@@ -178,31 +202,6 @@ export default function StockChart({ stockData, symbol }) {
     if (value >= 1_000) return (value / 1_000).toFixed(1) + "K";
     return value.toString();
   }
-
-  // useEffect(() => {
-  //   const canvas = chartContainerRef.current?.querySelector('canvas');
-  //   if (canvas) {
-  //     canvas.style.height = '300px';
-  //     canvas.height = 300;
-  //   }
-  //
-  //   const removeLogo = () => {
-  //     const logo = document.getElementById('tv-attr-logo');
-  //     if (logo) {
-  //       logo.remove();
-  //       console.log("✅ TradingView 로고 제거 완료");
-  //     }
-  //   };
-  //
-  //   const timeout = setTimeout(removeLogo, 100);
-  //   const interval = setInterval(removeLogo, 300);
-  //
-  //   return () => {
-  //     clearTimeout(timeout);
-  //     clearInterval(interval);
-  //   };
-  // }, []);
-
 
   return (
       <div style={{ position: "relative", width: "600px" }}>

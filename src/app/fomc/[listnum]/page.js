@@ -44,7 +44,7 @@ export default function FOMCItemPage() {
   return (
     <div className="min-h-screen bg-[#081835] text-white font-[Pretendard] px-6 py-6">
       <div className="max-w-[1440px] mx-auto">
-        <div className="flex gap-2">
+        <div className="flex gap-6">
           {/* 왼쪽 영역 */}
           <div className="w-[600px] flex flex-col gap-2">
             {/* 제목 + sidebar 버튼  */}
