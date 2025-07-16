@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import StockChart from "@/components/earning/chart/chart";
 import { getStockData } from "@/services/earning-service";
-import FearGreedGauge from "@/components/earning/chart/fearGreed";
 
 export default function EarningReleasePage() {
   const { symbol } = useParams();

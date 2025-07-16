@@ -44,9 +44,9 @@ export default function FOMCItemPage() {
   return (
     <div className="min-h-screen bg-[#081835] text-white font-[Pretendard] px-6 py-6">
       <div className="max-w-[1440px] mx-auto">
-        <div className="flex gap-6">
+        <div className="flex gap-2">
           {/* 왼쪽 영역 */}
-          <div className="w-[460px] flex flex-col gap-6">
+          <div className="w-[600px] flex flex-col gap-2">
             {/* 제목 + sidebar 버튼  */}
             <div className="flex items-center gap-2 mb-2">
               <button
@@ -81,15 +81,15 @@ export default function FOMCItemPage() {
 
             {/* 그래프 */}
             <div>
-              <h2 className="text-xs text-[#FF5555] mb-2">NASDAQ</h2>
-              <div className="h-[105px] flex items-center justify-center">
+              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">NASDAQ 100 QQQ</h2>
+              <div className="w-full flex items-center justify-center overflow-hidden mb-4">
                 <NasdaqGraph />
               </div>
             </div>
 
             <div>
-              <h2 className="text-xs text-[#5BE49B] mb-2">S&P 500</h2>
-              <div className="h-[138px] flex items-center justify-center overflow-visible">
+              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">S&P 500 SPY</h2>
+              <div className="w-full flex items-center justify-center overflow-hidden mb-4">
                 <Sp500Graph />
               </div>
             </div>
