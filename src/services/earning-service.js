@@ -23,3 +23,16 @@ export async function getStockDataByDate(symbol, bymd) {
     return null;
   }
 }
+
+export function formatRevenue(value) {
+  const num = typeof value === 'bigint' ? Number(value) : Number(value);
+  if (isNaN(num)) return "-";
+
+  if (num >= 1_000_000_000) {
+    return (num / 1_000_000_000).toFixed(2) + "B";
+  } else if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(2) + "M";
+  } else {
+    return num.toLocaleString();
+  }
+}
