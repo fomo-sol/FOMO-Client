@@ -1,31 +1,40 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import StockChart from "@/components/earning/chart/chart";
+import { getStockData } from "@/services/earning-service";
+
 export default function Sp500Graph() {
+  const [stockData, setStockData] = useState([]);
+  const symbol = "SPY";
+
+  useEffect(() => {
+    let timeoutId;
+    async function fetchData() {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 100)); // 0.5초 대기
+        const res = await getStockData(symbol);
+
+        if (res?.output2) {
+          setStockData(res.output2.reverse());
+        } else {
+          console.error("No output2 for symbol", symbol);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    timeoutId = setTimeout(fetchData, 0);
+    return () => clearTimeout(timeoutId);
+  }, [symbol]);
+
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="279"
-      height="138"
-      viewBox="0 0 279 138"
-      fill="none"
-    >
-      <path
-        d="M2.27002 135.592C4.43644 133.003 20.0874 109.117 27.3499 105.617C34.6123 102.117 44.2672 112.992 52.4297 111.418C60.5923 109.845 69.3258 97.4358 77.5096 95.9472C85.6934 94.4586 94.3392 99.0602 102.589 97.8811C110.84 96.7019 120.047 88.2497 127.669 85.3108C135.292 82.3718 145.802 82.426 152.749 78.5421C159.696 74.6583 174.497 62.3436 177.829 57.2693C181.161 52.195 198.154 -2.9795 202.909 2.15335C207.664 7.2862 225.362 106.607 227.989 111.418C230.615 116.229 244.969 97.746 253.069 95.9472C261.169 94.1484 273.98 97.611 278.148 97.8811"
-        stroke="url(#paint0_linear_292_10399)"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <defs>
-        <linearGradient
-          id="paint0_linear_292_10399"
-          x1="2.27002"
-          y1="1.81665"
-          x2="2.27002"
-          y2="135.592"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#5BE49B" />
-          <stop offset="1" stopColor="#00A76F" />
-        </linearGradient>
-      </defs>
-    </svg>
+    <>
+      <div>
+        <div style={{ display: "flex", justifyContent: "flex-start" }}>
+          <StockChart stockData={stockData} symbol={symbol} />
+        </div>
+      </div>
+    </>
   );
 }
