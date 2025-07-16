@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function TelegramModal({ onClose }) {
   const [copied, setCopied] = useState(false);
+  const modalRef = useRef(null);
   const telegramUrl = "https://t.me/FomoDotUSX?start=11ef5289-e6b4-11f0"; // 실제 qr url 로 대체하기
 
   const handleCopy = () => {
@@ -12,10 +13,25 @@ export default function TelegramModal({ onClose }) {
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
+  // 모달 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="w-[590px] h-[506px] bg-[#EAEAEA] rounded-[5px] shadow-md text-[#081835] flex flex-col items-center justify-center font-[Pretendard Variable] relative px-6">
+      <div
+        ref={modalRef}
+        className="w-[590px] h-[506px] bg-[#EAEAEA] rounded-[5px] shadow-md text-[#081835] flex flex-col items-center justify-center font-[Pretendard Variable] relative px-6"
+      >
         <h2 className="text-[35px] font-medium mb-6">Telegram 봇 추가하기</h2>
 
         <Image

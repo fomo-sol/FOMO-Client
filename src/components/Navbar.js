@@ -2,19 +2,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import NotificationPopup from "./common/NotificationPopup";
+import MyPageModal from "./common/MyPageModal";
 import { useState, useRef, useEffect } from "react";
+
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showMyPageModal, setShowMyPageModal] = useState(false);
   const alertRef = useRef(null);
-  useEffect(() => {
-    console.log("알림창 상태:", showNotifications);
-  }, [showNotifications]);
+  const mypageRef = useRef(null);
 
-  // 외부 클릭 시 알림창 닫기
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (alertRef.current && !alertRef.current.contains(e.target)) {
         setShowNotifications(false);
+      }
+      if (mypageRef.current && !mypageRef.current.contains(e.target)) {
+        setShowMyPageModal(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -53,7 +56,6 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* 알림 아이콘 + 팝업 */}
         <div
           className="relative flex items-center justify-center"
           ref={alertRef}
@@ -87,9 +89,27 @@ export default function Navbar() {
             height={24}
           />
         </Link> */}
-        <Link href="/mypage">
-          <Image src="/icon_mypage.svg" alt="My_page" width={30} height={30} />
-        </Link>
+        {/* 마이페이지 */}
+        <div className="relative" ref={mypageRef}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMyPageModal((prev) => !prev);
+            }}
+            className="flex items-center justify-center"
+          >
+            <Image
+              src="/icon_mypage.svg"
+              alt="My_page"
+              width={24}
+              height={24}
+            />
+          </button>
+
+          {showMyPageModal && (
+            <MyPageModal onClose={() => setShowMyPageModal(false)} />
+          )}
+        </div>
       </div>
     </nav>
   );
