@@ -1,8 +1,25 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-
+import NotificationPopup from "./common/NotificationPopup";
+import { useState, useRef, useEffect } from "react";
 export default function Navbar() {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const alertRef = useRef(null);
+  useEffect(() => {
+    console.log("알림창 상태:", showNotifications);
+  }, [showNotifications]);
+
+  // 외부 클릭 시 알림창 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (alertRef.current && !alertRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   return (
     <nav
       className="text-white text-lg items-center justify-between px-16 py-6 flex gap-4 border-b"
@@ -35,14 +52,32 @@ export default function Navbar() {
             height={24}
           />
         </Link>
-        <Link href="/alert">
-          <Image
-            src="/icon_alert.svg"
-            alt="Alert_page"
-            width={24}
-            height={24}
-          />
-        </Link>
+
+        {/* 알림 아이콘 + 팝업 */}
+        <div
+          className="relative flex items-center justify-center"
+          ref={alertRef}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowNotifications((prev) => {
+                console.log("알림창 상태:", !prev);
+                return !prev;
+              });
+            }}
+            className="flex items-center justify-center"
+          >
+            <Image src="/icon_alert.svg" alt="Alert" width={24} height={24} />
+          </button>
+
+          {showNotifications && (
+            <div className="absolute top-[calc(100%+10px)] right-0 z-50">
+              <NotificationPopup onClose={() => setShowNotifications(false)} />
+            </div>
+          )}
+        </div>
+
         {/* 알람이 있다면 이 아이콘으로 교체 */}
         {/* <Link href="/alert">
           <Image
