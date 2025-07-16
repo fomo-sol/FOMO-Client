@@ -43,6 +43,15 @@ export default function Navbar() {
             height={24}
           />
         </Link>
+        {/* 알람이 있다면 이 아이콘으로 교체 */}
+        {/* <Link href="/alert">
+          <Image
+            src="/icon_notification.svg"
+            alt="Alert_page"
+            width={24}
+            height={24}
+          />
+        </Link> */}
         <Link href="/mypage">
           <Image src="/icon_mypage.svg" alt="My_page" width={30} height={30} />
         </Link>
