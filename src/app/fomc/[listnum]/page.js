@@ -6,7 +6,7 @@ import Sp500Graph from "@/components/fomc/Sp500Graph";
 import FearGreedGauge from "@/components/earning/chart/fearGreed";
 import { useRouter } from "next/navigation";
 import FOMCSidebar from "@/components/fomc/Sidebar";
-
+import Content from "@/components/fomc/Content";
 export default function FOMCItemPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("연설");
@@ -47,7 +47,7 @@ export default function FOMCItemPage() {
         <div className="flex gap-6">
           {/* 왼쪽 영역 */}
           <div className="w-[460px] flex flex-col gap-6">
-            {/* 제목 + 뒤로가기 */}
+            {/* 제목 + sidebar 버튼  */}
             <div className="flex items-center gap-2 mb-2">
               <button
                 onClick={() => setShowSidebar((prev) => !prev)}
@@ -79,7 +79,7 @@ export default function FOMCItemPage() {
               <h1 className="text-2xl font-bold">FOMC | 1차 (2025.07.10)</h1>
             </div>
 
-            {/* 그래프 및 게이지 */}
+            {/* 그래프 */}
             <div>
               <h2 className="text-xs text-[#FF5555] mb-2">NASDAQ</h2>
               <div className="h-[105px] flex items-center justify-center">
@@ -103,57 +103,7 @@ export default function FOMCItemPage() {
             <div className="mb-4">
               <TabSection activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
-
-            {/* 언어 탭 + 본문 */}
-            <div className="bg-[#1A2642] rounded-[10px] shadow-md pt-4 pb-6 px-6 relative">
-              <div className="flex justify-start gap-[48px] mb-3 pl-[6px]">
-                {["한국어", "영어", "AI 요약분석"].map((lang) => (
-                  <div
-                    key={lang}
-                    className="flex flex-col items-center w-[80px] text-center"
-                  >
-                    <button
-                      onClick={() => setActiveLangTab(lang)}
-                      className={`transition-all ${
-                        activeLangTab === lang
-                          ? "text-white font-bold"
-                          : "text-white/50"
-                      }`}
-                    >
-                      {lang}
-                    </button>
-                    {activeLangTab === lang && (
-                      <div
-                        className="-mb-[7px]"
-                        style={{
-                          width: "37px",
-                          height: "8px",
-                          backgroundColor: "#7CA9EF",
-                          borderRadius: "4px",
-                        }}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* 본문 파일 뷰 */}
-              <div className="bg-white rounded-[10px] h-[600px] overflow-hidden text-[#081835]">
-                {fileSrc ? (
-                  <iframe
-                    src={fileSrc}
-                    width="100%"
-                    height="100%"
-                    className="rounded-[10px]"
-                    style={{ border: "1px solid #ccc", borderRadius: "8px" }}
-                  />
-                ) : (
-                  <div className="text-center pt-20 text-gray-500">
-                    해당 파일이 없습니다.
-                  </div>
-                )}
-              </div>
-            </div>
+            <Content activeTab={activeTab} fileMap={fileMap} />
           </div>
         </div>
       </div>
@@ -167,9 +117,24 @@ export default function FOMCItemPage() {
         >
           <button
             onClick={() => setShowSidebar(false)}
-            className="absolute top-4 right-4 z-50 bg-black/50 rounded-full p-1 text-white"
+            className="absolute top-4 right-4 z-50 bg-black/50 rounded-full p-1 text-white w-8 h-8 flex items-center justify-center"
+            aria-label="사이드바 닫기"
           >
-            ✕
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
           </button>
 
           <div className="p-4 pt-12 text-white">
