@@ -24,3 +24,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+a#tv-attr-logo {
+  display: none !important;
+}
+
+td[style*="position: relative"] > div > canvas {
+  height: 248px !important;
+}
