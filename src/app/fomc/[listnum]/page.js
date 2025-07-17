@@ -15,19 +15,19 @@ export default function FOMCItemPage() {
 
   const fileMap = {
     연설: {
-      한국어: "/fomc/20200129_transcript_en ko.txt",
-      영어: "/fomc/20200129_transcript_en.txt",
-      "AI 요약분석": "/fomc/20250618_fomcproj_ko.txt",
+      한국어: "/fomc/20250618_statement_ko.txt",
+      영어: "/fomc/20250618_transcript_en.txt",
+      "AI 요약분석": "/fomc/20250618_transcript_summary_ko.html",
     },
     의사록: {
-      한국어: "/fomc/2020-01-29_minutes_en.txt",
-      영어: "/fomc/FOMCpresconf20250129.pdf",
-      "AI 요약분석": "/fomc/2020-01-29_minutes_en.txt",
+      한국어: "/fomc/20250618_statement_ko.txt",
+      영어: "/fomc/2025-06-18_minutes_en.txt",
+      "AI 요약분석": "/fomc/20250618_minutes_summary_ko.html",
     },
     금리결정: {
-      한국어: "/fomc/20250618_statement.html",
-      영어: "/fomc/2020-01-29_statement_en.html",
-      "AI 요약분석": "/fomc/2020-01-29_statement_en.html",
+      한국어: "/fomc/20250618_imple_ko.txt",
+      영어: "/fomc/2025-06-18_statement_en.txt",
+      "AI 요약분석": "/fomc/20250618_imple_state_summary_ko.html",
     },
     경제전망: {
       영어: "/fomc/FOMCpresconf20250129.pdf",
@@ -42,7 +42,7 @@ export default function FOMCItemPage() {
   const fileSrc = getFile();
 
   return (
-    <div className="min-h-screen font-[Pretendard] px-8 py-6">
+    <div className="min-h-screen font-[Pretendard] px-8  ">
       <div className="flex gap-6">
         {/* 왼쪽 영역 */}
         <div className="flex flex-col gap-2">

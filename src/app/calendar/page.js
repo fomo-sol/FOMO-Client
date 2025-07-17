@@ -83,7 +83,7 @@ const calendarData = [
 
 export default function CalendarPage() {
   return (
-    <div className="px-8 py-6 font-[Pretendard] min-h-screen">
+    <div className="px-8   font-[Pretendard] min-h-screen">
       <h1 className="text-2xl font-bold mb-10">캘린더</h1>
       <div className="flex gap-4 justify-center max-w-[1440px] mx-auto">
         {calendarData.map((day) => (

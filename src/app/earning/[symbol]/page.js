@@ -26,7 +26,7 @@ export default function EarningReleasePage() {
   }, [symbol]);
 
   return (
-    <div className="px-8 py-6 font-[Pretendard] min-h-screen">
+    <div className="px-8   font-[Pretendard] min-h-screen">
       <h1 className="text-2xl font-bold mb-10">{symbol}</h1>
       <div style={{ display: "flex", justifyContent: "flex-start" }}>
         <StockChart stockData={stockData} symbol={symbol} />

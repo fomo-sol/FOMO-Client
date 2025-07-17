@@ -34,7 +34,7 @@ export default function FomcPage() {
   };
 
   return (
-    <div className="px-8 py-6 font-[Pretendard] min-h-screen">
+    <div className="px-8   font-[Pretendard] min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold mb-6">FOMC 리스트</h1>
         <select
