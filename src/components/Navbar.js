@@ -26,7 +26,7 @@ export default function Navbar() {
   return (
     <nav
       className="text-white text-lg items-center justify-between px-16 py-6 flex gap-4 border-b"
-      style={{ backgroundColor: "#081835", borderBlockColor: "#282C34" }}
+      style={{ backgroundColor: "#040816", borderBlockColor: "#282C34" }}
     >
       <Link href="/" className="font-bold text-2xl">
         FOMO
@@ -34,7 +34,7 @@ export default function Navbar() {
       <div className="flex items-center gap-10">
         <div className="relative">
           <input
-            className="bg-white text-black rounded-2xl focus:outline-none text-center"
+            className="bg-white text-[#040816] rounded-2xl focus:outline-none text-center"
             style={{ width: "170px", height: "30px" }}
           />
           <img

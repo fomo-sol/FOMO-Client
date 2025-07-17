@@ -118,14 +118,14 @@ export default function NotificationPopup({ onClose }) {
   return (
     <div
       ref={popupRef}
-      className="absolute right-0 mt-2 w-[350px] z-50 rounded-lg shadow-lg text-[#081835] font-[Pretendard]"
+      className="absolute right-0 mt-2 w-[350px] z-50 rounded-lg shadow-lg text-[#040816] font-[Pretendard]"
       style={{ backgroundColor: "#F3F3F3" }}
     >
       {/* 헤더 */}
       <div className="flex justify-between items-center px-4 py-3 border-b border-[#E0E0E0]">
-        <span className="text-[#081835] font-semibold text-base">알림</span>
+        <span className="text-[#040816] font-semibold text-base">알림</span>
         <button
-          className="text-[12px] font-normal leading-[22px] text-[#081835]
+          className="text-[12px] font-normal leading-[22px] text-[#040816]
              border border-[rgba(0,0,0,0.06)] rounded-[3px] 
              bg-[rgba(255,255,255,0.7)] 
              px-[6px] py-0 flex items-center justify-center gap-[10px]

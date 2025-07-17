@@ -30,7 +30,7 @@ export default function TelegramModal({ onClose }) {
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div
         ref={modalRef}
-        className="w-[590px] h-[506px] bg-[#EAEAEA] rounded-[5px] shadow-md text-[#081835] flex flex-col items-center justify-center font-[Pretendard Variable] relative px-6"
+        className="w-[590px] h-[506px] bg-[#EAEAEA] rounded-[5px] shadow-md text-[#EAEAEA] flex flex-col items-center justify-center font-[Pretendard Variable] relative px-6"
       >
         <h2 className="text-[35px] font-medium mb-6">Telegram 봇 추가하기</h2>
 

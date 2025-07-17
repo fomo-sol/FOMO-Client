@@ -134,12 +134,12 @@ export default function AlertPage() {
   }, [selectedId]);
 
   return (
-    <div className="min-h-screen bg-[#081835] px-8 pt-8 text-white font-[Pretendard] flex justify-center">
-      <div className="flex w-full max-w-[1440px] gap-8">
+    <div className="px-8 py-6 font-[Pretendard] min-h-screen">
+      <h1 className="text-2xl font-bold mb-10">알림</h1>
+
+      <div className="flex gap-8">
         {/* 왼쪽: 알림 리스트 */}
         <div className="flex flex-col gap-4 flex-[3]">
-          <h2 className="text-[35px] font-bold mb-2">실적발표</h2>
-
           {allAlerts.map((alert) => (
             <div
               key={alert.id}
@@ -160,7 +160,7 @@ export default function AlertPage() {
         </div>
 
         {/* 오른쪽: 알림 사이드바 */}
-        <div className="flex-[1]">
+        <div className="flex-[1] flex justify-center">
           <AlertSidebar />
         </div>
       </div>
