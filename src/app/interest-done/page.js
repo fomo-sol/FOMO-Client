@@ -71,7 +71,7 @@ export default function InterestDonePage() {
   ];
 
   return (
-    <div className="relative w-full h-screen bg-[#081835] overflow-hidden font-[Pretendard]">
+    <div className="relative w-full h-screen overflow-hidden font-[Pretendard]">
       {iconList.map((icon, idx) => (
         <motion.img
           key={idx}
@@ -107,7 +107,7 @@ export default function InterestDonePage() {
           모바일 알림도 받아보시겠어요?
         </p>
 
-        <button className="mt-6 bg-white text-[#081835] text-[20px] font-normal px-6 py-3 rounded-full shadow-md">
+        <button className="mt-6 bg-white text-[#040816] text-[20px] font-normal px-6 py-3 rounded-full shadow-md">
           텔레그램으로 알림받기
         </button>
       </div>

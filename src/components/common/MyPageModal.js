@@ -25,7 +25,7 @@ export default function MyPageModal({ onClose }) {
         ref={modalRef}
         className="w-[470px] h-[449px] bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center font-[Pretendard] relative"
       >
-        <h2 className="text-xl font-semibold text-[#081835] mb-1">지구님</h2>
+        <h2 className="text-xl font-semibold text-[#EAEAEA] mb-1">지구님</h2>
         <p className="text-sm text-[#666] mb-4">qwer@naver.com</p>
 
         <Image
@@ -36,7 +36,7 @@ export default function MyPageModal({ onClose }) {
           className="mb-4"
         />
 
-        <button className="bg-white text-[#081835] w-[260px] py-2 rounded-full flex items-center justify-center gap-2 shadow-sm mb-2">
+        <button className="bg-white text-[#EAEAEA] w-[260px] py-2 rounded-full flex items-center justify-center gap-2 shadow-sm mb-2">
           <Image
             src="/icon_telegram.png"
             alt="Telegram"

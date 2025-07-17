@@ -34,9 +34,9 @@ export default function FomcPage() {
   };
 
   return (
-    <div className="px-8 py-6 bg-[#081835] text-white font-[Pretendard] min-h-screen">
+    <div className="px-8 py-6 font-[Pretendard] min-h-screen">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-[30px] font-bold">FOMC 리스트</h1>
+        <h1 className="text-2xl font-bold mb-6">FOMC 리스트</h1>
         <select
           className="bg-[#F5F5F5] text-black border-[3px] border-[#E0E0E0] rounded-[4px] px-2 py-1 w-[95px]"
           value={selectedYear}
@@ -82,7 +82,7 @@ export default function FomcPage() {
           <div
             key={idx}
             onClick={() => router.push(`/fomc/${idx + 1}`)} // 임의로 이동경로 해놓음
-            className="grid grid-cols-4 py-3 px-2 cursor-pointer hover:bg-white/10 text-white/90 transition-all duration-150"
+            className="grid grid-cols-4 py-3 px-2 cursor-pointer bg-white/5 hover:bg-white/10 transition-all rounded"
           >
             <span>{idx + 1}</span>
             <span>{item.title}</span>
