@@ -9,7 +9,7 @@ export default function EarningPage() {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="px-8 py-6 font-[Pretendard] min-h-screen">
+    <div className="px-8   font-[Pretendard] min-h-screen">
       <h1 className="text-2xl font-bold mb-10">실적발표 페이지</h1>
 
       {/* 스타일 맞춰서 탭으로 변경했음! */}
