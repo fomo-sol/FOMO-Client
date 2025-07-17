@@ -45,7 +45,9 @@ export default function StockChart({ stockData, symbol }) {
       const price = param.seriesPrices.get(trendSeries);
       if (price !== undefined) {
         chartRef.current.removeSeries(trendSeries);
-        trendLinesRef.current = trendLinesRef.current.filter(s => s !== trendSeries);
+        trendLinesRef.current = trendLinesRef.current.filter(
+          (s) => s !== trendSeries
+        );
         chartRef.current.unsubscribeClick(clickHandler);
       }
     };
@@ -62,7 +64,7 @@ export default function StockChart({ stockData, symbol }) {
       width: chartContainerRef.current.clientWidth,
       height: 250,
       layout: {
-        background: { color: "#081835" },
+        background: { color: "#040816" },
         textColor: "#ffffff",
       },
       grid: { vertLines: { visible: false }, horzLines: { visible: false } },
@@ -71,8 +73,14 @@ export default function StockChart({ stockData, symbol }) {
     });
     chartRef.current = chart;
 
-    lineOpenRef.current = chart.addLineSeries({ color: "#5a4db2", lineWidth: 2 });
-    lineCloseRef.current = chart.addLineSeries({ color: "#2e8b57", lineWidth: 2 });
+    lineOpenRef.current = chart.addLineSeries({
+      color: "#5a4db2",
+      lineWidth: 2,
+    });
+    lineCloseRef.current = chart.addLineSeries({
+      color: "#2e8b57",
+      lineWidth: 2,
+    });
     volumeSeriesRef.current = chart.addHistogramSeries({
       priceScaleId: "",
       priceFormat: { type: "volume" },
@@ -104,7 +112,9 @@ export default function StockChart({ stockData, symbol }) {
       }
       const time = param.time;
       const point = param.point;
-      const idx = localStockDataRef.current.findIndex((d) => formatDate(d.xymd) === time);
+      const idx = localStockDataRef.current.findIndex(
+        (d) => formatDate(d.xymd) === time
+      );
       if (idx === -1) {
         setTooltip(null);
         return;
@@ -129,7 +139,10 @@ export default function StockChart({ stockData, symbol }) {
       const range = chartRef.current.timeScale().getVisibleRange();
       if (!range) return;
 
-      const from = typeof range.from === "number" ? range.from : new Date(range.from).getTime() / 1000;
+      const from =
+        typeof range.from === "number"
+          ? range.from
+          : new Date(range.from).getTime() / 1000;
       const oldest = localStockDataRef.current[0]?.xymd;
       if (!oldest) return;
       const oldestTimestamp = getTimestamp(oldest);
@@ -142,12 +155,17 @@ export default function StockChart({ stockData, symbol }) {
           const data = await getStockDataByDate(symbol, oldest);
           if (data?.output2) {
             const newData = data.output2.reverse();
-            const filtered = newData.filter((nd) => !localStockDataRef.current.some((sd) => sd.xymd === nd.xymd));
+            const filtered = newData.filter(
+              (nd) =>
+                !localStockDataRef.current.some((sd) => sd.xymd === nd.xymd)
+            );
             if (filtered.length > 0) {
               const scrollPos = chartRef.current.timeScale().scrollPosition();
               setLocalStockData((prev) => [...filtered, ...prev]);
               setTimeout(() => {
-                chartRef.current.timeScale().scrollToPosition(scrollPos + filtered.length);
+                chartRef.current
+                  .timeScale()
+                  .scrollToPosition(scrollPos + filtered.length);
               }, 0);
             }
           }
@@ -163,7 +181,9 @@ export default function StockChart({ stockData, symbol }) {
 
     return () => {
       if (!chartRef.current) return;
-      chartRef.current.timeScale().unsubscribeVisibleTimeRangeChange(onVisibleTimeRangeChange);
+      chartRef.current
+        .timeScale()
+        .unsubscribeVisibleTimeRangeChange(onVisibleTimeRangeChange);
       chartRef.current.remove();
       chartRef.current = null;
     };
@@ -187,7 +207,10 @@ export default function StockChart({ stockData, symbol }) {
       return {
         time: formatDate(item.xymd),
         value: curVol,
-        color: curVol > prevVol ? "rgba(255, 127, 127, 0.3)" : "rgba(135, 206, 250, 0.3)",
+        color:
+          curVol > prevVol
+            ? "rgba(255, 127, 127, 0.3)"
+            : "rgba(135, 206, 250, 0.3)",
       };
     });
 
@@ -204,32 +227,32 @@ export default function StockChart({ stockData, symbol }) {
   }
 
   return (
-      <div style={{ position: "relative", width: "600px" }}>
-        <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
-        {tooltip && (
-            <div
-                style={{
-                  position: "absolute",
-                  left: tooltip.x + 10,
-                  top: tooltip.y + 10,
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  color: "#fff",
-                  padding: "6px 10px",
-                  borderRadius: "4px",
-                  pointerEvents: "none",
-                  fontSize: "12px",
-                  whiteSpace: "nowrap",
-                  zIndex: 1000,
-                }}
-            >
-              <div>날짜: {tooltip.data.date}</div>
-              <div>고가: {tooltip.data.high}</div>
-              <div>저가: {tooltip.data.low}</div>
-              <div>시가: {tooltip.data.open}</div>
-              <div>종가: {tooltip.data.close}</div>
-              <div>거래량: {formatVolume(tooltip.data.volume)}</div>
-            </div>
-        )}
-      </div>
+    <div style={{ position: "relative", width: "600px" }}>
+      <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
+      {tooltip && (
+        <div
+          style={{
+            position: "absolute",
+            left: tooltip.x + 10,
+            top: tooltip.y + 10,
+            backgroundColor: "rgba(0,0,0,0.7)",
+            color: "#fff",
+            padding: "6px 10px",
+            borderRadius: "4px",
+            pointerEvents: "none",
+            fontSize: "12px",
+            whiteSpace: "nowrap",
+            zIndex: 1000,
+          }}
+        >
+          <div>날짜: {tooltip.data.date}</div>
+          <div>고가: {tooltip.data.high}</div>
+          <div>저가: {tooltip.data.low}</div>
+          <div>시가: {tooltip.data.open}</div>
+          <div>종가: {tooltip.data.close}</div>
+          <div>거래량: {formatVolume(tooltip.data.volume)}</div>
+        </div>
+      )}
+    </div>
   );
 }

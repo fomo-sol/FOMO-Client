@@ -54,7 +54,7 @@ export default function InterestPage() {
   };
 
   return (
-    <div className="relative h-screen bg-[#081835] text-white font-[Pretendard]">
+    <div className="relative h-screen font-[Pretendard]">
       <div className="h-[calc(100vh-80px)] overflow-y-auto no-scrollbar px-6 pb-40 pt-12">
         <div className="text-center">
           <h1 className="text-[60px] font-semibold text-[#FFFEFE]">
@@ -136,7 +136,7 @@ export default function InterestPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 w-full h-20 bg-[#081835]/70 backdrop-blur-md flex justify-center items-center border-t border-white/10 shadow-md">
+      <div className="fixed bottom-0 left-0 w-full h-20 bg-[#040816]/70 backdrop-blur-md flex justify-center items-center border-t border-white/10 shadow-md">
         <button
           onClick={() => router.push("/interest-done")}
           className="bg-white text-black px-6 py-2 rounded-full font-semibold shadow"

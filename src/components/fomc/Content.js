@@ -44,7 +44,7 @@ export default function Content({ activeTab, fileMap }) {
       </div>
 
       {/* 본문 */}
-      <div className="bg-white rounded-[10px] h-[600px] overflow-hidden text-[#081835]">
+      <div className="bg-white rounded-[10px] h-[600px] overflow-hidden text-[#040816]">
         {fileSrc ? (
           <iframe
             src={fileSrc}
