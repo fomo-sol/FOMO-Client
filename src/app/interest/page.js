@@ -116,47 +116,60 @@ export default function InterestPage() {
       );
       return;
     }
-    const token = localStorage.getItem("token"); // 또는 cookie 등
+
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("인증 정보가 없습니다. 다시 로그인 해주세요.");
       return;
     }
 
-    // JWT decode 없이 userId 꺼내기
     const payload = JSON.parse(atob(token.split(".")[1]));
-    console.log("🔍 JWT payload:", payload);
-
     const userId = payload.id;
 
-    // symbol → stock_id 매핑
+    console.log("✅ JWT Payload:", payload);
+    console.log("✅ userId:", userId);
+
     const selectedIds = selectedList
       .map((s) => {
+        const symbol = s.symbol;
+
         const company =
-          originalCompanies.find((c) => c.symbol === s.symbol) ||
-          displayCompanies.find((c) => c.symbol === s.symbol) ||
+          originalCompanies.find((c) => c.symbol === symbol) ||
+          displayCompanies.find((c) => c.symbol === symbol) ||
           recommendations
             .flatMap((r) => r.recList)
-            .find((c) => c.symbol === s.symbol);
-        return company?.stock_id;
+            .find((c) => c.symbol === symbol);
+
+        return company?.id;
       })
       .filter(Boolean);
 
     const favoritePayload = selectedIds.map((id) => ({ stock_id: id }));
+    console.log("✅ favoritePayload (body):", favoritePayload);
+
+    const postUrl = `http://localhost:4000/api/favorites/${userId}`;
+    console.log("✅ POST URL:", postUrl);
+
     try {
-      const res = await fetch(`http://localhost:4000/api/favorites/${userId}`, {
+      const res = await fetch(postUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(favoritePayload), // ← 여기서도 payload가 아니라 favoritePayload로 수정 필요
+        body: JSON.stringify(favoritePayload),
       });
+
+      console.log("✅ Response status:", res.status);
+
+      const result = await res.json();
+      console.log("✅ Response JSON:", result);
 
       if (!res.ok) throw new Error("저장 실패");
 
       router.push("/interest-done");
     } catch (err) {
-      console.error("선택 종목 저장 실패", err);
+      console.error("❌ 선택 종목 저장 실패", err);
       alert("관심 종목 저장 중 문제가 발생했습니다.");
     }
   };
