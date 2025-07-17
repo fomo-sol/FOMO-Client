@@ -1,16 +1,45 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import StockChart from "@/components/earning/chart/chart";
+import { getStockData } from "@/services/earning-service";
+
 export default function NasdaqGraph() {
+  const [stockData, setStockData] = useState([]);
+  const symbol = "QQQ";
+
+  useEffect(() => {
+    let timeoutId;
+    async function fetchData() {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 500)); // 0.5초 대기
+        const res = await getStockData(symbol);
+
+        if (res?.output2) {
+          setStockData(res.output2.reverse());
+        } else {
+          console.error("No output2 for symbol", symbol);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    timeoutId = setTimeout(fetchData, 0);
+    return () => clearTimeout(timeoutId);
+  }, [symbol]);
+
+  useEffect(() => {
+    console.log("NasdaqGraph stockData", stockData);
+  }, [stockData]);
+
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="286"
-      height="116"
-      viewBox="0 0 286 116"
-      fill="none"
-    >
-      <path
-        d="M1 113.888L12.8333 18.909L24.6667 71.5244L36.5 39.5352L48.3333 12.2394L60.1667 91.039L72 10.1398L83.8333 63.3727L95.6667 93.0152L107.5 1L119.333 64.2373L131.167 66.4605L143 112.159L154.833 44.4756L166.667 83.0108L178.5 38.4236L190.333 75.7237L202.167 115L214 45.8342L225.833 54.2329L237.667 71.5244L249.5 40.1528L261.333 103.39L273.167 90.792L285 55.0975"
-        stroke="#FF5555"
-      />
-    </svg>
+    <>
+      <div>
+        <div style={{ display: "flex", justifyContent: "flex-start" }}>
+          <StockChart stockData={stockData} symbol={symbol} />
+          {/* <FearGreedGauge /> */}
+        </div>
+      </div>
+    </>
   );
 }
