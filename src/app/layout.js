@@ -14,7 +14,6 @@ export default function RootLayout({ children }) {
     <html lang="ko" className={`${pretendard.variable} `}>
       <body className="">
         <Navbar />
-        <TokenInitializer />
         {children}
       </body>
     </html>
