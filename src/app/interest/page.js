@@ -1,29 +1,9 @@
 "use client";
-import { useState } from "react";
-import companylogo from "./companylogo.json";
+import { useState, useEffect } from "react";
 import "./scrollbar.css";
-import { motion, AnimatePresence } from "framer-motion"; // 애니메이션 추가 (관심종목 선택 후 )
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-
-// 기업 종목 더미 데이터 (추후에 db 데이터로 대체하기!)
-const dummyStocks = companylogo;
-
-// 추천 기업 더미 데이터 (나중에 카테고리 별 랜덤 데이터로 대체하기)
-const recommended = [
-  { name: "AMD", logo: "https://eodhd.com/img/logos/US/AMD.png" },
-  { name: "Intel", logo: "https://eodhd.com/img/logos/US/INTC.png" },
-  { name: "Meta", logo: "https://eodhd.com/img/logos/US/meta.png" },
-  { name: "ASML", logo: "https://eodhd.com/img/logos/US/ASML.png" },
-  { name: "Qualcomm", logo: "https://eodhd.com/img/logos/US/QCOM.png" },
-];
-
-const recommended2 = [
-  { name: "NVIDIA", logo: "https://eodhd.com/img/logos/US/NVDA.png" },
-  { name: "Intel", logo: "https://eodhd.com/img/logos/US/INTC.png" },
-  { name: "Meta", logo: "https://eodhd.com/img/logos/US/meta.png" },
-  { name: "ASML", logo: "https://eodhd.com/img/logos/US/ASML.png" },
-  { name: "Amazon", logo: "https://eodhd.com/img/logos/US/amzn.png" },
-];
+import StockItemCard from "@/components/interest/StockItemCard";
 
 const chunkStocks = (arr, size) => {
   const result = [];
@@ -35,23 +15,166 @@ const chunkStocks = (arr, size) => {
 
 export default function InterestPage() {
   const router = useRouter();
-  const [selectedSymbols, setSelectedSymbols] = useState(new Set());
-  const [activatedRows, setActivatedRows] = useState(new Set());
-  const chunked = chunkStocks(dummyStocks, 5);
+  const [originalCompanies, setOriginalCompanies] = useState([]);
+  const [displayCompanies, setDisplayCompanies] = useState([]);
+  const [sectorMap, setSectorMap] = useState({});
+  const [selectedList, setSelectedList] = useState([]); // {symbol, rowIndex}
+  const [recommendations, setRecommendations] = useState([]); // {symbol, recList}
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await fetch("http://localhost:4000/api/companies");
+        const json = await res.json();
+        if (json.success) {
+          setOriginalCompanies(json.data);
+
+          const sectorGroup = {};
+          json.data.forEach((company) => {
+            if (!sectorGroup[company.sector]) {
+              sectorGroup[company.sector] = [];
+            }
+            sectorGroup[company.sector].push(company);
+          });
+          setSectorMap(sectorGroup);
+          setDisplayCompanies(json.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch companies", e);
+      }
+    };
+
+    const accessToken = localStorage.getItem("token");
+    if (accessToken) setToken(accessToken);
+
+    fetchCompanies();
+  }, []);
+
+  const selectedSymbols = new Set(selectedList.map((s) => s.symbol));
 
   const toggleSelect = (symbol, rowIndex) => {
-    const newSet = new Set(selectedSymbols);
-    const newActivated = new Set(activatedRows);
-
-    if (newSet.has(symbol)) {
-      newSet.delete(symbol);
-    } else {
-      newSet.add(symbol);
-      newActivated.add(rowIndex);
+    const isAlreadySelected = selectedList.some((s) => s.symbol === symbol);
+    if (isAlreadySelected) {
+      setSelectedList((prev) => prev.filter((s) => s.symbol !== symbol));
+      return;
     }
-    setSelectedSymbols(newSet);
-    setActivatedRows(newActivated);
+
+    const selectedCompany = [
+      ...displayCompanies,
+      ...recommendations.flatMap((r) => r.recList),
+    ].find((c) => c.symbol === symbol);
+    if (!selectedCompany) return;
+
+    const allExcluded = new Set([
+      ...selectedList.map((s) => s.symbol),
+      ...recommendations.flatMap((r) => r.recList.map((c) => c.symbol)),
+      symbol,
+    ]);
+
+    const candidates = (sectorMap[selectedCompany.sector] || []).filter(
+      (c) => !allExcluded.has(c.symbol)
+    );
+    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+    const top5 = shuffled.slice(0, 5);
+
+    setSelectedList((prev) => [...prev, { symbol, rowIndex }]);
+    setRecommendations((prev) => [...prev, { symbol, recList: top5 }]);
+    setDisplayCompanies((prev) =>
+      prev.filter((c) => !top5.some((r) => r.symbol === c.symbol))
+    );
   };
+
+  const buildRowsWithRecommendations = () => {
+    const rows = chunkStocks(displayCompanies, 5);
+    const result = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      result.push({ type: "main", data: rows[i], rowIndex: i });
+
+      const selectedInRow = [...selectedList]
+        .filter((s) => s.rowIndex === i)
+        .reverse();
+
+      selectedInRow.forEach((s) => {
+        const rec = recommendations.find((r) => r.symbol === s.symbol);
+        if (rec) {
+          result.push({ type: "recommend", data: rec.recList });
+        }
+      });
+    }
+
+    return result;
+  };
+
+  const isSelected = (symbol) => selectedList.some((s) => s.symbol === symbol);
+
+  const handleDone = async () => {
+    if (selectedList.length < 5) {
+      alert(
+        "관심 종목을 최소 5개 이상 선택해야 분석 결과를 받아보실 수 있습니다."
+      );
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("인증 정보가 없습니다. 다시 로그인 해주세요.");
+      return;
+    }
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = payload.id;
+
+    console.log("✅ JWT Payload:", payload);
+    console.log("✅ userId:", userId);
+
+    const selectedIds = selectedList
+      .map((s) => {
+        const symbol = s.symbol;
+
+        const company =
+          originalCompanies.find((c) => c.symbol === symbol) ||
+          displayCompanies.find((c) => c.symbol === symbol) ||
+          recommendations
+            .flatMap((r) => r.recList)
+            .find((c) => c.symbol === symbol);
+
+        return company?.id;
+      })
+      .filter(Boolean);
+
+    const favoritePayload = selectedIds.map((id) => ({ stock_id: id }));
+    console.log("✅ favoritePayload (body):", favoritePayload);
+
+    const postUrl = `http://localhost:4000/api/favorites/${userId}`;
+    console.log("✅ POST URL:", postUrl);
+
+    try {
+      const res = await fetch(postUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(favoritePayload),
+      });
+
+      console.log("✅ Response status:", res.status);
+
+      const result = await res.json();
+      console.log("✅ Response JSON:", result);
+
+      if (!res.ok) throw new Error("저장 실패");
+
+      router.push("/interest-done");
+    } catch (err) {
+      console.error("❌ 선택 종목 저장 실패", err);
+      alert("관심 종목 저장 중 문제가 발생했습니다.");
+    }
+  };
+
+  const rowsWithRecommendations = buildRowsWithRecommendations();
 
   return (
     <div className="relative h-screen font-[Pretendard]">
@@ -65,80 +188,55 @@ export default function InterestPage() {
           </p>
         </div>
 
-        <div className="mt-10">
-          {chunked.map((row, rowIndex) => (
-            <div key={rowIndex} className="mb-12">
-              <div className="grid grid-cols-5 gap-x-4 gap-y-5 justify-items-center">
-                {row.map((stock, i) => (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center space-y-2 cursor-pointer"
-                    onClick={() => toggleSelect(stock.symbol, rowIndex)}
-                  >
-                    <div
-                      className={`w-[92px] h-[92px] bg-white rounded-[16px] flex items-center justify-center ${
-                        selectedSymbols.has(stock.symbol)
-                          ? "border-4 border-yellow-400"
-                          : ""
-                      }`}
-                    >
-                      {stock.logo && (
-                        <img
-                          src={stock.logo}
-                          alt={stock.name}
-                          className="h-10 object-contain"
-                        />
-                      )}
-                    </div>
-                    <span className="text-[20px] font-medium text-[#F7F7F7] text-center">
-                      {stock.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <AnimatePresence mode="wait">
-                {activatedRows.has(rowIndex) && (
-                  <motion.div
-                    key={`recommend-${rowIndex}`}
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -50 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="mt-8 grid grid-cols-5 gap-x-4 gap-y-5 justify-items-center"
-                  >
-                    {(rowIndex % 2 === 0 ? recommended : recommended2).map(
-                      (stock, i) => (
-                        <div
-                          key={i}
-                          className="flex flex-col items-center space-y-2 opacity-90"
-                        >
-                          <div className="w-[92px] h-[92px] bg-white rounded-[16px] flex items-center justify-center">
-                            {stock.logo && (
-                              <img
-                                src={stock.logo}
-                                alt={stock.name}
-                                className="h-10 object-contain"
-                              />
-                            )}
-                          </div>
-                          <span className="text-[20px] font-medium text-[#F7F7F7] text-center">
-                            {stock.name}
-                          </span>
-                        </div>
-                      )
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+        <div className="flex flex-col gap-6 pb-24">
+          {rowsWithRecommendations.map((row, index) => (
+            <AnimatePresence key={`${row.type}-${index}`}>
+              {row.type === "recommend" ? (
+                <motion.div
+                  initial={{ opacity: 0, x: -50, backgroundColor: "#1e2a44" }}
+                  animate={{ opacity: 1, x: 0, backgroundColor: "transparent" }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{
+                    duration: 0.8,
+                    ease: "easeOut",
+                    backgroundColor: { duration: 1.2, ease: "easeInOut" },
+                  }}
+                  className="grid grid-cols-5 gap-x-4 gap-y-5 justify-items-center rounded-xl"
+                >
+                  {row.data.map((stock) => (
+                    <StockItemCard
+                      key={stock.symbol}
+                      stock={stock}
+                      onClick={() => toggleSelect(stock.symbol, index)}
+                      selected={isSelected(stock.symbol)}
+                    />
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="grid grid-cols-5 gap-x-4 gap-y-5 justify-items-center"
+                >
+                  {row.data.map((stock) => (
+                    <StockItemCard
+                      key={stock.symbol}
+                      stock={stock}
+                      onClick={() => toggleSelect(stock.symbol, row.rowIndex)}
+                      selected={isSelected(stock.symbol)}
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           ))}
         </div>
       </div>
 
       <div className="fixed bottom-0 left-0 w-full h-20 bg-[#040816]/70 backdrop-blur-md flex justify-center items-center border-t border-white/10 shadow-md">
         <button
-          onClick={() => router.push("/interest-done")}
+          onClick={handleDone}
           className="bg-white text-black px-6 py-2 rounded-full font-semibold shadow"
         >
           완료

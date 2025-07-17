@@ -14,7 +14,9 @@ export default function RootLayout({ children }) {
     <html lang="ko" className={`${pretendard.variable} `}>
       <body className="">
         <Navbar />
+
         <div className="px-16 py-10 justify-center">{children}</div>
+
       </body>
     </html>
   );
