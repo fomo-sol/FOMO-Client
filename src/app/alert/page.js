@@ -134,7 +134,7 @@ export default function AlertPage() {
   }, [selectedId]);
 
   return (
-    <div className="px-8 py-6 font-[Pretendard] min-h-screen">
+    <div className="px-8   font-[Pretendard] min-h-screen">
       <h1 className="text-2xl font-bold mb-10">알림</h1>
 
       <div className="flex gap-8">

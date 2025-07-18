@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import InputField from "@/components/common/inputField";
-import { registerUser } from "@/services/user-service";
+import { registerUser, loginUser } from "@/services/user-service";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -27,14 +27,23 @@ export default function SignupPage() {
 
   const handleSignup = async () => {
     try {
-      const res = await registerUser(formData);
-      console.log("회원가입 성공:", res);
-      router.push("/login");
+      // 회원가입 요청
+      const signupRes = await registerUser(formData);
+      console.log("✅ 회원가입 성공:", signupRes);
+
+      // 이어서 로그인 요청
+      const loginRes = await loginUser({
+        email: formData.email,
+        passwd: formData.passwd,
+      });
+      console.log("✅ 로그인 성공:", loginRes);
+
+      // /interest로 리다이렉트
+      router.push("/interest");
     } catch (err) {
-      console.error("회원가입 실패:", err);
+      console.error("❌ 회원가입 또는 로그인 실패:", err);
     }
   };
-
   return (
       <div className="grid place-items-center pt-32 px-4">
         <div className="w-[470px] h-[361px] bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center space-y-5">
