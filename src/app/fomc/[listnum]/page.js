@@ -7,6 +7,9 @@ import FearGreedGauge from "@/components/earning/chart/fearGreed";
 import { useRouter } from "next/navigation";
 import FOMCSidebar from "@/components/fomc/Sidebar";
 import Content from "@/components/fomc/Content";
+
+import LiveChartView from "@/components/fomc/LiveChartView";
+
 export default function FOMCItemPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("연설");
@@ -51,7 +54,7 @@ export default function FOMCItemPage() {
             <div className="flex items-center gap-2 mb-2">
               <button
                 onClick={() => setShowSidebar((prev) => !prev)}
-                className="w-[29px] h-[28px] flex-shrink-0"
+                className="w-[29px] h-[28px] cursor-pointer flex-shrink-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -81,20 +84,24 @@ export default function FOMCItemPage() {
 
             {/* 그래프 */}
             <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">NASDAQ 100 QQQ</h2>
-              <div className="w-full flex items-center justify-center overflow-hidden mb-4">
-                <NasdaqGraph />
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">S&P 500 SPY</h2>
+              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
+                S&P 500 SPY
+              </h2>
               <div className="w-full flex items-center justify-center overflow-hidden mb-4">
                 <Sp500Graph />
               </div>
             </div>
 
-            <FearGreedGauge />
+            <div>
+              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
+                라이브 차트 불러오기
+              </h2>
+              <div className="w-full flex items-center justify-center overflow-hidden mb-4">
+                <LiveChartView/>
+              </div>
+            </div>
+
+            {/*<FearGreedGauge />*/}
           </div>
 
           {/* 오른쪽 영역 */}
@@ -107,17 +114,25 @@ export default function FOMCItemPage() {
           </div>
         </div>
       </div>
-      {showSidebar && (
+      <div className="fixed inset-0 z-50 pointer-events-none">
+        {/* 오버레이 */}
+        {showSidebar && (
+          <div
+            className="absolute inset-0 bg-black/40 pointer-events-auto"
+            onClick={() => setShowSidebar(false)}
+          />
+        )}
+        {/* 슬라이드 사이드바 */}
         <div
-          className="fixed top-0 left-0 h-full w-[412px] z-50 backdrop-blur-md"
-          style={{
-            backgroundColor: "rgba(36, 41, 50, 0.90)",
-            boxShadow: "0 4px 4px rgba(0, 0, 0, 0.25)",
-          }}
+          className={`fixed top-0 left-0 h-full w-[412px] transition-transform duration-300 bg-[#242932] backdrop-blur-md shadow-lg p-4 pt-12 text-white pointer-events-auto ${
+            showSidebar ? "translate-x-0" : "-translate-x-full"
+          }`}
+          style={{ boxShadow: "0 4px 4px rgba(0, 0, 0, 0.25)" }}
+          onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={() => setShowSidebar(false)}
-            className="absolute top-4 right-4 z-50 bg-black/50 rounded-full p-1 text-white w-8 h-8 flex items-center justify-center"
+            className="absolute top-4 right-4 z-50 bg-black/50 cursor-pointer rounded-full p-1 text-white w-8 h-8 flex items-center justify-center"
             aria-label="사이드바 닫기"
           >
             <svg
@@ -136,12 +151,9 @@ export default function FOMCItemPage() {
               />
             </svg>
           </button>
-
-          <div className="p-4 pt-12 text-white">
-            <FOMCSidebar />
-          </div>
+          <FOMCSidebar />
         </div>
-      )}
+      </div>
     </div>
   );
 }
