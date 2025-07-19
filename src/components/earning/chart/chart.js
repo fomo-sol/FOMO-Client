@@ -10,11 +10,18 @@ export default function StockChart({ stockData, symbol }) {
   const volumeSeriesRef = useRef(null);
   const isFetchingRef = useRef(false);
   const trendLinesRef = useRef([]);
+  const maLineRefs = useRef([]); // MA 시리즈들
 
   const [tooltip, setTooltip] = useState(null);
   const [localStockData, setLocalStockData] = useState(stockData || []);
   const localStockDataRef = useRef(localStockData);
   const [clickPoints, setClickPoints] = useState([]);
+  const [maVisible, setMaVisible] = useState({
+    5: true,
+    20: true,
+    60: true,
+    120: true,
+  });
 
   useEffect(() => {
     localStockDataRef.current = localStockData;
@@ -32,6 +39,22 @@ export default function StockChart({ stockData, symbol }) {
     return new Date(formatDate(xymd)).getTime() / 1000;
   }
 
+  // 이동평균선 계산 함수
+  function calcMA(data, period) {
+    return data
+      .map((item, idx, arr) => {
+        if (idx < period - 1) return null;
+        const sum = arr
+          .slice(idx - period + 1, idx + 1)
+          .reduce((acc, cur) => acc + Number(cur.clos), 0);
+        return {
+          time: formatDate(item.xymd),
+          value: +(sum / period).toFixed(2),
+        };
+      })
+      .filter(Boolean);
+  }
+
   function drawTrendLine(p1, p2) {
     const trendSeries = chartRef.current.addLineSeries({
       color: "orange",
@@ -45,7 +68,9 @@ export default function StockChart({ stockData, symbol }) {
       const price = param.seriesPrices.get(trendSeries);
       if (price !== undefined) {
         chartRef.current.removeSeries(trendSeries);
-        trendLinesRef.current = trendLinesRef.current.filter(s => s !== trendSeries);
+        trendLinesRef.current = trendLinesRef.current.filter(
+          (s) => s !== trendSeries
+        );
         chartRef.current.unsubscribeClick(clickHandler);
       }
     };
@@ -53,6 +78,14 @@ export default function StockChart({ stockData, symbol }) {
     chartRef.current.subscribeClick(clickHandler);
     trendLinesRef.current.push(trendSeries);
   }
+
+  // MA legend configs
+  const maConfigs = [
+    { period: 5, color: "rgba(255,215,0,0.15)", label: "5일선" }, // 연노랑
+    { period: 20, color: "rgba(0,191,255,0.15)", label: "20일선" }, // 연파랑
+    { period: 60, color: "rgba(255,105,180,0.15)", label: "60일선" }, // 연핑크
+    { period: 120, color: "rgba(50,205,50,0.15)", label: "120일선" }, // 연연두
+  ];
 
   useEffect(() => {
     if (!chartContainerRef.current || !symbol) return;
@@ -71,13 +104,31 @@ export default function StockChart({ stockData, symbol }) {
     });
     chartRef.current = chart;
 
-    lineOpenRef.current = chart.addLineSeries({ color: "#5a4db2", lineWidth: 2 });
-    lineCloseRef.current = chart.addLineSeries({ color: "#2e8b57", lineWidth: 2 });
+    lineOpenRef.current = chart.addLineSeries({
+      color: "#5a4db2",
+      lineWidth: 2,
+    });
+    lineCloseRef.current = chart.addLineSeries({
+      color: "#2e8b57",
+      lineWidth: 2,
+    });
     volumeSeriesRef.current = chart.addHistogramSeries({
       priceScaleId: "",
       priceFormat: { type: "volume" },
       scaleMargins: { top: 0.85, bottom: 0 },
     });
+
+    // MA 시리즈 추가 (5, 20, 60, 120)
+    maLineRefs.current = maConfigs.map((cfg) =>
+      chart.addLineSeries({
+        color: cfg.color,
+        lineWidth: 1.5,
+        priceLineVisible: false,
+        crossHairMarkerVisible: false,
+        lastValueVisible: false,
+        visible: maVisible[cfg.period],
+      })
+    );
 
     chart.applyOptions({ height: 250 });
 
@@ -104,7 +155,9 @@ export default function StockChart({ stockData, symbol }) {
       }
       const time = param.time;
       const point = param.point;
-      const idx = localStockDataRef.current.findIndex((d) => formatDate(d.xymd) === time);
+      const idx = localStockDataRef.current.findIndex(
+        (d) => formatDate(d.xymd) === time
+      );
       if (idx === -1) {
         setTooltip(null);
         return;
@@ -129,7 +182,10 @@ export default function StockChart({ stockData, symbol }) {
       const range = chartRef.current.timeScale().getVisibleRange();
       if (!range) return;
 
-      const from = typeof range.from === "number" ? range.from : new Date(range.from).getTime() / 1000;
+      const from =
+        typeof range.from === "number"
+          ? range.from
+          : new Date(range.from).getTime() / 1000;
       const oldest = localStockDataRef.current[0]?.xymd;
       if (!oldest) return;
       const oldestTimestamp = getTimestamp(oldest);
@@ -142,12 +198,17 @@ export default function StockChart({ stockData, symbol }) {
           const data = await getStockDataByDate(symbol, oldest);
           if (data?.output2) {
             const newData = data.output2.reverse();
-            const filtered = newData.filter((nd) => !localStockDataRef.current.some((sd) => sd.xymd === nd.xymd));
+            const filtered = newData.filter(
+              (nd) =>
+                !localStockDataRef.current.some((sd) => sd.xymd === nd.xymd)
+            );
             if (filtered.length > 0) {
               const scrollPos = chartRef.current.timeScale().scrollPosition();
               setLocalStockData((prev) => [...filtered, ...prev]);
               setTimeout(() => {
-                chartRef.current.timeScale().scrollToPosition(scrollPos + filtered.length);
+                chartRef.current
+                  .timeScale()
+                  .scrollToPosition(scrollPos + filtered.length);
               }, 0);
             }
           }
@@ -163,11 +224,22 @@ export default function StockChart({ stockData, symbol }) {
 
     return () => {
       if (!chartRef.current) return;
-      chartRef.current.timeScale().unsubscribeVisibleTimeRangeChange(onVisibleTimeRangeChange);
+      chartRef.current
+        .timeScale()
+        .unsubscribeVisibleTimeRangeChange(onVisibleTimeRangeChange);
       chartRef.current.remove();
       chartRef.current = null;
     };
   }, [symbol]);
+
+  // MA 토글에 따라 visible 옵션 동기화
+  useEffect(() => {
+    maConfigs.forEach(({ period }, idx) => {
+      if (maLineRefs.current[idx]) {
+        maLineRefs.current[idx].applyOptions({ visible: !!maVisible[period] });
+      }
+    });
+  }, [maVisible]);
 
   useEffect(() => {
     if (!chartRef.current || localStockData.length === 0) return;
@@ -187,13 +259,25 @@ export default function StockChart({ stockData, symbol }) {
       return {
         time: formatDate(item.xymd),
         value: curVol,
-        color: curVol > prevVol ? "rgba(255, 127, 127, 0.3)" : "rgba(135, 206, 250, 0.3)",
+        color:
+          curVol > prevVol
+            ? "rgba(255, 127, 127, 0.3)"
+            : "rgba(135, 206, 250, 0.3)",
       };
     });
 
     lineOpenRef.current.setData(openData);
     lineCloseRef.current.setData(closeData);
     volumeSeriesRef.current.setData(volumeData);
+
+    // MA 데이터 세팅
+    const maPeriods = [5, 20, 60, 120];
+    maPeriods.forEach((period, idx) => {
+      if (maLineRefs.current[idx]) {
+        const maData = calcMA(localStockData, period);
+        maLineRefs.current[idx].setData(maData);
+      }
+    });
   }, [localStockData]);
 
   function formatVolume(value) {
@@ -204,32 +288,55 @@ export default function StockChart({ stockData, symbol }) {
   }
 
   return (
-      <div style={{ position: "relative", width: "600px" }}>
-        <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
-        {tooltip && (
-            <div
-                style={{
-                  position: "absolute",
-                  left: tooltip.x + 10,
-                  top: tooltip.y + 10,
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  color: "#fff",
-                  padding: "6px 10px",
-                  borderRadius: "4px",
-                  pointerEvents: "none",
-                  fontSize: "12px",
-                  whiteSpace: "nowrap",
-                  zIndex: 1000,
-                }}
-            >
-              <div>날짜: {tooltip.data.date}</div>
-              <div>고가: {tooltip.data.high}</div>
-              <div>저가: {tooltip.data.low}</div>
-              <div>시가: {tooltip.data.open}</div>
-              <div>종가: {tooltip.data.close}</div>
-              <div>거래량: {formatVolume(tooltip.data.volume)}</div>
-            </div>
-        )}
+    <div style={{ position: "relative", width: "600px" }}>
+      {/* MA legend */}
+      <div className="absolute top-2 left-2 flex gap-3 z-10 bg-black/40 rounded px-2 py-1">
+        {maConfigs.map(({ period, color, label }, idx) => (
+          <label
+            key={period}
+            className="flex items-center gap-1 cursor-pointer select-none"
+          >
+            <span
+              className="inline-block w-3 h-3 rounded-full"
+              style={{ background: color }}
+            />
+            <span className="text-xs text-white">{label}</span>
+            <input
+              type="checkbox"
+              checked={maVisible[period]}
+              onChange={() =>
+                setMaVisible((v) => ({ ...v, [period]: !v[period] }))
+              }
+              className="accent-blue-500 cursor-pointer"
+            />
+          </label>
+        ))}
       </div>
+      <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
+      {tooltip && (
+        <div
+          style={{
+            position: "absolute",
+            left: tooltip.x + 10,
+            top: tooltip.y + 10,
+            backgroundColor: "rgba(0,0,0,0.7)",
+            color: "#fff",
+            padding: "6px 10px",
+            borderRadius: "4px",
+            pointerEvents: "none",
+            fontSize: "12px",
+            whiteSpace: "nowrap",
+            zIndex: 1000,
+          }}
+        >
+          <div>날짜: {tooltip.data.date}</div>
+          <div>고가: {tooltip.data.high}</div>
+          <div>저가: {tooltip.data.low}</div>
+          <div>시가: {tooltip.data.open}</div>
+          <div>종가: {tooltip.data.close}</div>
+          <div>거래량: {formatVolume(tooltip.data.volume)}</div>
+        </div>
+      )}
+    </div>
   );
 }
