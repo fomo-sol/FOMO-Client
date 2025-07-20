@@ -28,7 +28,7 @@ export default function EarningReleasePage() {
   }, [symbol]);
 
   return (
-    <div className="p-6 bg-[#081835]">
+    <div className="p-6 bg-[#040816]">
       <h1 className="text-2xl font-bold text-white mb-6">{symbol}</h1>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "32px" }}>
         <div style={{ flex: "0 0 380px" }}>
