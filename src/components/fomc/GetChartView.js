@@ -37,7 +37,7 @@ export default function GetChartView() {
   }, [search, showModal]);
 
   return (
-    <div className="w-full flex items-center justify-center bg-[#081835] rounded-lg relative">
+    <div className="w-full flex items-center justify-center bg-[#040816] rounded-lg relative">
       {!selectedSymbol ? (
         <button
           className="bg-gray-800 text-white cursor-pointer px-6 py-3 rounded-lg font-bold"

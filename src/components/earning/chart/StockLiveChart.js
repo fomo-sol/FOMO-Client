@@ -104,7 +104,7 @@ export default function StockLiveChart({ symbol }) {
       width: chartContainerRef.current.clientWidth,
       height: 250,
       layout: {
-        background: { color: "#081835" },
+        background: { color: "#040816" },
         textColor: "#ffffff",
       },
       grid: { vertLines: { visible: false }, horzLines: { visible: false } },
