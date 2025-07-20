@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import StockLiveChart from "@/components/fomc/StockLiveChart";
+import StockChart from "@/components/earning/chart/chart";
 
-export default function LiveChartView() {
+export default function GetChartView() {
   const [showModal, setShowModal] = useState(false);
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [search, setSearch] = useState("");
@@ -14,7 +14,7 @@ export default function LiveChartView() {
   useEffect(() => {
     if (showModal && search === "") {
       setLoading(true);
-      fetch("http://localhost:4000/api/companies")
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies`)
         .then((res) => res.json())
         .then((res) => setStocks(res.data || []))
         .finally(() => setLoading(false));
@@ -26,9 +26,9 @@ export default function LiveChartView() {
     if (showModal && search) {
       setLoading(true);
       fetch(
-        `http://localhost:4000/api/companies?search=${encodeURIComponent(
-          search
-        )}`
+        `${
+          process.env.NEXT_PUBLIC_API_URL
+        }/companies?search=${encodeURIComponent(search)}`
       )
         .then((res) => res.json())
         .then((res) => setStocks(res.data || []))
@@ -37,20 +37,18 @@ export default function LiveChartView() {
   }, [search, showModal]);
 
   return (
-    <div className="w-full h-[320px] flex items-center justify-center bg-[#081835] rounded-lg relative">
+    <div className="w-full flex items-center justify-center bg-[#081835] rounded-lg relative">
       {!selectedSymbol ? (
         <button
           className="bg-gray-800 text-white cursor-pointer px-6 py-3 rounded-lg font-bold"
           onClick={() => setShowModal(true)}
         >
-          주식 라이브차트 불러오기
+          주식 차트 불러오기
         </button>
       ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center">
-          <div className="text-lg font-bold mb-2">
-            {selectedSymbol} 라이브 차트
-          </div>
-          <StockLiveChart symbol={selectedSymbol} />
+        <div className="w-full flex flex-col items-center justify-center">
+          <div className="text-lg font-bold mb-2">{selectedSymbol}</div>
+          <StockChart symbol={selectedSymbol} />
           <button
             className="mt-4 text-sm text-blue-400 cursor-pointer underline"
             onClick={() => setShowModal(true)}
