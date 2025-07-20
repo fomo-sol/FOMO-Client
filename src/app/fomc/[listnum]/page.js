@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import FOMCSidebar from "@/components/fomc/Sidebar";
 import Content from "@/components/fomc/Content";
 
-import LiveChartView from "@/components/fomc/LiveChartView";
+import GetChartView from "@/components/fomc/GetChartView";
 
 export default function FOMCItemPage() {
   const router = useRouter();
@@ -97,7 +97,7 @@ export default function FOMCItemPage() {
                 라이브 차트 불러오기
               </h2>
               <div className="w-full flex items-center justify-center overflow-hidden mb-4">
-                <LiveChartView/>
+                <GetChartView/>
               </div>
             </div>
 
