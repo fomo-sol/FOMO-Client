@@ -1,6 +1,6 @@
 export default function AlertFilterPanel() {
   return (
-    <div className="w-full h-[562px] flex-shrink-0 rounded-[12px] bg-[#1F2E4F] shadow-md text-white px-6 py-4 text-sm font-[Pretendard] space-y-6">
+    <div className="w-full h-[562px] flex-shrink-0 rounded-[12px] bg-[#FFFFFF] shadow-md text-[#040816] px-6 py-4 text-sm font-[Pretendard] space-y-6">
       <div>
         <p className="mb-2 font-semibold">알림 유형</p>
         <div className="space-y-1">

@@ -49,9 +49,9 @@ export default function FomcPage() {
   };
 
   return (
-    <div className="px-8 py-6 bg-[#081835] text-white font-[Pretendard] min-h-screen">
+    <div className="px-8   font-[Pretendard] min-h-screen">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-[30px] font-bold">FOMC 리스트</h1>
+        <h1 className="text-2xl font-bold mb-6">FOMC 리스트</h1>
         <select
           className="bg-[#F5F5F5] cursor-pointer text-black border-[3px] border-[#E0E0E0] rounded-[4px] px-2 py-1 w-[95px]"
           value={selectedYear}

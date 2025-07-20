@@ -11,7 +11,7 @@ export default function TabSection({ activeTab, setActiveTab }) {
             onClick={() => setActiveTab(tab)}
             className={`flex-1 h-[32px] rounded-full text-sm font-semibold transition-all duration-150 ${
               activeTab === tab
-                ? "bg-white text-[#081835]"
+                ? "bg-white text-[#040816]"
                 : "text-white hover:bg-white/30"
             }`}
           >

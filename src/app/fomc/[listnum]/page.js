@@ -18,19 +18,19 @@ export default function FOMCItemPage() {
 
   const fileMap = {
     연설: {
-      한국어: "/fomc/20200129_transcript_en ko.txt",
-      영어: "/fomc/20200129_transcript_en.txt",
-      "AI 요약분석": "/fomc/20250618_fomcproj_ko.txt",
+      한국어: "/fomc/20250618_statement_ko.txt",
+      영어: "/fomc/20250618_transcript_en.txt",
+      "AI 요약분석": "/fomc/20250618_transcript_summary_ko.html",
     },
     의사록: {
-      한국어: "/fomc/2020-01-29_minutes_en.txt",
-      영어: "/fomc/FOMCpresconf20250129.pdf",
-      "AI 요약분석": "/fomc/2020-01-29_minutes_en.txt",
+      한국어: "/fomc/20250618_statement_ko.txt",
+      영어: "/fomc/2025-06-18_minutes_en.txt",
+      "AI 요약분석": "/fomc/20250618_minutes_summary_ko.html",
     },
     금리결정: {
-      한국어: "/fomc/20250618_statement.html",
-      영어: "/fomc/2020-01-29_statement_en.html",
-      "AI 요약분석": "/fomc/2020-01-29_statement_en.html",
+      한국어: "/fomc/20250618_imple_ko.txt",
+      영어: "/fomc/2025-06-18_statement_en.txt",
+      "AI 요약분석": "/fomc/20250618_imple_state_summary_ko.html",
     },
     경제전망: {
       영어: "/fomc/FOMCpresconf20250129.pdf",
@@ -54,33 +54,26 @@ export default function FOMCItemPage() {
             <div className="flex items-center gap-2 mb-2">
               <button
                 onClick={() => setShowSidebar((prev) => !prev)}
-                className="w-[29px] h-[28px] cursor-pointer flex-shrink-0"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="29"
-                  height="28"
-                  viewBox="0 0 29 28"
-                  fill="none"
-                >
-                  <path
-                    d="M14.5 27C17.4632 27 19.7788 26.8455 21.5938 26.4561C23.399 26.0686 24.6444 25.4617 25.5332 24.6035C27.3262 22.8722 28 19.7977 28 14C28 8.20228 27.3262 5.12785 25.5332 3.39648C24.6444 2.5383 23.399 1.93136 21.5938 1.54395C19.7788 1.1545 17.4632 1 14.5 1C11.5368 1 9.2212 1.1545 7.40625 1.54395C5.601 1.93136 4.35563 2.5383 3.4668 3.39648C1.67382 5.12785 1 8.20228 1 14C1 19.7977 1.67382 22.8722 3.4668 24.6035C4.35563 25.4617 5.601 26.0686 7.40625 26.4561C9.2212 26.8455 11.5368 27 14.5 27Z"
-                    stroke="#FFFEFE"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12.0832 9.33337L16.9165 14L12.0832 18.6667"
-                    stroke="#FFFEFE"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              <h1 className="text-2xl font-bold">FOMC | 1차 (2025.07.10)</h1>
-            </div>
+                className="w-[29px] h-[28px] cursor-pointer flex-shrink-0">
+                <path
+                  d="M14.5 27C17.4632 27 19.7788 26.8455 21.5938 26.4561C23.399 26.0686 24.6444 25.4617 25.5332 24.6035C27.3262 22.8722 28 19.7977 28 14C28 8.20228 27.3262 5.12785 25.5332 3.39648C24.6444 2.5383 23.399 1.93136 21.5938 1.54395C19.7788 1.1545 17.4632 1 14.5 1C11.5368 1 9.2212 1.1545 7.40625 1.54395C5.601 1.93136 4.35563 2.5383 3.4668 3.39648C1.67382 5.12785 1 8.20228 1 14C1 19.7977 1.67382 22.8722 3.4668 24.6035C4.35563 25.4617 5.601 26.0686 7.40625 26.4561C9.2212 26.8455 11.5368 27 14.5 27Z"
+                  stroke="#FFFEFE"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12.0832 9.33337L16.9165 14L12.0832 18.6667"
+                  stroke="#FFFEFE"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold">FOMC | 1차 (2025.07.10)</h1>
+          </div>
+
 
             {/* 그래프 */}
             <div>
@@ -91,6 +84,7 @@ export default function FOMCItemPage() {
                 <Sp500Graph />
               </div>
             </div>
+          </div>
 
             <div>
               <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
@@ -104,14 +98,16 @@ export default function FOMCItemPage() {
             {/*<FearGreedGauge />*/}
           </div>
 
-          {/* 오른쪽 영역 */}
-          <div className="flex-1">
-            {/* 탭 */}
-            <div className="mb-4">
-              <TabSection activeTab={activeTab} setActiveTab={setActiveTab} />
-            </div>
-            <Content activeTab={activeTab} fileMap={fileMap} />
+          <FearGreedGauge />
+        </div>
+
+        {/* 오른쪽 영역 */}
+        <div className="flex-1">
+          {/* 탭 */}
+          <div className="mb-4">
+            <TabSection activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
+          <Content activeTab={activeTab} fileMap={fileMap} />
         </div>
       </div>
       <div className="fixed inset-0 z-50 pointer-events-none">

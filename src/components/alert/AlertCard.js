@@ -10,7 +10,7 @@ export default function AlertCard({
 }) {
   return (
     <div
-      className="relative w-[1001px] h-[106px] flex items-start gap-4 bg-[#F3F3F3] rounded-[8px] p-4 shadow-md"
+      className="relative h-[106px] flex items-start gap-4 bg-[#F3F3F3] rounded-[8px] p-4 shadow-md"
       style={{ boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}
     >
       {/* 왼쪽 색 스트립 */}

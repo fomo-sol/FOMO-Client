@@ -50,6 +50,7 @@ export default function FinancePaging() {
 
   return (
     <>
+
       <div className="grid grid-cols-8 text-sm font-semibold text-white/70 border-b border-white/20 pb-2 mb-2">
         <span>순위</span>
         <span>종목명</span>
