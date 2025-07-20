@@ -23,7 +23,7 @@ export default function FinancePaging() {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          `http://localhost:4000/api/earnings?page=${page}&limit=${ITEMS_PER_PAGE}`
+          `${process.env.NEXT_PUBLIC_API_URL}/earnings?page=${page}&limit=${ITEMS_PER_PAGE}`
         );
         const json = await res.json();
         setEarnings(json.data.merged);
@@ -50,7 +50,8 @@ export default function FinancePaging() {
 
   return (
     <>
-      <div className="grid grid-cols-8 text-lg font-semibold text-white/80 border-b border-white/10 pb-2 mb-2">
+
+      <div className="grid grid-cols-8 text-sm font-semibold text-white/70 border-b border-white/20 pb-2 mb-2">
         <span>순위</span>
         <span>종목명</span>
         <span>테마</span>
@@ -63,12 +64,26 @@ export default function FinancePaging() {
 
       <div className="space-y-2">
         {earnings.map((item) => {
-          const latest = item.finances?.[0] || {};
+          // finances를 fin_release_date 기준 내림차순 정렬(최신순)
+          const sortedFinances = [...(item.finances || [])].sort(
+            (a, b) =>
+              new Date(b.fin_release_date) - new Date(a.fin_release_date)
+          );
+
+          const today = new Date();
+          // 최근 10일 이내 실적 찾기 (가장 최근 것 하나만)
+          const recentFinance = sortedFinances.find((fin) => {
+            const diff =
+              (today - new Date(fin.fin_release_date)) / (1000 * 60 * 60 * 24);
+            return diff <= 10 && diff >= 0;
+          });
+          // 없으면 가장 최근 실적 사용
+          const latest = recentFinance || sortedFinances[0] || {};
 
           return (
             <div
               key={item.id}
-              className="grid grid-cols-8 py-3 px-2 cursor-pointer bg-white/5 hover:bg-white/10 transition-all rounded"
+              className="grid grid-cols-8 py-2 cursor-pointer px-2 bg-white/5 hover:bg-white/10 transition-all rounded"
               onClick={() =>
                 (window.location.href = `http://localhost:3000/earning/${item.symbol}`)
               }
