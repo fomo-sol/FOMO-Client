@@ -8,7 +8,9 @@ export default function ProjectionList({ selectedYear }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:4000/api/fomc/decisions?year=${selectedYear}`)
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/fomc/decisions?year=${selectedYear}`
+    )
       .then((res) => res.json())
       .then((res) => {
         if (res.success) setData(res.data);

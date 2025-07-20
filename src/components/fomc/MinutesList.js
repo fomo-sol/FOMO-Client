@@ -8,7 +8,9 @@ export default function MinutesList({ selectedYear }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:4000/api/fomc/minutes?year=${selectedYear}`)
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/fomc/minutes?year=${selectedYear}`
+    )
       .then((res) => res.json())
       .then((res) => {
         if (res.success) setData(res.data);
