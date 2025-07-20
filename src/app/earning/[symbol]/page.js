@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import StockChart from "@/components/earning/chart/chart";
 import { getStockData } from "@/services/earning-service";
+import FinanceList from "@/components/earning/earningDetail/FinanceList";
+import EarningDataList from "@/components/earning/earningDetail/EarningDataList";
 
 export default function EarningReleasePage() {
   const { symbol } = useParams();
@@ -26,11 +28,16 @@ export default function EarningReleasePage() {
   }, [symbol]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">{symbol}</h1>
-      <div style={{ display: "flex", justifyContent: "flex-start" }}>
-        <StockChart stockData={stockData} symbol={symbol} />
-        {/* <FearGreedGauge /> */}
+    <div className="p-6 bg-[#081835]">
+      <h1 className="text-2xl font-bold text-white mb-6">{symbol}</h1>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "32px" }}>
+        <div style={{ flex: "0 0 380px" }}>
+          <StockChart symbol={symbol} />
+          <FinanceList symbol={symbol} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <EarningDataList />
+        </div>
       </div>
     </div>
   );
