@@ -22,7 +22,7 @@ export default function EarningPage() {
             <button
               key={key}
               onClick={() => setView(key)}
-              className={`pb-2 text-[20px] font-semibold relative ${
+              className={`pb-2 text-[20px] cursor-pointer font-semibold relative ${
                 view === key ? "text-white" : "text-gray-400"
               }`}
             >
@@ -34,12 +34,13 @@ export default function EarningPage() {
           ))}
         </div>
 
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-white text-black font-semibold px-4 py-1.5 cursor-pointer rounded hover:bg-[#7eaaff] transition"
-        >
-          Add Asset
-        </button>
+          <div className="pb-2">
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-white text-black font-semibold px-4 py-1.5 cursor-pointer rounded hover:bg-gray-700 transition">
+              Add Asset
+            </button>
+          </div>
       </div>
 
       {view === "finance" && <FinancePaging />}
