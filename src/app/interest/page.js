@@ -4,7 +4,6 @@ import "./scrollbar.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import StockItemCard from "@/components/interest/StockItemCard";
-import { requestFcmToken } from "@/services/fcm-service";
 
 const chunkStocks = (arr, size) => {
   const result = [];
@@ -49,7 +48,6 @@ export default function InterestPage() {
     const accessToken = localStorage.getItem("token");
     if (accessToken) setToken(accessToken);
 
-    requestFcmToken();
     fetchCompanies();
   }, []);
 
