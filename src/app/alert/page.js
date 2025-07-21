@@ -3,8 +3,9 @@ import AlertCard from "@/components/alert/AlertCard";
 import AlertSidebar from "@/components/alert/AlertSidebar";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { Suspense } from "react";
 
-export default function AlertPage() {
+function AlertPageContent() {
   const searchParams = useSearchParams();
   const idParam = searchParams.get("id");
   const selectedId = idParam ? parseInt(idParam) : null;
@@ -165,5 +166,13 @@ export default function AlertPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AlertPage() {
+  return (
+    <Suspense>
+      <AlertPageContent />
+    </Suspense>
   );
 }
