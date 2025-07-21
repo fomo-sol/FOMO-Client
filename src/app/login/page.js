@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import InputField from "@/components/common/inputField";
 import LabelLinkRow from "@/components/common/labelLinkRow";
 import { loginUser } from "@/services/user-service";
+import { requestFcmToken } from "@/services/fcm-service";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,12 @@ export default function LoginPage() {
   const handleLogin = async () => {
     try {
       const { user, token } = await loginUser({ email, passwd });
-      router.push("/interest");
+      await requestFcmToken();
+
+      // ✅ storage 이벤트로 로그인 상태 반영되게 강제 트리거
+      window.dispatchEvent(new Event("storage"));
+
+      router.push("/"); // 홈으로 이동
     } catch (error) {
       console.error("로그인 실패:", error.message);
       alert(error.response?.data?.message || "로그인 중 오류 발생");

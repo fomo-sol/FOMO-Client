@@ -4,12 +4,16 @@ import Image from "next/image";
 import NotificationPopup from "./common/NotificationPopup";
 import MyPageModal from "./common/MyPageModal";
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import useAuth from "../../utils/useAuth";
 
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMyPageModal, setShowMyPageModal] = useState(false);
   const alertRef = useRef(null);
   const mypageRef = useRef(null);
+  const isLoggedIn = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -92,22 +96,26 @@ export default function Navbar() {
         {/* 마이페이지 */}
         <div className="relative" ref={mypageRef}>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowMyPageModal((prev) => !prev);
-            }}
-            className="flex items-center justify-center"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isLoggedIn) {
+                  setShowMyPageModal((prev) => !prev);
+                } else {
+                  router.push("/login");
+                }
+              }}
+              className="flex items-center justify-center"
           >
             <Image
-              src="/icon_mypage.svg"
-              alt="My_page"
-              width={24}
-              height={24}
+                src="/icon_mypage.svg"
+                alt="My_page"
+                width={24}
+                height={24}
             />
           </button>
 
-          {showMyPageModal && (
-            <MyPageModal onClose={() => setShowMyPageModal(false)} />
+          {isLoggedIn && showMyPageModal && (
+              <MyPageModal onClose={() => setShowMyPageModal(false)} />
           )}
         </div>
       </div>
