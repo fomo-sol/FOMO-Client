@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import useAuth from "../../../../utils/useAuth";
 
 export default function AddAssetModal({ onClose }) {
   const [search, setSearch] = useState("");
@@ -8,6 +9,10 @@ export default function AddAssetModal({ onClose }) {
   const [filteredStocks, setFilteredStocks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState({});
+  const { user, favorites, setFavorites } = useAuth();
+
+  // 관심종목 심볼 집합
+  const favoriteSymbols = new Set(favorites.map((f) => f.symbol));
 
   // 전체 종목 fetch (처음 1회)
   useEffect(() => {
@@ -41,6 +46,35 @@ export default function AddAssetModal({ onClose }) {
     setSelected((prev) => ({ ...prev, [symbol]: !prev[symbol] }));
   };
 
+  // 완료 버튼 클릭 시 관심종목 추가
+  const handleComplete = async () => {
+    if (!user?.id) return onClose();
+    const selectedIds = Object.keys(selected)
+      .filter((symbol) => selected[symbol])
+      .map((symbol) => {
+        const stock = allStocks.find((s) => s.symbol === symbol);
+        return stock ? { stock_id: stock.id } : null;
+      })
+      .filter(Boolean);
+    if (selectedIds.length === 0) {
+      onClose();
+      return;
+    }
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/favorites/${user.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selectedIds),
+    });
+    // 관심종목 즉시 갱신
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/favorites/${user.id}`
+    );
+    const data = await res.json();
+    setFavorites(data.data || []);
+    console.log("추가되었습니다");
+    window.location.href = "/earning";
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
@@ -71,44 +105,48 @@ export default function AddAssetModal({ onClose }) {
             <div className="text-gray-400 text-center py-4">검색 결과 없음</div>
           )}
           {!loading &&
-            filteredStocks.map((stock) => (
-              <div
-                key={stock.symbol}
-                className="flex items-center py-3 px-2 transition"
-                style={{
-                  backgroundColor: "rgba(234,234,234,0.97)",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    "rgba(210,210,210,0.97)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    "rgba(234,234,234,0.97)")
-                }
-              >
-                <img
-                  src={stock.logo}
-                  alt={stock.symbol}
-                  className="w-7 h-7 rounded-full mr-3 border border-gray-200 bg-white"
-                />
-                <span className="font-bold text-[#0a1a4f] mr-2">
-                  {stock.name_kr}
-                </span>
-                <span className="text-gray-500 mr-auto">{stock.symbol}</span>
-                <input
-                  type="checkbox"
-                  checked={!!selected[stock.symbol]}
-                  onChange={() => handleSelect(stock.symbol)}
-                  className="w-5 h-5 accent-blue-500 cursor-pointer"
-                />
-              </div>
-            ))}
+            filteredStocks.map((stock) => {
+              const isFavorite = favoriteSymbols.has(stock.symbol);
+              return (
+                <div
+                  key={stock.symbol}
+                  className="flex items-center py-3 px-2 transition"
+                  style={{
+                    backgroundColor: "rgba(234,234,234,0.97)",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "rgba(210,210,210,0.97)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "rgba(234,234,234,0.97)")
+                  }
+                >
+                  <img
+                    src={stock.logo}
+                    alt={stock.symbol}
+                    className="w-7 h-7 rounded-full mr-3 border border-gray-200 bg-white"
+                  />
+                  <span className="font-bold text-[#0a1a4f] mr-2">
+                    {stock.name_kr}
+                  </span>
+                  <span className="text-gray-500 mr-auto">{stock.symbol}</span>
+                  <input
+                    type="checkbox"
+                    checked={isFavorite || !!selected[stock.symbol]}
+                    disabled={isFavorite}
+                    onChange={() => handleSelect(stock.symbol)}
+                    className="w-5 h-5 accent-blue-500 cursor-pointer"
+                  />
+                </div>
+              );
+            })}
         </div>
         <button
           className="w-full mt-8 py-3 bg-black text-white rounded-full text-lg font-bold hover:bg-gray-800 transition cursor-pointer"
-          onClick={onClose}
+          onClick={handleComplete}
         >
           완료
         </button>
