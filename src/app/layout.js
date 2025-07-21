@@ -1,7 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import pretendard from "@/app/fonts/pretendard"; // 추가
+import pretendard from "@/app/fonts/pretendard";
+import TokenInitializer from "@/components/TokenInitializer";
 
 export const metadata = {
   title: "Create Next App",
@@ -13,7 +14,9 @@ export default function RootLayout({ children }) {
     <html lang="ko" className={`${pretendard.variable} `}>
       <body className="">
         <Navbar />
-        {children}
+
+        <div className="px-16 py-10 justify-center">{children}</div>
+
       </body>
     </html>
   );
