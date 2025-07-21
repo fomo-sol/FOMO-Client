@@ -1,4 +1,7 @@
+"use client";
 import axiosInstance from "@/services/axios-instance";
+import { Suspense } from "react";
+import AlertPage from "./AlertPage"; // 실제 AlertPage 컴포넌트 분리 시
 
 // 회원가입 요청
 export const registerUser = async (data) => {
@@ -46,3 +49,19 @@ export const registerFcmToken = async (fcm_token) => {
     const res = await axiosInstance.post("/user/fcm", { fcm_token });
     return res.data;
 };
+
+function AlertPageInner() {
+  return (
+    <Suspense>
+      <AlertPage />
+    </Suspense>
+  );
+}
+
+export default function AlertPage() {
+  return (
+    <Suspense>
+      <AlertPageInner />
+    </Suspense>
+  );
+}
