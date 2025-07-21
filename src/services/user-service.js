@@ -13,7 +13,7 @@ export const loginUser = async (data) => {
     const token = response.data?.data?.token;
     const user = response.data?.data?.user;
 
-    if (token) {
+    if (token && typeof window !== "undefined") {
         // localStorage 저장
         localStorage.setItem("token", token);
 
@@ -22,7 +22,6 @@ export const loginUser = async (data) => {
     }
 
     return { user, token };
-    // return response.data;
 };
 
 // 로그아웃 요청
@@ -31,7 +30,9 @@ export const logoutUser = async () => {
         const response = await axiosInstance.post("/user/logout");
 
         // 토큰 제거
-        localStorage.removeItem("token");
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("token");
+        }
         delete axiosInstance.defaults.headers.common["Authorization"];
 
         return response.data;
