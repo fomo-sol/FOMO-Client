@@ -47,18 +47,23 @@ export default function AddAssetModal({ onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-white text-black rounded-lg shadow-lg w-[500px] h-[600px] p-8 flex flex-col"
+        className="text-black rounded-lg shadow-lg w-[500px] h-[600px] p-8 flex flex-col"
+        style={{ backgroundColor: "rgba(234,234,234,0.97)" }}
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-bold mb-4">관심 종목 추가</h2>
         <input
-          className="w-full border px-3 py-2 rounded mb-4 bg-gray-100 placeholder-gray-400 border-gray-300"
+          className="w-full border px-3 py-2 rounded mb-4 placeholder-gray-400 border-gray-300"
+          style={{ backgroundColor: "rgba(234,234,234,0.97)" }}
           placeholder="종목명(한글) 또는 심볼(영문) 검색"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <div className="text-lg font-semibold mb-2">Top ranking</div>
-        <div className="divide-y divide-gray-200 max-h-72 overflow-y-auto bg-white rounded flex-1">
+        <div
+          className="divide-y divide-gray-200 max-h-72 overflow-y-auto rounded flex-1"
+          style={{ backgroundColor: "rgba(234,234,234,0.97)" }}
+        >
           {loading && (
             <div className="text-center text-gray-400 py-4">로딩중...</div>
           )}
@@ -69,7 +74,19 @@ export default function AddAssetModal({ onClose }) {
             filteredStocks.map((stock) => (
               <div
                 key={stock.symbol}
-                className="flex items-center py-3 px-2 hover:bg-gray-100 transition"
+                className="flex items-center py-3 px-2 transition"
+                style={{
+                  backgroundColor: "rgba(234,234,234,0.97)",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(210,210,210,0.97)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(234,234,234,0.97)")
+                }
               >
                 <img
                   src={stock.logo}
@@ -84,13 +101,13 @@ export default function AddAssetModal({ onClose }) {
                   type="checkbox"
                   checked={!!selected[stock.symbol]}
                   onChange={() => handleSelect(stock.symbol)}
-                  className="w-5 h-5 accent-blue-500"
+                  className="w-5 h-5 accent-blue-500 cursor-pointer"
                 />
               </div>
             ))}
         </div>
         <button
-          className="w-full mt-8 py-3 bg-black text-white rounded-full text-lg font-bold hover:bg-gray-800 transition"
+          className="w-full mt-8 py-3 bg-black text-white rounded-full text-lg font-bold hover:bg-gray-800 transition cursor-pointer"
           onClick={onClose}
         >
           완료
