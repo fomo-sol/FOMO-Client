@@ -25,9 +25,11 @@ export default function MyPageModal({ onClose }) {
   // 로그아웃 핸들러
   const handleLogout = async () => {
     try {
-      await logoutUser(); // 로그아웃 요청
-      onClose(); // 모달 닫기
-      router.push("/"); // 메인 페이지로 이동
+      await logoutUser();
+
+      window.dispatchEvent(new Event("storage")); // ✅ 상태 반영 트리거
+      onClose();
+      router.push("/");
     } catch (err) {
       console.error("로그아웃 실패:", err);
     }
