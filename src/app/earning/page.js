@@ -3,10 +3,21 @@ import { useState } from "react";
 import FinancePaging from "@/components/earning/financeList/financePaging";
 import WishListPage from "@/components/earning/financeList/wishListPage";
 import AddAssetModal from "@/components/earning/financeList/addAsetModal";
+import useAuth from "../../../utils/useAuth";
+import { useRouter } from "next/navigation";
 
 export default function EarningPage() {
   const [view, setView] = useState("finance");
   const [showModal, setShowModal] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const router = useRouter();
+
+  // 로그인 필요 confirm 핸들러
+  const handleRequireLogin = () => {
+    if (window.confirm("로그인이 필요합니다. 로그인하시겠습니까?")) {
+      router.push("/login");
+    }
+  };
 
   return (
     <div className="px-8   font-[Pretendard] min-h-screen">
@@ -21,7 +32,13 @@ export default function EarningPage() {
           ].map(({ key, label }) => (
             <button
               key={key}
-              onClick={() => setView(key)}
+              onClick={() => {
+                if (key === "wishlist" && !isLoggedIn) {
+                  handleRequireLogin();
+                  return;
+                }
+                setView(key);
+              }}
               className={`pb-2 text-[20px] cursor-pointer font-semibold relative ${
                 view === key ? "text-white" : "text-gray-400"
               }`}
@@ -34,13 +51,20 @@ export default function EarningPage() {
           ))}
         </div>
 
-          <div className="pb-2">
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-white text-black font-semibold px-4 py-1.5 cursor-pointer rounded hover:bg-gray-700 transition">
-              Add Asset
-            </button>
-          </div>
+        <div className="pb-2">
+          <button
+            onClick={() => {
+              if (!isLoggedIn) {
+                handleRequireLogin();
+                return;
+              }
+              setShowModal(true);
+            }}
+            className="bg-white text-black font-semibold px-4 py-1.5 cursor-pointer rounded hover:bg-gray-700 transition"
+          >
+            Add Asset
+          </button>
+        </div>
       </div>
 
       {view === "finance" && <FinancePaging />}

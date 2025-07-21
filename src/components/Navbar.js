@@ -12,8 +12,10 @@ export default function Navbar() {
   const [showMyPageModal, setShowMyPageModal] = useState(false);
   const alertRef = useRef(null);
   const mypageRef = useRef(null);
-  const isLoggedIn = useAuth();
+  const { isLoggedIn } = useAuth();
   const router = useRouter();
+
+  console.log("[Navbar] isLoggedIn:", isLoggedIn);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -67,12 +69,20 @@ export default function Navbar() {
           <button
             onClick={(e) => {
               e.stopPropagation();
+              if (!isLoggedIn) {
+                if (
+                  window.confirm("로그인이 필요합니다. 로그인하시겠습니까?")
+                ) {
+                  router.push("/login");
+                }
+                return;
+              }
               setShowNotifications((prev) => {
                 console.log("알림창 상태:", !prev);
                 return !prev;
               });
             }}
-            className="flex items-center justify-center"
+            className="flex items-center cursor-pointer justify-center"
           >
             <Image src="/icon_alert.svg" alt="Alert" width={24} height={24} />
           </button>
@@ -96,26 +106,26 @@ export default function Navbar() {
         {/* 마이페이지 */}
         <div className="relative" ref={mypageRef}>
           <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (isLoggedIn) {
-                  setShowMyPageModal((prev) => !prev);
-                } else {
-                  router.push("/login");
-                }
-              }}
-              className="flex items-center justify-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isLoggedIn) {
+                setShowMyPageModal((prev) => !prev);
+              } else {
+                router.push("/login");
+              }
+            }}
+            className="flex items-center justify-center"
           >
             <Image
-                src="/icon_mypage.svg"
-                alt="My_page"
-                width={24}
-                height={24}
+              src="/icon_mypage.svg"
+              alt="My_page"
+              width={24}
+              height={24}
             />
           </button>
 
           {isLoggedIn && showMyPageModal && (
-              <MyPageModal onClose={() => setShowMyPageModal(false)} />
+            <MyPageModal onClose={() => setShowMyPageModal(false)} />
           )}
         </div>
       </div>
