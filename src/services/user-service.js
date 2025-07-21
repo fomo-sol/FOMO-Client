@@ -1,7 +1,5 @@
 "use client";
 import axiosInstance from "@/services/axios-instance";
-import { Suspense } from "react";
-import AlertPage from "./AlertPage"; // 실제 AlertPage 컴포넌트 분리 시
 
 // 회원가입 요청
 export const registerUser = async (data) => {
@@ -19,7 +17,6 @@ export const loginUser = async (data) => {
     if (token && typeof window !== "undefined") {
         // localStorage 저장
         localStorage.setItem("token", token);
-
         // axiosInstance 전역 헤더에 설정
         axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
@@ -31,13 +28,11 @@ export const loginUser = async (data) => {
 export const logoutUser = async () => {
     try {
         const response = await axiosInstance.post("/user/logout");
-
         // 토큰 제거
         if (typeof window !== "undefined") {
             localStorage.removeItem("token");
         }
         delete axiosInstance.defaults.headers.common["Authorization"];
-
         return response.data;
     } catch (err) {
         throw err;
@@ -49,19 +44,3 @@ export const registerFcmToken = async (fcm_token) => {
     const res = await axiosInstance.post("/user/fcm", { fcm_token });
     return res.data;
 };
-
-function AlertPageInner() {
-  return (
-    <Suspense>
-      <AlertPage />
-    </Suspense>
-  );
-}
-
-export default function AlertPage() {
-  return (
-    <Suspense>
-      <AlertPageInner />
-    </Suspense>
-  );
-}
