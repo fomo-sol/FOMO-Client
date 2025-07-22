@@ -21,7 +21,7 @@ export default function EarningPage() {
 
   return (
     <div className="px-8   font-[Pretendard] min-h-screen">
-      <h1 className="text-2xl font-bold mb-10">실적발표 페이지</h1>
+      <h1 className="text-2xl font-bold mt-6 mb-2">실적발표 페이지</h1>
 
       {/* 스타일 맞춰서 탭으로 변경했음! */}
       <div className="flex justify-between items-center border-b border-white/30 mb-6">
@@ -45,7 +45,7 @@ export default function EarningPage() {
             >
               {label}
               {view === key && (
-                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#93B9FF]" />
+                <div className="absolute bottom-0 mb-[-3px] left-0 w-full h-[2px] bg-[#93B9FF]" />
               )}
             </button>
           ))}

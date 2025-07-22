@@ -85,7 +85,7 @@ export default function AddAssetModal({ onClose }) {
         style={{ backgroundColor: "rgba(234,234,234,0.97)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-4">관심 종목 추가</h2>
+        <h2 className="text-2xl font-bold mb-2">관심 종목 추가</h2>
         <input
           className="w-full border px-3 py-2 rounded mb-4 placeholder-gray-400 border-gray-300"
           style={{ backgroundColor: "rgba(234,234,234,0.97)" }}
@@ -93,7 +93,7 @@ export default function AddAssetModal({ onClose }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div className="text-lg font-semibold mb-2">Top ranking</div>
+        <div className="text-lg font-semibold mb-2">S&P 500</div>
         <div
           className="divide-y divide-gray-200 max-h-72 overflow-y-auto rounded flex-1"
           style={{ backgroundColor: "rgba(234,234,234,0.97)" }}
@@ -110,7 +110,7 @@ export default function AddAssetModal({ onClose }) {
               return (
                 <div
                   key={stock.symbol}
-                  className="flex items-center py-3 px-2 transition"
+                  className="flex items-center py-3 px-2 transition mr-2"
                   style={{
                     backgroundColor: "rgba(234,234,234,0.97)",
                     cursor: "pointer",
@@ -138,7 +138,7 @@ export default function AddAssetModal({ onClose }) {
                     checked={isFavorite || !!selected[stock.symbol]}
                     disabled={isFavorite}
                     onChange={() => handleSelect(stock.symbol)}
-                    className="w-5 h-5 accent-blue-500 cursor-pointer"
+                    className="w-5 h-5 accent-blue-500 checked:border-gray-200 cursor-pointer"
                   />
                 </div>
               );
