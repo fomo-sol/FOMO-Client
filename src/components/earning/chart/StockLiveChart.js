@@ -115,8 +115,8 @@ export default function StockLiveChart({ symbol }) {
     chartRef.current = chart;
 
     const candleSeries = chart.addCandlestickSeries({
-      upColor: "#2e8b57", // 상승(초록)
-      downColor: "#5a4db2", // 하락(파랑)
+      upColor: "#7cff9e", // 상승(초록)
+      downColor: "#bca8ff", // 하락(파랑)
       borderUpColor: "#2e8b57",
       borderDownColor: "#5a4db2",
       wickUpColor: "#2e8b57",

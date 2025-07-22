@@ -85,7 +85,7 @@ export default function FinancePaging() {
               key={item.id}
               className="grid grid-cols-8 py-2 cursor-pointer px-2 bg-white/5 hover:bg-white/10 transition-all rounded"
               onClick={() =>
-                (window.location.href = `http://localhost:3000/earning/${item.symbol}`)
+                (window.location.href = `${process.env.NEXT_PUBLIC_CLIENT_URL}/earning/${item.symbol}`)
               }
             >
               <span>{item.rank}</span>

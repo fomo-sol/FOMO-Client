@@ -17,7 +17,7 @@ export default function Content({ activeTab, fileMap }) {
           <div key={lang} className="flex flex-col items-center text-center">
             <button
               onClick={() => setActiveLangTab(lang)}
-              className={`transition-all ${
+              className={`transition-all cursor-pointer ${
                 activeLangTab === lang
                   ? "text-white font-bold"
                   : "text-white/50"
@@ -49,7 +49,7 @@ export default function Content({ activeTab, fileMap }) {
             width="100%"
             height="100%"
             className="rounded-[10px]"
-            style={{ border: "1px solid #ccc", borderRadius: "8px" }}
+            style={{ border: "1px solid #ccc", borderRadius: "8px", backgroundColor: "#e1e1e1" }}
           />
         ) : (
           <div className="text-center pt-20 text-gray-500">
