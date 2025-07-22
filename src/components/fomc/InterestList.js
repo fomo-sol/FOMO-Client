@@ -21,7 +21,7 @@ export default function InterestList({ selectedYear }) {
 
   if (loading) return <div>로딩중...</div>;
 
-    const gridCols = "grid-cols-[40px_580px_120px_120px_120px_120px_120px]";
+  const gridCols = "grid-cols-[40px_580px_120px_120px_120px_120px_120px]";
   const headerClass =
     "grid text-lg font-semibold text-white/80 border-b border-white/10 pb-2 mb-2 py-4 ";
   const rowClass =
@@ -42,7 +42,13 @@ export default function InterestList({ selectedYear }) {
         {data.map((item, idx) => (
           <div
             key={item.id}
-            onClick={() => router.push(`/fomc/${item.id}?div=decisions`)}
+            onClick={() =>
+              router.push(
+                `/fomc/${item.id}?div=decisions&date=${
+                  item.fed_release_date?.split("T")[0] || ""
+                }&count=${idx + 1}`
+              )
+            }
             className={`${rowClass} ${gridCols}`}
           >
             <span className="text-center pr-4">{idx + 1}</span>
@@ -62,7 +68,7 @@ export default function InterestList({ selectedYear }) {
             <span>{item.fed_previous_rate ?? " -"}</span>
             <span>
               {item.fed_release_date
-                ? new Date(item.fed_release_date).toLocaleDateString()
+                ? item.fed_release_date.split("T")[0].replace(/-/g, ".")
                 : "-"}
             </span>
           </div>

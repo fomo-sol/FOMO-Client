@@ -39,7 +39,13 @@ export default function MinutesList({ selectedYear }) {
         {data.map((item, idx) => (
           <div
             key={item.id}
-            onClick={() => router.push(`/fomc/${item.id}?div=minutes`)}
+            onClick={() =>
+              router.push(
+                `/fomc/${item.id}?div=minutes&date=${
+                  item.fomc_release_date?.split("T")[0] || ""
+                }&count=${idx + 1}`
+              )
+            }
             className={`${rowClass} ${gridCols}`}
           >
             <span className="text-center pr-3">{idx + 1}</span>
@@ -56,7 +62,7 @@ export default function MinutesList({ selectedYear }) {
             </span>
             <span>
               {item.fomc_release_date
-                ? new Date(item.fomc_release_date).toLocaleDateString()
+                ? item.fomc_release_date.split("T")[0].replace(/-/g, ".")
                 : "-"}
             </span>
           </div>

@@ -50,9 +50,9 @@ export default function FinancePaging() {
 
   return (
     <>
-
-      <div className="grid grid-cols-8 text-sm font-semibold text-white/70 border-b border-white/20 pb-2 mb-2">
+      <div className="grid grid-cols-9 text-sm font-semibold text-white/70 border-b border-white/20 pb-2 mb-2">
         <span>순위</span>
+        <span>로고</span>
         <span>종목명</span>
         <span>테마</span>
         <span>발표일</span>
@@ -83,12 +83,24 @@ export default function FinancePaging() {
           return (
             <div
               key={item.id}
-              className="grid grid-cols-8 py-2 cursor-pointer px-2 bg-white/5 hover:bg-white/10 transition-all rounded"
+              className="grid grid-cols-9 py-2 cursor-pointer px-2 bg-white/5 hover:bg-white/10 transition-all rounded"
               onClick={() =>
                 (window.location.href = `${process.env.NEXT_PUBLIC_CLIENT_URL}/earning/${item.symbol}`)
               }
             >
               <span>{item.rank}</span>
+              <span className="flex">
+                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                  <img
+                    src={item.logo}
+                    alt={item.name}
+                    className="w-5 h-5 rounded"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                </div>
+              </span>
               <span>{item.name_kr || item.name}</span>
               <span>{item.sector}</span>
               <span>{latest.fin_release_date?.split("T")[0] || "-"}</span>
