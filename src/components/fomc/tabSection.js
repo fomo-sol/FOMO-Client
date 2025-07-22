@@ -1,6 +1,6 @@
 // components/fomc/TabSection.jsx
 export default function TabSection({ activeTab, setActiveTab }) {
-  const tabs = ["금리결정", "연설", "의사록", "경제전망"];
+  const tabs = ["금리결정", "연설", "의사록"];
 
   return (
     <div className="flex justify-center mb-4">
@@ -9,7 +9,7 @@ export default function TabSection({ activeTab, setActiveTab }) {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 h-[32px] rounded-full text-sm font-semibold transition-all duration-150 ${
+            className={`flex-1 h-[32px] rounded-full cursor-pointer text-sm font-semibold transition-all duration-150 ${
               activeTab === tab
                 ? "bg-white text-[#040816]"
                 : "text-white hover:bg-white/30"
