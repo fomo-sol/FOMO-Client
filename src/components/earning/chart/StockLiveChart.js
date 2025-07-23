@@ -15,9 +15,82 @@ export default function StockLiveChart({ symbol }) {
   const liveDataRef = useRef(liveData);
   const [pendingPrepend, setPendingPrepend] = useState(0);
 
+  // 실시간 데이터 관리를 위한 ref들
+  const currentMinuteRef = useRef(null);
+  const currentCandleRef = useRef(null);
+  const wsRef = useRef(null);
+
   useEffect(() => {
     liveDataRef.current = liveData;
   }, [liveData]);
+
+  // 실시간 데이터를 1분봉으로 변환하는 함수
+  const processRealtimeData = (realtimeData) => {
+    const { localDate, localTime, bidPrice, askPrice } = realtimeData;
+
+    // 현재 시간을 분 단위로 계산
+    const year = Number(localDate.slice(0, 4));
+    const month = Number(localDate.slice(4, 6)) - 1;
+    const day = Number(localDate.slice(6, 8));
+    const hour = Number(localTime.slice(0, 2));
+    const minute = Number(localTime.slice(2, 4));
+
+    const currentMinute = Math.floor(
+      new Date(year, month, day, hour, minute).getTime() / 1000
+    );
+
+    const price = Number(bidPrice || askPrice);
+
+    // 새로운 분이 시작되었는지 확인
+    if (currentMinuteRef.current !== currentMinute) {
+      // 이전 분봉이 있으면 저장
+      if (currentCandleRef.current) {
+        setLiveData((prev) => {
+          const newData = [...prev];
+          // 마지막 캔들을 업데이트하거나 새로 추가
+          const lastIndex = newData.length - 1;
+          if (
+            lastIndex >= 0 &&
+            newData[lastIndex].time === currentCandleRef.current.time
+          ) {
+            newData[lastIndex] = { ...currentCandleRef.current };
+          } else {
+            newData.push({ ...currentCandleRef.current });
+          }
+          return newData;
+        });
+      }
+
+      // 새로운 분봉 시작
+      currentCandleRef.current = {
+        time: currentMinute,
+        open: price,
+        high: price,
+        low: price,
+        close: price,
+        volume: 0, // 실시간 데이터에는 거래량 정보가 없으므로 0으로 설정
+      };
+      currentMinuteRef.current = currentMinute;
+    } else {
+      // 같은 분 내에서 가격 업데이트
+      if (currentCandleRef.current) {
+        currentCandleRef.current.high = Math.max(
+          currentCandleRef.current.high,
+          price
+        );
+        currentCandleRef.current.low = Math.min(
+          currentCandleRef.current.low,
+          price
+        );
+        currentCandleRef.current.close = price;
+      }
+    }
+
+    // 실시간으로 차트 업데이트
+    if (candleSeriesRef.current && currentCandleRef.current) {
+      candleSeriesRef.current.update(currentCandleRef.current);
+    }
+  };
 
   // symbol이 바뀔 때마다 초기 데이터 fetch (딱 한 번만)
   useEffect(() => {
@@ -69,29 +142,86 @@ export default function StockLiveChart({ symbol }) {
   // WebSocket 연결 및 심볼 요청/응답
   useEffect(() => {
     if (!symbol) return;
-    const ws = new window.WebSocket("ws://localhost:4000/wsClient");
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "symbol", symbol }));
-    };
-    ws.onmessage = (event) => {
+
+    let reconnectTimeout;
+    let isConnecting = false;
+
+    const connectWebSocket = () => {
+      if (isConnecting) return;
+      isConnecting = true;
+
       try {
-        const msg = JSON.parse(event.data);
-        if (msg.ok && msg.symbol === symbol) {
-          console.log("서버에서 ok 응답:", msg);
-        } else if (msg.type === "time") {
-          console.log("서버에서 1초마다 받은 시간:", msg.time);
-        } else {
-          console.log("서버에서 받은 기타 메시지:", msg);
-        }
-      } catch (e) {
-        console.log("서버에서 받은 메시지(파싱불가):", event.data);
+        const ws = new window.WebSocket("ws://localhost:4000/wsClient");
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          console.log("WebSocket 연결 성공");
+          isConnecting = false;
+          ws.send(JSON.stringify({ type: "symbol", symbol }));
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.ok && msg.symbol === symbol) {
+              console.log("서버에서 ok 응답:", msg);
+            } else if (msg.type === "time") {
+              console.log("서버에서 1초마다 받은 시간:", msg.time);
+            } else if (msg.type === "realtime" && msg.symbol === symbol) {
+              console.log("실시간 데이터 수신:", msg.data);
+              processRealtimeData(msg.data);
+            } else {
+              console.log("서버에서 받은 기타 메시지:", msg);
+            }
+          } catch (e) {
+            console.log("서버에서 받은 메시지(파싱불가):", event.data);
+          }
+        };
+
+        ws.onerror = (err) => {
+          console.warn(
+            "WebSocket 연결 에러 (서버가 실행되지 않았을 수 있습니다):",
+            err
+          );
+          isConnecting = false;
+        };
+
+        ws.onclose = (event) => {
+          console.log("WebSocket 연결 종료:", event.code, event.reason);
+          isConnecting = false;
+          wsRef.current = null;
+
+          // 자동 재연결 (5초 후)
+          if (event.code !== 1000) {
+            // 정상 종료가 아닌 경우에만 재연결
+            reconnectTimeout = setTimeout(() => {
+              console.log("WebSocket 재연결 시도...");
+              connectWebSocket();
+            }, 5000);
+          }
+        };
+      } catch (error) {
+        console.warn("WebSocket 연결 실패:", error);
+        isConnecting = false;
+
+        // 재연결 시도
+        reconnectTimeout = setTimeout(() => {
+          console.log("WebSocket 재연결 시도...");
+          connectWebSocket();
+        }, 5000);
       }
     };
-    ws.onerror = (err) => {
-      console.error("WebSocket 에러:", err);
-    };
+
+    connectWebSocket();
+
     return () => {
-      ws.close();
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+      if (wsRef.current) {
+        wsRef.current.close(1000, "Component unmount");
+        wsRef.current = null;
+      }
     };
   }, [symbol]);
 
