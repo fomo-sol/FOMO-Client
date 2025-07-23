@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 
 function parseJwt(token) {
   try {
@@ -61,5 +61,14 @@ export default function useAuth() {
     }
   }, [favorites, user?.id]);
 
-  return { isLoggedIn, user, favorites, setFavorites };
+  // setFavorites 함수를 메모리제이션
+  const setFavoritesMemo = useCallback((newFavorites) => {
+    setFavorites(newFavorites);
+  }, []);
+
+  const authValue = useMemo(() => {
+    return { isLoggedIn, user, favorites, setFavorites: setFavoritesMemo };
+  }, [isLoggedIn, user, favorites, setFavoritesMemo]);
+
+  return authValue;
 }

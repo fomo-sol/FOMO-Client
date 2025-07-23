@@ -20,7 +20,10 @@ export default function Navbar() {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
 
-  console.log("[Navbar] isLoggedIn:", isLoggedIn);
+  // isLoggedIn이 변경될 때만 로그 출력
+  useEffect(() => {
+    console.log("[Navbar] isLoggedIn:", isLoggedIn);
+  }, [isLoggedIn]);
 
   // companylogo.json 데이터 로드
   useEffect(() => {
