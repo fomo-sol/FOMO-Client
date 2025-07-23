@@ -1,3 +1,4 @@
+"use client";
 import axiosInstance from "@/services/axios-instance";
 
 // 회원가입 요청
@@ -13,27 +14,25 @@ export const loginUser = async (data) => {
     const token = response.data?.data?.token;
     const user = response.data?.data?.user;
 
-    if (token) {
+    if (token && typeof window !== "undefined") {
         // localStorage 저장
         localStorage.setItem("token", token);
-
         // axiosInstance 전역 헤더에 설정
         axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
 
     return { user, token };
-    // return response.data;
 };
 
 // 로그아웃 요청
 export const logoutUser = async () => {
     try {
         const response = await axiosInstance.post("/user/logout");
-
         // 토큰 제거
-        localStorage.removeItem("token");
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("token");
+        }
         delete axiosInstance.defaults.headers.common["Authorization"];
-
         return response.data;
     } catch (err) {
         throw err;
@@ -44,4 +43,18 @@ export const logoutUser = async () => {
 export const registerFcmToken = async (fcm_token) => {
     const res = await axiosInstance.post("/user/fcm", { fcm_token });
     return res.data;
+};
+
+export const getUserInfo = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    if (token) {
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        console.log("✅ 토큰 포함됨:", token);
+    } else {
+        console.warn("❌ 토큰 없음 (localStorage에서 못 가져옴)");
+    }
+
+    const res = await axiosInstance.get("/user/me");
+    return res.data.data;
 };
