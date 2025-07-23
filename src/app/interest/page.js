@@ -25,7 +25,7 @@ export default function InterestPage() {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/companies");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/companies`);
         const json = await res.json();
         if (json.success) {
           setOriginalCompanies(json.data);
@@ -147,7 +147,7 @@ export default function InterestPage() {
     const favoritePayload = selectedIds.map((id) => ({ stock_id: id }));
     console.log("✅ favoritePayload (body):", favoritePayload);
 
-    const postUrl = `http://localhost:4000/api/favorites/${userId}`;
+    const postUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/favorites/${userId}`;
     console.log("✅ POST URL:", postUrl);
 
     try {

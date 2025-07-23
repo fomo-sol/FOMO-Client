@@ -44,3 +44,17 @@ export const registerFcmToken = async (fcm_token) => {
     const res = await axiosInstance.post("/user/fcm", { fcm_token });
     return res.data;
 };
+
+export const getUserInfo = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    if (token) {
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        console.log("✅ 토큰 포함됨:", token);
+    } else {
+        console.warn("❌ 토큰 없음 (localStorage에서 못 가져옴)");
+    }
+
+    const res = await axiosInstance.get("/user/me");
+    return res.data.data;
+};

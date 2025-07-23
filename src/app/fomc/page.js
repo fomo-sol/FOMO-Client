@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import InterestList from "@/components/fomc/InterestList";
 import MinutesList from "@/components/fomc/MinutesList";
 import ProjectionList from "@/components/fomc/ProjectionList";
-const tabs = ["금리 결정 및 연설", "의사록", "경제전망"];
+const tabs = ["금리 결정 및 연설", "의사록"];
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 2020 + 1 }, (_, i) =>
   String(currentYear - i)
@@ -40,20 +40,40 @@ export default function FomcPage() {
         />
       );
     }
-    return (
-      <ProjectionList
-        selectedYear={selectedYear}
-        onItemClick={handleItemClick}
-      />
-    );
+    // return (
+    //   <ProjectionList
+    //     selectedYear={selectedYear}
+    //     onItemClick={handleItemClick}
+    //   />
+    // );
   };
 
   return (
-    <div className="px-8   font-[Pretendard] min-h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold mb-6">FOMC 리스트</h1>
+    <div className="px-8 font-[Pretendard] min-h-screen">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold mt-6 mb-2">FOMC 리스트</h1>
+      </div>
+
+      {/* 탭 + 연도 선택 */}
+      <div className="flex justify-between items-center border-b border-white/30 mb-2">
+        <div className="flex gap-8">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-1 text-[20px] cursor-pointer font-semibold relative ${
+                activeTab === tab ? "text-white" : "text-gray-400"
+              }`}
+            >
+              {tab}
+              {activeTab === tab && (
+                <div className="absolute bottom-0 left-0 w-full h-[2px] mb-[-9px] bg-[#93B9FF]" />
+              )}
+            </button>
+          ))}
+        </div>
         <select
-          className="bg-[#F5F5F5] cursor-pointer text-black border-[3px] border-[#E0E0E0] rounded-[4px] px-2 py-1 w-[95px]"
+          className="bg-[#F5F5F5] cursor-pointer text-black border-[3px] border-[#E0E0E0] rounded-[4px] px-2 py-1 w-[95px] mb-4"
           value={selectedYear}
           onChange={(e) => setSelectedYear(e.target.value)}
         >
@@ -64,25 +84,6 @@ export default function FomcPage() {
           ))}
         </select>
       </div>
-
-      {/* 탭 */}
-      <div className="flex gap-8 border-b border-white/30 mb-6">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-2 text-[20px] cursor-pointer font-semibold relative ${
-              activeTab === tab ? "text-white" : "text-gray-400"
-            }`}
-          >
-            {tab}
-            {activeTab === tab && (
-              <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#93B9FF]" />
-            )}
-          </button>
-        ))}
-      </div>
-
       {/* 리스트 */}
       {renderTabContent()}
     </div>

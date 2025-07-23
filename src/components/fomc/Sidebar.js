@@ -16,10 +16,14 @@ export default function FOMCSidebar() {
 
   // API fetch (decisions, minutes 둘 다)
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/fomc/decisions?year=${selectedYear}`)
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/fomc/decisions?year=${selectedYear}`
+    )
       .then((res) => res.json())
       .then((json) => setDecisions(json.data || []));
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/fomc/minutes?year=${selectedYear}`)
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/fomc/minutes?year=${selectedYear}`
+    )
       .then((res) => res.json())
       .then((json) => setMinutes(json.data || []));
   }, [selectedYear]);
@@ -98,22 +102,37 @@ export default function FOMCSidebar() {
   }, []);
 
   // 카드 클릭 핸들러
-  const handleCardClick = (id) => {
-    router.push(`/fomc/${id}?div=decisions`);
+  const handleCardClick = (id, date, type) => {
+    // count 계산 (같은 연도의 몇 번째인지)
+    const year = date ? new Date(date).getFullYear() : new Date().getFullYear();
+    const sameYearItems = sortedDecisions.filter((item) => {
+      const itemYear = item.fed_release_date
+        ? new Date(item.fed_release_date).getFullYear()
+        : null;
+      return itemYear === year;
+    });
+
+    // 날짜순으로 정렬 후 현재 아이템의 인덱스 찾기
+    const sortedItems = sameYearItems.sort(
+      (a, b) => new Date(a.fed_release_date) - new Date(b.fed_release_date)
+    );
+    const currentIndex = sortedItems.findIndex(
+      (item) => item.fed_release_date === date
+    );
+    const count = currentIndex !== -1 ? currentIndex + 1 : 1;
+
+    // 날짜 포맷 (YYYY-MM-DD)
+    const formattedDate = date ? date.split("T")[0] : "";
+
+    const divType = type === "의사록" ? "minutes" : "decisions";
+    router.push(
+      `/fomc/${id}?div=decisions&date=${formattedDate}&count=${count}`
+    );
   };
 
   // 날짜 포맷 함수 (YYYY-MM-DD)
   const formatDate = (date) =>
-    date
-      ? date
-          .toLocaleDateString("ko-KR", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          })
-          .replace(/\. /g, "-")
-          .replace(/\.$/, "")
-      : "-";
+    date ? date.split("T")[0].replace(/-/g, ".") : "-";
 
   // 연도 리스트 동적 생성 (현재 연도 ~ 2020)
   const currentYear = new Date().getFullYear();
@@ -132,7 +151,8 @@ export default function FOMCSidebar() {
           <div className="text-white/60 px-4 py-8">일정 데이터 없음</div>
         ) : (
           displayCards.map((item, idx) => {
-            const dateObj = item.date ? new Date(item.date) : null;
+            const dateStr = item.date ? item.date.split("T")[0] : null;
+            const dateObj = dateStr ? new Date(dateStr + "T00:00:00") : null;
             return (
               <div
                 key={item.id + item.type}
@@ -181,16 +201,24 @@ export default function FOMCSidebar() {
             {sortedDecisions.length > 0 ? (
               sortedDecisions.map((event, idx) => {
                 const d = event.fed_release_date
-                  ? new Date(event.fed_release_date)
+                  ? event.fed_release_date.split("T")[0].replace(/-/g, ".")
                   : null;
                 const minutesObj = sortedMinutes[idx];
                 const minutesDate = minutesObj?.fomc_release_date
-                  ? new Date(minutesObj.fomc_release_date)
+                  ? minutesObj.fomc_release_date
+                      .split("T")[0]
+                      .replace(/-/g, ".")
                   : null;
                 return (
                   <tr
                     key={event.id}
-                    onClick={() => handleCardClick(event.id)}
+                    onClick={() =>
+                      handleCardClick(
+                        event.id,
+                        event.fed_release_date,
+                        "의사록"
+                      )
+                    }
                     className="cursor-pointer hover:bg-[#2c2c2c] transition rounded"
                   >
                     <td className="py-3 flex items-center gap-2">
@@ -202,8 +230,8 @@ export default function FOMCSidebar() {
                       />
                       {d ? getFomcTitle(idx, event.fed_release_date) : "-"}
                     </td>
-                    <td>{formatDate(d)}</td>
-                    <td>{minutesDate ? formatDate(minutesDate) : "-"}</td>
+                    <td>{d}</td>
+                    <td>{minutesDate || "-"}</td>
                   </tr>
                 );
               })

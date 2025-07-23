@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-export default function FinanceList({ symbol }) {
+export default function FinanceList({
+  symbol,
+  financeData,
+  skipFetch = false,
+}) {
   const [finances, setFinances] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,8 +32,15 @@ export default function FinanceList({ symbol }) {
         setLoading(false);
       }
     }
-    if (symbol) fetchFinances();
-  }, [symbol]);
+
+    // props로 받은 데이터가 있으면 사용, 없으면 API 호출
+    if (skipFetch && financeData && Array.isArray(financeData.finances)) {
+      setFinances(financeData.finances);
+      setLoading(false);
+    } else if (symbol && !skipFetch) {
+      fetchFinances();
+    }
+  }, [symbol, financeData, skipFetch]);
 
   if (loading) return <div>로딩중...</div>;
   if (error) return <div>{error}</div>;

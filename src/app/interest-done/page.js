@@ -1,8 +1,12 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import TelegramModal from "@/components/common/TelegramModal";
+import { useState } from "react";
 
 export default function InterestDonePage() {
+  const [showModal, setShowModal] = useState(false);
+
   const iconList = [
     {
       src: "/1-icon.png",
@@ -107,10 +111,14 @@ export default function InterestDonePage() {
           모바일 알림도 받아보시겠어요?
         </p>
 
-        <button className="mt-6 bg-white text-[#040816] text-[20px] font-normal px-6 py-3 rounded-full shadow-md">
+        <button
+          className="mt-6 bg-white text-[#040816] text-[20px] font-normal px-6 py-3 rounded-full shadow-md"
+          onClick={() => setShowModal(true)}
+        >
           텔레그램으로 알림받기
         </button>
       </div>
+      {showModal && <TelegramModal onClose={() => setShowModal(false)} />}
     </div>
   );
 }

@@ -10,22 +10,46 @@ import EarningDataList from "@/components/earning/earningDetail/EarningDataList"
 export default function EarningReleasePage() {
   const { symbol } = useParams();
   const [stockData, setStockData] = useState([]);
+  const [financeData, setFinanceData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       try {
-        const res = await getStockData(symbol);
-        if (res?.output2) {
-          setStockData(res.output2.reverse());
-        } else {
-          console.error("No output2 for symbol", symbol);
+        // 주식 데이터 가져오기
+        const stockRes = await getStockData(symbol);
+        if (stockRes?.output2) {
+          setStockData(stockRes.output2.reverse());
+        }
+
+        // 재무 데이터 가져오기
+        const financeRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/earnings/${symbol}`
+        );
+        const financeData = await financeRes.json();
+        if (financeData.success && financeData.data) {
+          setFinanceData(financeData.data);
         }
       } catch (e) {
         console.error(e);
+      } finally {
+        setLoading(false);
       }
     }
-    fetchData();
+
+    if (symbol) {
+      fetchData();
+    }
   }, [symbol]);
+
+  if (loading) {
+    return (
+      <div className="p-6 bg-[#040816] text-white">
+        <div>로딩중...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-[#040816]">
@@ -33,7 +57,11 @@ export default function EarningReleasePage() {
       <div style={{ display: "flex", alignItems: "flex-start", gap: "32px" }}>
         <div style={{ flex: "0 0 380px" }}>
           <StockChart symbol={symbol} />
-          <FinanceList symbol={symbol} />
+          <FinanceList
+            symbol={symbol}
+            financeData={financeData}
+            skipFetch={true}
+          />
         </div>
         <div style={{ flex: 1 }}>
           <EarningDataList />
