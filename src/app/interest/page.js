@@ -25,7 +25,7 @@ export default function InterestPage() {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/companies`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies`);
         const json = await res.json();
         if (json.success) {
           setOriginalCompanies(json.data);
