@@ -13,6 +13,24 @@ const chunkStocks = (arr, size) => {
   return result;
 };
 
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return {};
+  }
+}
+
 export default function InterestPage() {
   const router = useRouter();
   const [originalCompanies, setOriginalCompanies] = useState([]);
@@ -21,6 +39,7 @@ export default function InterestPage() {
   const [selectedList, setSelectedList] = useState([]); // {symbol, rowIndex}
   const [recommendations, setRecommendations] = useState([]); // {symbol, recList}
   const [token, setToken] = useState("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -46,7 +65,15 @@ export default function InterestPage() {
     };
 
     const accessToken = localStorage.getItem("token");
-    if (accessToken) setToken(accessToken);
+    if (accessToken) {
+      setToken(accessToken);
+      try {
+        const payload = parseJwt(accessToken);
+        setUsername(payload.username); // username 저장
+      } catch (e) {
+        setUsername("");
+      }
+    }
 
     fetchCompanies();
   }, []);
@@ -181,7 +208,7 @@ export default function InterestPage() {
       <div className="h-[calc(100vh-80px)] overflow-y-auto no-scrollbar px-6 pb-40 pt-12">
         <div className="text-center">
           <h1 className="text-[60px] font-semibold text-[#FFFEFE]">
-            지구님, 환영합니다!
+            {username ? `${username}님, 환영합니다!` : "환영합니다!"}
           </h1>
           <p className="mt-4 text-[20px] text-[#f7f7f7]">
             관심 종목을 추가하고, 가장 빠른 한글 요약본을 받아보세요

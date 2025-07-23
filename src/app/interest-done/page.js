@@ -2,10 +2,41 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import TelegramModal from "@/components/common/TelegramModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return {};
+  }
+}
 
 export default function InterestDonePage() {
   const [showModal, setShowModal] = useState(false);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("token");
+    if (accessToken) {
+      try {
+        const payload = parseJwt(accessToken);
+        setUsername(payload.username);
+      } catch (e) {
+        setUsername("");
+      }
+    }
+  }, []);
 
   const iconList = [
     {
@@ -105,7 +136,7 @@ export default function InterestDonePage() {
         </h1>
         <p className="text-[30px] text-[#F7F7F7] mt-6">
           FOMC 일정부터 실적 발표 요약까지 <br />
-          지구님 맞춤 알림으로 가장 빠르게 알려드릴게요
+          {username ? `${username}님 맞춤 알림으로 가장 빠르게 알려드릴게요` : "맞춤 알림으로 가장 빠르게 알려드릴게요"}
         </p>
         <p className="text-[30px] text-[#F7F7F7] mt-4">
           모바일 알림도 받아보시겠어요?
