@@ -1,8 +1,31 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function EarningDataList({ englishUrl }) {
-  const [activeTab, setActiveTab] = useState("한국어");
+export default function EarningDataList({
+  englishUrl,
+  firstFinanceId,
+  symbol,
+  earningData,
+}) {
+  const [activeTab, setActiveTab] = useState("영어");
+  const [loading, setLoading] = useState(false);
+
+  // earningData가 변경될 때마다 처리
+  useEffect(() => {
+    if (earningData && earningData.length > 0) {
+      // 첫 번째 데이터 사용 (API 응답이 배열 형태)
+      const data = earningData[0];
+      console.log("EarningDataList received data:", data);
+    }
+  }, [earningData]);
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+
+  // earningData에서 첫 번째 항목 가져오기
+  const currentData =
+    earningData && earningData.length > 0 ? earningData[0] : null;
 
   return (
     <div className="bg-[#1A2642] rounded-[10px] shadow-md pt-2 pb-4 px-4 relative">
@@ -11,7 +34,7 @@ export default function EarningDataList({ englishUrl }) {
         {["한국어", "영어", "AI 요약분석"].map((lang) => (
           <div key={lang} className="flex flex-col items-center text-center">
             <button
-              onClick={() => setActiveTab(lang)}
+              onClick={() => handleTabClick(lang)}
               className={`transition-all cursor-pointer ${
                 activeTab === lang ? "text-white font-bold" : "text-white/50"
               } text-sm`}
@@ -34,17 +57,18 @@ export default function EarningDataList({ englishUrl }) {
       </div>
       {/* 본문 */}
       <div className="bg-white rounded-[10px] h-[600px] overflow-hidden text-[#040816]">
-        {activeTab === "영어" ? (
-          englishUrl ? (
+        {loading ? (
+          <div className="text-center pt-20 text-gray-500">로딩중...</div>
+        ) : activeTab === "영어" ? (
+          currentData?.stock_release_content_en ? (
             <iframe
-              src={englishUrl}
+              src={currentData.stock_release_content_en}
               width="100%"
               height="100%"
               className="rounded-[10px]"
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "8px",
-                // backgroundColor: "#e1e1e1",
               }}
             />
           ) : (
@@ -53,12 +77,36 @@ export default function EarningDataList({ englishUrl }) {
             </div>
           )
         ) : activeTab === "한국어" ? (
-          <div className="p-8 text-center text-gray-700">
-            한국어 데이터(더미)
-          </div>
+          currentData?.stock_release_content_kr ? (
+            <iframe
+              src={currentData.stock_release_content_kr}
+              width="100%"
+              height="100%"
+              className="rounded-[10px]"
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+              }}
+            />
+          ) : (
+            <div className="text-center pt-20 text-gray-500">
+              한국어 데이터가 없습니다.
+            </div>
+          )
+        ) : currentData?.stock_release_content_an ? (
+          <iframe
+            src={currentData.stock_release_content_an}
+            width="100%"
+            height="100%"
+            className="rounded-[10px]"
+            style={{
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+            }}
+          />
         ) : (
-          <div className="p-8 text-center text-gray-700">
-            AI 요약/분석 데이터(더미)
+          <div className="text-center pt-20 text-gray-500">
+            AI 요약/분석 데이터가 없습니다.
           </div>
         )}
       </div>

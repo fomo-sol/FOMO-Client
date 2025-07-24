@@ -12,6 +12,7 @@ export default function EarningReleasePage() {
   const [stockData, setStockData] = useState([]);
   const [financeData, setFinanceData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [earningData, setEarningData] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -61,10 +62,11 @@ export default function EarningReleasePage() {
             symbol={symbol}
             financeData={financeData}
             skipFetch={true}
+            onEarningData={(data) => setEarningData(data)}
           />
         </div>
         <div style={{ flex: 1 }}>
-          <EarningDataList />
+          <EarningDataList earningData={earningData} />
         </div>
       </div>
     </div>
