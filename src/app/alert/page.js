@@ -2,131 +2,107 @@
 import AlertCard from "@/components/alert/AlertCard";
 import AlertSidebar from "@/components/alert/AlertSidebar";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Suspense } from "react";
 
 function AlertPageContent() {
   const searchParams = useSearchParams();
   const idParam = searchParams.get("id");
   const selectedId = idParam ? parseInt(idParam) : null;
-  const allAlerts = [
-    {
-      id: 1,
-      iconSrc: "/엔비디아.png",
-      title: "NVIDIA",
-      subtitle: "2025 Q1 실적발표",
-      description:
-        "엔비디아(NVDA)의 2025년 1분기 실적 발표 일정이 확정되었습니다.",
-      time: "07/10 오후 4시 30분",
-      stripColor: "#7CA9EF",
-    },
-    {
-      id: 2,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "2025 2차 의사록",
-      description: "FOMC 회의록이 공개될 예정입니다.",
-      time: "07/10 오전 4시 30분",
-      stripColor: "#636363",
-    },
-    {
-      id: 3,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "긴급 정책 발표",
-      description: "중요한 금리 정책 발표가 예정되어 있습니다.",
-      time: "07/10 오후 10시",
-      stripColor: "#FF0540",
-    },
-    {
-      id: 4,
-      iconSrc: "/엔비디아.png",
-      title: "NVIDIA",
-      subtitle: "2025 Q1 실적발표",
-      description:
-        "엔비디아(NVDA)의 2025년 1분기 실적 발표 일정이 확정되었습니다.",
-      time: "07/10 오후 4시 30분",
-      stripColor: "#7CA9EF",
-    },
-    {
-      id: 5,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "2025 2차 의사록",
-      description: "FOMC 회의록이 공개될 예정입니다.",
-      time: "07/10 오전 4시 30분",
-      stripColor: "#636363",
-    },
-    {
-      id: 6,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "긴급 정책 발표",
-      description: "중요한 금리 정책 발표가 예정되어 있습니다.",
-      time: "07/10 오후 10시",
-      stripColor: "#FF0540",
-    },
-    {
-      id: 7,
-      iconSrc: "/엔비디아.png",
-      title: "NVIDIA",
-      subtitle: "2025 Q1 실적발표",
-      description:
-        "엔비디아(NVDA)의 2025년 1분기 실적 발표 일정이 확정되었습니다.",
-      time: "07/10 오후 4시 30분",
-      stripColor: "#7CA9EF",
-    },
-    {
-      id: 8,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "2025 2차 의사록",
-      description: "FOMC 회의록이 공개될 예정입니다.",
-      time: "07/10 오전 4시 30분",
-      stripColor: "#636363",
-    },
-    {
-      id: 9,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "긴급 정책 발표",
-      description: "중요한 금리 정책 발표가 예정되어 있습니다.",
-      time: "07/10 오후 10시",
-      stripColor: "#FF0540",
-    },
-    {
-      id: 10,
-      iconSrc: "/엔비디아.png",
-      title: "NVIDIA",
-      subtitle: "2025 Q1 실적발표",
-      description:
-        "엔비디아(NVDA)의 2025년 1분기 실적 발표 일정이 확정되었습니다.",
-      time: "07/10 오후 4시 30분",
-      stripColor: "#7CA9EF",
-    },
-    {
-      id: 11,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "2025 2차 의사록",
-      description: "FOMC 회의록이 공개될 예정입니다.",
-      time: "07/10 오전 4시 30분",
-      stripColor: "#636363",
-    },
-    {
-      id: 12,
-      iconSrc: "/fomc.png",
-      title: "FOMC",
-      subtitle: "긴급 정책 발표",
-      description: "중요한 금리 정책 발표가 예정되어 있습니다.",
-      time: "07/10 오후 10시",
-      stripColor: "#FF0540",
-    },
-  ];
+
+  const [alerts, setAlerts] = useState([]);
+  const [companyMap, setCompanyMap] = useState({});
   const cardRefs = useRef({});
+  const [filter, setFilter] = useState("all");
+
+  // ✅ 1. 기업 정보 먼저 불러오기
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies`);
+      const json = await res.json();
+
+      if (json.success) {
+        const map = {};
+        json.data.forEach((c) => {
+          map[c.id.toString()] = {
+            name_kr: c.name_kr,
+            logo: c.logo,
+          };
+        });
+        setCompanyMap(map);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+  // ✅ 2. 기업 정보가 준비된 이후에 알림 불러오기
+  useEffect(() => {
+    if (Object.keys(companyMap).length === 0) return; // 기업 정보 준비될 때까지 대기
+
+    const fetchAlerts = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const userId = payload.userId || payload.sub || payload.id;
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/notifications?filter=all&userId=${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const json = await res.json();
+        if (json.success) {
+          const mapped = json.data.map((item, idx) => {
+            const status = item.status || "";
+            const alertContent = item.alert_content || "";
+            const stripColor =
+              status === "earning_global"
+                ? "#7CA9EF"
+                : ["earning_analysis", "fomc_analysis"].includes(status)
+                ? "#FF0540"
+                : "#636363";
+
+            const stockId = item.stock_id?.toString(); // 반드시 문자열로
+            const company = companyMap[stockId];
+
+            const title = status.includes("fomc")
+              ? "FOMC"
+              : company?.name_kr || "기업명 없음";
+
+            const iconSrc = status.includes("fomc")
+              ? "/fomc.png"
+              : company?.logo || "/default.png";
+
+            return {
+              id: idx + 1,
+              iconSrc,
+              title,
+              description: alertContent,
+              time: item.created_at
+                ? new Date(item.created_at).toLocaleString("ko-KR")
+                : "시간 정보 없음",
+              stripColor,
+            };
+          });
+
+          setAlerts(mapped);
+        }
+      } catch (err) {
+        console.error("❌ 알림 불러오기 실패:", err);
+      }
+    };
+
+    fetchAlerts();
+  }, [companyMap]); // ✅ companyMap이 준비된 이후에 실행됨
+
+  // ✅ 선택된 카드 스크롤
   useEffect(() => {
     if (selectedId && cardRefs.current[selectedId]) {
-      // 선택된 카드로 스크롤
       cardRefs.current[selectedId].scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -135,13 +111,14 @@ function AlertPageContent() {
   }, [selectedId]);
 
   return (
-    <div className="px-8   font-[Pretendard] min-h-screen">
+    <div className="px-8 font-[Pretendard] min-h-screen">
       <h1 className="text-2xl font-bold mb-10">알림</h1>
-
       <div className="flex gap-8">
-        {/* 왼쪽: 알림 리스트 */}
         <div className="flex flex-col gap-4 flex-[3]">
-          {allAlerts.map((alert) => (
+          {(filter === "custom"
+            ? alerts.filter((alert) => alert.stripColor === "#FF0540")
+            : alerts
+          ).map((alert) => (
             <div
               key={alert.id}
               ref={(el) => {
@@ -151,7 +128,6 @@ function AlertPageContent() {
               <AlertCard
                 iconSrc={alert.iconSrc}
                 title={alert.title}
-                subtitle={alert.subtitle}
                 description={alert.description}
                 time={alert.time}
                 stripColor={alert.stripColor}
@@ -159,10 +135,8 @@ function AlertPageContent() {
             </div>
           ))}
         </div>
-
-        {/* 오른쪽: 알림 사이드바 */}
         <div className="flex-[1] flex justify-center">
-          <AlertSidebar />
+          <AlertSidebar filter={filter} setFilter={setFilter} />
         </div>
       </div>
     </div>

@@ -1,110 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 export default function NotificationPopup({ onClose }) {
   const popupRef = useRef();
   const router = useRouter();
+  const [notifications, setNotifications] = useState([]);
   // 실제 데이터로 교체 필요
-  const notifications = [
-    {
-      id: 1,
-      icon: "/엔비디아.png",
-      title: "NVIDIA",
-      time: "오후 2:14",
-      headline: "2025 Q1 실적발표",
-      description: "2025 Q1 실적발표 일정이 나왔습니다.",
-    },
-    {
-      id: 2,
-      icon: "/fomc.png",
-      title: "FOMC",
-      time: "오전 7:30",
-      headline: "2025 2차 의사록",
-      description: "2025 2차 의사록 일정이 나왔습니다.",
-    },
-    {
-      id: 3,
-      icon: "/엔비디아.png",
-      title: "NVIDIA",
-      time: "오후 2:14",
-      headline: "2025 Q1 실적발표",
-      description: "2025 Q1 실적발표 일정이 나왔습니다.",
-    },
-    {
-      id: 4,
-      icon: "/fomc.png",
-      title: "FOMC",
-      time: "오전 7:30",
-      headline: "2025 2차 의사록",
-      description: "2025 2차 의사록 일정이 나왔습니다.",
-    },
-    {
-      id: 5,
-      icon: "/엔비디아.png",
-      title: "NVIDIA",
-      time: "오후 2:14",
-      headline: "2025 Q1 실적발표",
-      description: "2025 Q1 실적발표 일정이 나왔습니다.",
-    },
-    {
-      id: 6,
-      icon: "/fomc.png",
-      title: "FOMC",
-      time: "오전 7:30",
-      headline: "2025 2차 의사록",
-      description: "2025 2차 의사록 일정이 나왔습니다.",
-    },
-    {
-      id: 7,
-      icon: "/엔비디아.png",
-      title: "NVIDIA",
-      time: "오후 2:14",
-      headline: "2025 Q1 실적발표",
-      description: "2025 Q1 실적발표 일정이 나왔습니다.",
-    },
-    {
-      id: 8,
-      icon: "/fomc.png",
-      title: "FOMC",
-      time: "오전 7:30",
-      headline: "2025 2차 의사록",
-      description: "2025 2차 의사록 일정이 나왔습니다.",
-    },
-    {
-      id: 9,
-      icon: "/엔비디아.png",
-      title: "NVIDIA",
-      time: "오후 2:14",
-      headline: "2025 Q1 실적발표",
-      description: "2025 Q1 실적발표 일정이 나왔습니다.",
-    },
-    {
-      id: 10,
-      icon: "/fomc.png",
-      title: "FOMC",
-      time: "오전 7:30",
-      headline: "2025 2차 의사록",
-      description: "2025 2차 의사록 일정이 나왔습니다.",
-    },
-    {
-      id: 11,
-      icon: "/엔비디아.png",
-      title: "NVIDIA",
-      time: "오후 2:14",
-      headline: "2025 Q1 실적발표",
-      description: "2025 Q1 실적발표 일정이 나왔습니다.",
-    },
-    {
-      id: 12,
-      icon: "/fomc.png",
-      title: "FOMC",
-      time: "오전 7:30",
-      headline: "2025 2차 의사록",
-      description: "2025 2차 의사록 일정이 나왔습니다.",
-    },
-  ];
-
   useEffect(() => {
     function handleClickOutside(e) {
       if (popupRef.current && !popupRef.current.contains(e.target)) {
@@ -114,6 +16,105 @@ export default function NotificationPopup({ onClose }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
+
+  // ✅ 기업 정보 + 알림 불러오기
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const userId = payload.userId || payload.sub || payload.id;
+
+        // 기업 정보 먼저
+        const resCompany = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/companies`
+        );
+        const jsonCompany = await resCompany.json();
+        const companyMap = {};
+        jsonCompany.data.forEach((c) => {
+          companyMap[c.id.toString()] = {
+            name_kr: c.name_kr,
+            logo: c.logo,
+          };
+        });
+
+        // 알림 정보
+        const resAlert = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/notifications?filter=all&userId=${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const jsonAlert = await resAlert.json();
+
+        if (jsonAlert.success) {
+          const mapped = jsonAlert.data.map((item, idx) => {
+            const status = item.status || "";
+            const alertContent = item.alert_content || "";
+
+            const stripColor =
+              status === "earning_global"
+                ? "#7CA9EF"
+                : ["earning_analysis", "fomc_analysis"].includes(status)
+                ? "#FF0540"
+                : "#636363";
+
+            const stockId = item.stock_id?.toString();
+            const company = companyMap[stockId];
+
+            const title = status.includes("fomc")
+              ? "FOMC"
+              : company?.name_kr || "기업명 없음";
+
+            const iconSrc = status.includes("fomc")
+              ? "/fomc.png"
+              : company?.logo || "/default.png";
+
+            return {
+              id: idx + 1,
+              icon: iconSrc,
+              title,
+              time: item.created_at
+                ? formatKoreanTime(item.created_at)
+                : "시간 없음",
+
+              description: alertContent,
+            };
+          });
+
+          // 🔹 최근 알림 5~7개만 보여주기
+          setNotifications(mapped.slice(0, 7));
+        }
+      } catch (err) {
+        console.error("❌ 알림 또는 기업 정보 로딩 실패:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+  function formatKoreanTime(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const isToday =
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate();
+
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes().toString().padStart(2, "0");
+    const ampm = hour >= 12 ? "오후" : "오전";
+    const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+
+    const dayPrefix = isToday ? "오늘" : `${month}월 ${day}일`;
+    return `${dayPrefix} ${ampm} ${hour12}:${minute}`;
+  }
 
   return (
     <div
@@ -142,7 +143,7 @@ export default function NotificationPopup({ onClose }) {
               <li
                 className="p-4 space-y-1 cursor-pointer hover:bg-[#e9e9e9]"
                 onClick={() => {
-                  router.push(`/alert?id=${item.id}`);
+                  router.push("/alert?id=" + item.id); // 상세 링크 가능
                   onClose();
                 }}
               >
@@ -154,7 +155,9 @@ export default function NotificationPopup({ onClose }) {
                   <span className="text-xs text-gray-500">{item.time}</span>
                 </div>
                 <p className="text-sm font-bold">{item.headline}</p>
-                <p className="text-xs text-gray-600">{item.description}</p>
+                <p className="text-xs text-gray-600 whitespace-pre-line">
+                  {item.description}
+                </p>
               </li>
               {index !== notifications.length - 1 && (
                 <div
