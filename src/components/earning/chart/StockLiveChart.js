@@ -15,10 +15,20 @@ export default function StockLiveChart({ symbol }) {
   const liveDataRef = useRef(liveData);
   const [pendingPrepend, setPendingPrepend] = useState(0);
 
-  // 실시간 데이터 관리를 위한 ref들
+  // 실시간 데이터 관리를 위한 ref들 - symbol별로 고유하게 관리
   const currentMinuteRef = useRef(null);
   const currentCandleRef = useRef(null);
   const wsRef = useRef(null);
+
+  // symbol이 바뀔 때마다 ref 초기화
+  useEffect(() => {
+    currentMinuteRef.current = null;
+    currentCandleRef.current = null;
+    didInitialScrollRef.current = false;
+    isFetchingRef.current = false;
+    lastRequestedKeybRef.current = "";
+    logicalRangeRef.current = null;
+  }, [symbol]);
 
   useEffect(() => {
     liveDataRef.current = liveData;
@@ -146,6 +156,9 @@ export default function StockLiveChart({ symbol }) {
     let reconnectTimeout;
     let isConnecting = false;
 
+    // 각 컴포넌트마다 고유한 clientId 생성
+    const clientId = `${symbol}_${Math.random().toString(36).substr(2, 9)}`;
+
     const connectWebSocket = () => {
       if (isConnecting) return;
       isConnecting = true;
@@ -155,39 +168,65 @@ export default function StockLiveChart({ symbol }) {
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log("WebSocket 연결 성공");
+          console.log(`WebSocket 연결 성공 (${symbol}, clientId: ${clientId})`);
           isConnecting = false;
-          ws.send(JSON.stringify({ type: "symbol", symbol }));
+          // clientId와 함께 symbol 요청
+          ws.send(
+            JSON.stringify({
+              type: "symbol",
+              symbol,
+              clientId,
+            })
+          );
         };
 
         ws.onmessage = (event) => {
           try {
             const msg = JSON.parse(event.data);
             if (msg.ok && msg.symbol === symbol) {
-              console.log("서버에서 ok 응답:", msg);
+              console.log(
+                `서버에서 ok 응답 (${symbol}, clientId: ${clientId}):`,
+                msg
+              );
             } else if (msg.type === "time") {
-              console.log("서버에서 1초마다 받은 시간:", msg.time);
+              console.log(
+                `서버에서 1초마다 받은 시간 (${symbol}, clientId: ${clientId}):`,
+                msg.time
+              );
             } else if (msg.type === "realtime" && msg.symbol === symbol) {
-              console.log("실시간 데이터 수신:", msg.data);
+              console.log(
+                `실시간 데이터 수신 (${symbol}, clientId: ${clientId}):`,
+                msg.data
+              );
               processRealtimeData(msg.data);
             } else {
-              console.log("서버에서 받은 기타 메시지:", msg);
+              console.log(
+                `서버에서 받은 기타 메시지 (${symbol}, clientId: ${clientId}):`,
+                msg
+              );
             }
           } catch (e) {
-            console.log("서버에서 받은 메시지(파싱불가):", event.data);
+            console.log(
+              `서버에서 받은 메시지(파싱불가) (${symbol}, clientId: ${clientId}):`,
+              event.data
+            );
           }
         };
 
         ws.onerror = (err) => {
           console.warn(
-            "WebSocket 연결 에러 (서버가 실행되지 않았을 수 있습니다):",
+            `WebSocket 연결 에러 (${symbol}, clientId: ${clientId}) (서버가 실행되지 않았을 수 있습니다):`,
             err
           );
           isConnecting = false;
         };
 
         ws.onclose = (event) => {
-          console.log("WebSocket 연결 종료:", event.code, event.reason);
+          console.log(
+            `WebSocket 연결 종료 (${symbol}, clientId: ${clientId}):`,
+            event.code,
+            event.reason
+          );
           isConnecting = false;
           wsRef.current = null;
 
@@ -195,18 +234,25 @@ export default function StockLiveChart({ symbol }) {
           if (event.code !== 1000) {
             // 정상 종료가 아닌 경우에만 재연결
             reconnectTimeout = setTimeout(() => {
-              console.log("WebSocket 재연결 시도...");
+              console.log(
+                `WebSocket 재연결 시도 (${symbol}, clientId: ${clientId})...`
+              );
               connectWebSocket();
             }, 5000);
           }
         };
       } catch (error) {
-        console.warn("WebSocket 연결 실패:", error);
+        console.warn(
+          `WebSocket 연결 실패 (${symbol}, clientId: ${clientId}):`,
+          error
+        );
         isConnecting = false;
 
         // 재연결 시도
         reconnectTimeout = setTimeout(() => {
-          console.log("WebSocket 재연결 시도...");
+          console.log(
+            `WebSocket 재연결 시도 (${symbol}, clientId: ${clientId})...`
+          );
           connectWebSocket();
         }, 5000);
       }
@@ -219,6 +265,9 @@ export default function StockLiveChart({ symbol }) {
         clearTimeout(reconnectTimeout);
       }
       if (wsRef.current) {
+        console.log(
+          `WebSocket 연결 종료 (${symbol}, clientId: ${clientId}) - 컴포넌트 언마운트`
+        );
         wsRef.current.close(1000, "Component unmount");
         wsRef.current = null;
       }
