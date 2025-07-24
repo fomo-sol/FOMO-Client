@@ -31,13 +31,15 @@ export default function FOMCSidebar() {
   // decisions(의사록) 기준으로 8개 정렬
   const sortedDecisions = Array.isArray(decisions)
     ? [...decisions].sort(
-        (a, b) => new Date(a.fed_release_date) - new Date(b.fed_release_date)
+        (a, b) =>
+          new Date(a.fed_release_date_str) - new Date(b.fed_release_date_str)
       )
     : [];
   // minutes(금리발표)도 같은 방식으로 정렬
   const sortedMinutes = Array.isArray(minutes)
     ? [...minutes].sort(
-        (a, b) => new Date(a.fomc_release_date) - new Date(b.fomc_release_date)
+        (a, b) =>
+          new Date(a.fomc_release_date_str) - new Date(b.fomc_release_date_str)
       )
     : [];
 
@@ -53,11 +55,13 @@ export default function FOMCSidebar() {
   const rateCards = Array.isArray(minutes)
     ? minutes
         .filter(
-          (d) => d.fomc_release_date && new Date(d.fomc_release_date) >= today
+          (d) =>
+            d.fomc_release_date_str &&
+            new Date(d.fomc_release_date_str) >= today
         )
         .map((d) => ({
           ...d,
-          date: d.fomc_release_date,
+          date: d.fomc_release_date_str,
           type: "의사록",
         }))
     : [];
@@ -65,11 +69,12 @@ export default function FOMCSidebar() {
   const minuteCards = Array.isArray(decisions)
     ? decisions
         .filter(
-          (d) => d.fed_release_date && new Date(d.fed_release_date) >= today
+          (d) =>
+            d.fed_release_date_str && new Date(d.fed_release_date_str) >= today
         )
         .map((d) => ({
           ...d,
-          date: d.fed_release_date,
+          date: d.fed_release_date_str,
           type: "금리 발표",
         }))
     : [];
@@ -106,33 +111,33 @@ export default function FOMCSidebar() {
     // count 계산 (같은 연도의 몇 번째인지)
     const year = date ? new Date(date).getFullYear() : new Date().getFullYear();
     const sameYearItems = sortedDecisions.filter((item) => {
-      const itemYear = item.fed_release_date
-        ? new Date(item.fed_release_date).getFullYear()
+      const itemYear = item.fed_release_date_str
+        ? new Date(item.fed_release_date_str).getFullYear()
         : null;
       return itemYear === year;
     });
 
     // 날짜순으로 정렬 후 현재 아이템의 인덱스 찾기
     const sortedItems = sameYearItems.sort(
-      (a, b) => new Date(a.fed_release_date) - new Date(b.fed_release_date)
+      (a, b) =>
+        new Date(a.fed_release_date_str) - new Date(b.fed_release_date_str)
     );
     const currentIndex = sortedItems.findIndex(
-      (item) => item.fed_release_date === date
+      (item) => item.fed_release_date_str === date
     );
     const count = currentIndex !== -1 ? currentIndex + 1 : 1;
 
-    // 날짜 포맷 (YYYY-MM-DD)
-    const formattedDate = date ? date.split("T")[0] : "";
+    // 날짜 포맷 (YYYY-MM-DD) - fed_release_date_str 사용
+    const formattedDate = date || "";
 
-    const divType = type === "의사록" ? "minutes" : "decisions";
+    const divType = type === "의사록" ? "decisions" : "minutes";
     router.push(
-      `/fomc/${id}?div=decisions&date=${formattedDate}&count=${count}`
+      `/fomc/${id}?div=${divType}&date=${formattedDate}&count=${count}`
     );
   };
 
-  // 날짜 포맷 함수 (YYYY-MM-DD)
-  const formatDate = (date) =>
-    date ? date.split("T")[0].replace(/-/g, ".") : "-";
+  // 날짜 포맷 함수 (YYYY.MM.DD)
+  const formatDate = (dateStr) => (dateStr ? dateStr.replace(/-/g, ".") : "-");
 
   // 연도 리스트 동적 생성 (현재 연도 ~ 2020)
   const currentYear = new Date().getFullYear();
@@ -200,14 +205,12 @@ export default function FOMCSidebar() {
           <tbody>
             {sortedDecisions.length > 0 ? (
               sortedDecisions.map((event, idx) => {
-                const d = event.fed_release_date
-                  ? event.fed_release_date.split("T")[0].replace(/-/g, ".")
+                const d = event.fed_release_date_str
+                  ? event.fed_release_date_str.replace(/-/g, ".")
                   : null;
                 const minutesObj = sortedMinutes[idx];
-                const minutesDate = minutesObj?.fomc_release_date
-                  ? minutesObj.fomc_release_date
-                      .split("T")[0]
-                      .replace(/-/g, ".")
+                const minutesDate = minutesObj?.fomc_release_date_str
+                  ? minutesObj.fomc_release_date_str.replace(/-/g, ".")
                   : null;
                 return (
                   <tr
@@ -215,7 +218,7 @@ export default function FOMCSidebar() {
                     onClick={() =>
                       handleCardClick(
                         event.id,
-                        event.fed_release_date,
+                        event.fed_release_date_str,
                         "의사록"
                       )
                     }
@@ -228,7 +231,7 @@ export default function FOMCSidebar() {
                         width={20}
                         height={20}
                       />
-                      {d ? getFomcTitle(idx, event.fed_release_date) : "-"}
+                      {d ? getFomcTitle(idx, event.fed_release_date_str) : "-"}
                     </td>
                     <td>{d}</td>
                     <td>{minutesDate || "-"}</td>

@@ -44,7 +44,7 @@ export default function EarningDataList({ englishUrl }) {
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "8px",
-                backgroundColor: "#e1e1e1",
+                // backgroundColor: "#e1e1e1",
               }}
             />
           ) : (

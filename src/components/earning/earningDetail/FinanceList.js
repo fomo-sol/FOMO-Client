@@ -46,8 +46,9 @@ export default function FinanceList({
   if (error) return <div>{error}</div>;
   if (!finances.length) return <div>재무 데이터 없음</div>;
 
-  const visibleFinances = finances.slice(0, visibleCount);
-  const hasMore = visibleCount < finances.length;
+  const reversedFinances = [...finances].reverse();
+  const visibleFinances = reversedFinances.slice(0, visibleCount);
+  const hasMore = visibleCount < reversedFinances.length;
 
   return (
     <div className="w-full mt-6">
