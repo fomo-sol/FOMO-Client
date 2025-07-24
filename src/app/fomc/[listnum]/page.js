@@ -266,7 +266,7 @@ export default function FOMCItemPage() {
             <div className="flex items-center gap-2 mb-2">
               <button
                 onClick={() => setShowSidebar((prev) => !prev)}
-                className="w-[29px] h-[28px] cursor-pointer flex-shrink-0 bg-white/10 rounded p-1 hover:bg-white/20 transition-colors"
+                className="cursor-pointer flex-shrink-0  rounded p-1 hover:bg-white/20 transition-colors"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
