@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useAuth from "../../../../utils/useAuth";
+import useAuth from "@/utils/useAuth";
 import { formatRevenue } from "@/services/earning-service";
 
 export default function WishListPage() {

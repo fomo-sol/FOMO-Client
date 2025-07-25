@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import useAuth from "../../../../utils/useAuth";
+import useAuth from "@/utils/useAuth";
 
 export default function AddAssetModal({ onClose }) {
   const [search, setSearch] = useState("");
