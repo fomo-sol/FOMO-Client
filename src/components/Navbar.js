@@ -5,7 +5,7 @@ import NotificationPopup from "./common/NotificationPopup";
 import MyPageModal from "./common/MyPageModal";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import useAuth from "@/utils/useAuth";
+import useAuth from "../../utils/useAuth";
 
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -153,11 +153,6 @@ export default function Navbar() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              console.log(
-                "[Navbar] Alert button clicked, isLoggedIn:",
-                isLoggedIn
-              );
-
               if (!isLoggedIn) {
                 if (
                   window.confirm("로그인이 필요합니다. 로그인하시겠습니까?")

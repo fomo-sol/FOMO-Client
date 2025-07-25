@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import useAuth from "@/utils/useAuth";
+import useAuth from "../../utils/useAuth";
 
 export default function Home() {
   const router = useRouter();

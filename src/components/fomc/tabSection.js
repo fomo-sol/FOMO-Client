@@ -1,19 +1,6 @@
 // components/fomc/TabSection.jsx
-export default function TabSection({
-  activeTab,
-  setActiveTab,
-  divType = "decisions",
-  onTabClick,
-}) {
+export default function TabSection({ activeTab, setActiveTab }) {
   const tabs = ["금리결정", "연설", "의사록"];
-
-  const handleTabClick = (tab) => {
-    if (onTabClick) {
-      onTabClick(tab);
-    } else {
-      setActiveTab(tab);
-    }
-  };
 
   return (
     <div className="flex justify-center mb-4">
@@ -21,7 +8,7 @@ export default function TabSection({
         {tabs.map((tab) => (
           <button
             key={tab}
-            onClick={() => handleTabClick(tab)}
+            onClick={() => setActiveTab(tab)}
             className={`flex-1 h-[32px] rounded-full cursor-pointer text-sm font-semibold transition-all duration-150 ${
               activeTab === tab
                 ? "bg-white text-[#040816]"

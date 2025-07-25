@@ -6,30 +6,11 @@ export default function FinanceList({
   symbol,
   financeData,
   skipFetch = false,
-  onEarningData,
 }) {
   const [finances, setFinances] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(10);
-  const [selectedFinanceId, setSelectedFinanceId] = useState(null);
-
-  const handleFinanceClick = async (financeId) => {
-    setSelectedFinanceId(financeId);
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/earnings/results/${financeId}`
-      );
-      const data = await response.json();
-      if (data.success) {
-        console.log("Earning data:", data.data);
-        // 부모 컴포넌트에 데이터 전달
-        onEarningData?.(data.data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch earning data:", error);
-    }
-  };
 
   useEffect(() => {
     async function fetchFinances() {
@@ -65,9 +46,8 @@ export default function FinanceList({
   if (error) return <div>{error}</div>;
   if (!finances.length) return <div>재무 데이터 없음</div>;
 
-  const reversedFinances = [...finances].reverse();
-  const visibleFinances = reversedFinances.slice(0, visibleCount);
-  const hasMore = visibleCount < reversedFinances.length;
+  const visibleFinances = finances.slice(0, visibleCount);
+  const hasMore = visibleCount < finances.length;
 
   return (
     <div className="w-full mt-6">
@@ -83,8 +63,7 @@ export default function FinanceList({
         {visibleFinances.map((f) => (
           <div
             key={f.id}
-            className="grid grid-cols-4 py-2 px-2 bg-white/5 hover:bg-white/10 transition-all rounded text-white text-sm cursor-pointer"
-            onClick={() => handleFinanceClick(f.id)}
+            className="grid grid-cols-4 py-2 px-2 bg-white/5 hover:bg-white/10 transition-all rounded text-white text-sm"
           >
             <span>{f.fin_quarter}</span>
             <span>{f.fin_release_date}</span>

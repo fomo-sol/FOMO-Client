@@ -1,7 +1,6 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import { createChart } from "lightweight-charts";
 import { getMinutesChart } from "@/services/earning-service";
-import { useWebSocket } from "../../../hooks/useWebSocket";
 
 export default function StockLiveChart({ symbol }) {
   const chartContainerRef = useRef(null);
@@ -16,40 +15,10 @@ export default function StockLiveChart({ symbol }) {
   const liveDataRef = useRef(liveData);
   const [pendingPrepend, setPendingPrepend] = useState(0);
 
-  // 실시간 데이터 관리를 위한 ref들 - symbol별로 고유하게 관리
+  // 실시간 데이터 관리를 위한 ref들
   const currentMinuteRef = useRef(null);
   const currentCandleRef = useRef(null);
-
-  // WebSocket 메시지 핸들러 (메모이제이션)
-  const handleWebSocketMessage = useCallback(
-    (data) => {
-      console.log(`[StockLiveChart] 실시간 데이터 수신 (${symbol}):`, data);
-      processRealtimeData(data);
-    },
-    [symbol]
-  );
-
-  // useWebSocket 훅 사용
-  const { isConnected } = useWebSocket(symbol, handleWebSocketMessage);
-
-  // symbol이 바뀔 때마다 ref 초기화
-  useEffect(() => {
-    // 모든 ref 초기화
-    currentMinuteRef.current = null;
-    currentCandleRef.current = null;
-    didInitialScrollRef.current = false;
-    isFetchingRef.current = false;
-    lastRequestedKeybRef.current = "";
-    logicalRangeRef.current = null;
-
-    // 실시간 데이터 초기화
-    setLiveData([]);
-    setPendingPrepend(0);
-
-    console.log(
-      `[StockLiveChart] Symbol changed to ${symbol}, all refs and data reset`
-    );
-  }, [symbol]);
+  const wsRef = useRef(null);
 
   useEffect(() => {
     liveDataRef.current = liveData;
@@ -167,6 +136,92 @@ export default function StockLiveChart({ symbol }) {
     fetchData();
     return () => {
       ignore = true;
+    };
+  }, [symbol]);
+
+  // WebSocket 연결 및 심볼 요청/응답
+  useEffect(() => {
+    if (!symbol) return;
+
+    let reconnectTimeout;
+    let isConnecting = false;
+
+    const connectWebSocket = () => {
+      if (isConnecting) return;
+      isConnecting = true;
+
+      try {
+        const ws = new window.WebSocket("ws://localhost:4000/wsClient");
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          console.log("WebSocket 연결 성공");
+          isConnecting = false;
+          ws.send(JSON.stringify({ type: "symbol", symbol }));
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.ok && msg.symbol === symbol) {
+              console.log("서버에서 ok 응답:", msg);
+            } else if (msg.type === "time") {
+              console.log("서버에서 1초마다 받은 시간:", msg.time);
+            } else if (msg.type === "realtime" && msg.symbol === symbol) {
+              console.log("실시간 데이터 수신:", msg.data);
+              processRealtimeData(msg.data);
+            } else {
+              console.log("서버에서 받은 기타 메시지:", msg);
+            }
+          } catch (e) {
+            console.log("서버에서 받은 메시지(파싱불가):", event.data);
+          }
+        };
+
+        ws.onerror = (err) => {
+          console.warn(
+            "WebSocket 연결 에러 (서버가 실행되지 않았을 수 있습니다):",
+            err
+          );
+          isConnecting = false;
+        };
+
+        ws.onclose = (event) => {
+          console.log("WebSocket 연결 종료:", event.code, event.reason);
+          isConnecting = false;
+          wsRef.current = null;
+
+          // 자동 재연결 (5초 후)
+          if (event.code !== 1000) {
+            // 정상 종료가 아닌 경우에만 재연결
+            reconnectTimeout = setTimeout(() => {
+              console.log("WebSocket 재연결 시도...");
+              connectWebSocket();
+            }, 5000);
+          }
+        };
+      } catch (error) {
+        console.warn("WebSocket 연결 실패:", error);
+        isConnecting = false;
+
+        // 재연결 시도
+        reconnectTimeout = setTimeout(() => {
+          console.log("WebSocket 재연결 시도...");
+          connectWebSocket();
+        }, 5000);
+      }
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+      if (wsRef.current) {
+        wsRef.current.close(1000, "Component unmount");
+        wsRef.current = null;
+      }
     };
   }, [symbol]);
 

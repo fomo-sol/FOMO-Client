@@ -98,11 +98,12 @@ export function Render1DayChart({ symbol }) {
 
   // MA legend configs
   const maConfigs = [
-    { period: 5, color: "rgba(255,215,0,0.4)", label: "5일선" }, // 진노랑
-    { period: 20, color: "rgba(0,191,255,0.4)", label: "20일선" }, // 진파랑
-    { period: 60, color: "rgba(255,105,180,0.4)", label: "60일선" }, // 진핑크
-    { period: 120, color: "rgba(50,205,50,0.4)", label: "120일선" }, // 진연두
+    { period: 5, color: "rgba(255,215,0,0.4)", label: "5일선" },    // 진노랑
+    { period: 20, color: "rgba(0,191,255,0.4)", label: "20일선" },  // 진파랑
+    { period: 60, color: "rgba(255,105,180,0.4)", label: "60일선" },// 진핑크
+    { period: 120, color: "rgba(50,205,50,0.4)", label: "120일선" } // 진연두
   ];
+
 
   useEffect(() => {
     if (!chartContainerRef.current || !symbol) return;
@@ -122,11 +123,11 @@ export function Render1DayChart({ symbol }) {
     chartRef.current = chart;
 
     lineOpenRef.current = chart.addLineSeries({
-      color: "#bca8ff", // 기존 보라 계열보다 더 밝고 선명
+      color: "#bca8ff",  // 기존 보라 계열보다 더 밝고 선명
       lineWidth: 2,
     });
     lineCloseRef.current = chart.addLineSeries({
-      color: "#7cff9e", // 기존 초록 계열보다 더 형광 느낌으로 대비 강조
+      color: "#7cff9e",  // 기존 초록 계열보다 더 형광 느낌으로 대비 강조
       lineWidth: 2,
     });
     volumeSeriesRef.current = chart.addHistogramSeries({

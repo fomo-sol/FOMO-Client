@@ -42,7 +42,7 @@ export default function MinutesList({ selectedYear }) {
             onClick={() =>
               router.push(
                 `/fomc/${item.id}?div=minutes&date=${
-                  item.fomc_release_date_str || ""
+                  item.fomc_release_date?.split("T")[0] || ""
                 }&count=${idx + 1}`
               )
             }
@@ -61,8 +61,8 @@ export default function MinutesList({ selectedYear }) {
                 : "-"}
             </span>
             <span>
-              {item.fomc_release_date_str
-                ? item.fomc_release_date_str.replace(/-/g, ".")
+              {item.fomc_release_date
+                ? item.fomc_release_date.split("T")[0].replace(/-/g, ".")
                 : "-"}
             </span>
           </div>

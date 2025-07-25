@@ -3,7 +3,7 @@ import { useState } from "react";
 import FinancePaging from "@/components/earning/financeList/financePaging";
 import WishListPage from "@/components/earning/financeList/wishListPage";
 import AddAssetModal from "@/components/earning/financeList/addAsetModal";
-import useAuth from "@/utils/useAuth";
+import useAuth from "../../../utils/useAuth";
 import { useRouter } from "next/navigation";
 
 export default function EarningPage() {
