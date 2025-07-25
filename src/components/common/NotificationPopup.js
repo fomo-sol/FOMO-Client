@@ -59,11 +59,11 @@ export default function NotificationPopup({ onClose }) {
 
             const title = status.includes("fomc")
               ? "FOMC"
-              : company?.name_kr || "기업명 없음";
+              : company?.name_kr || "FOMC";
 
             const iconSrc = status.includes("fomc")
               ? "/fomc.png"
-              : company?.logo || "https://via.placeholder.com/20?text=%3F";
+              : company?.logo || "/fomc.png";
 
             return {
               id: item.id,
