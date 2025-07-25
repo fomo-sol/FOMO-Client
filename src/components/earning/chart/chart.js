@@ -30,9 +30,9 @@ export default function StockChart({ symbol }) {
         </button>
       </div>
       {mode === "1day" ? (
-        <Render1DayChart symbol={symbol} />
+        <Render1DayChart key={`1day-${symbol}`} symbol={symbol} />
       ) : (
-        <StockLiveChart symbol={symbol} />
+        <StockLiveChart key={`live-${symbol}`} symbol={symbol} />
       )}
     </div>
   );
