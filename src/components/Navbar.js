@@ -78,7 +78,9 @@ export default function Navbar() {
       className="text-white text-base flex items-center justify-between px-6 md:px-12 lg:px-24 py-7 gap-4"
       style={{ backgroundColor: "#040816" }}
     >
-      <Link href="/" className="font-bold text-3xl">FOMO</Link>
+      <Link href="/" className="font-bold text-3xl">
+        FOMO
+      </Link>
       <div className="flex items-center gap-6 md:gap-9 whitespace-nowrap min-w-0">
         <div className="flex items-center gap-4 md:gap-6">
           <div className="relative flex items-center" ref={searchRef}>
@@ -134,11 +136,28 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <Link href="/fomc" className="text-base font-medium" style={{ fontSize: '20px' }}>FOMC</Link>
+          <Link
+            href="/fomc"
+            className="text-base font-medium"
+            style={{ fontSize: "20px" }}
+          >
+            FOMC
+          </Link>
           <div className="flex items-center gap-6 md:gap-9">
-            <Link href="/earning" className="text-base font-medium" style={{ fontSize: '18px' }}>실적발표</Link>
+            <Link
+              href="/earning"
+              className="text-base font-medium"
+              style={{ fontSize: "18px" }}
+            >
+              실적발표
+            </Link>
             <Link href="/calendar">
-              <Image src="/icon_calendar.svg" alt="Calendar_page" width={24} height={24} />
+              <Image
+                src="/icon_calendar.svg"
+                alt="Calendar_page"
+                width={24}
+                height={24}
+              />
             </Link>
           </div>
         </div>
@@ -200,7 +219,7 @@ export default function Navbar() {
                 router.push("/login");
               }
             }}
-            className="flex items-center justify-center"
+            className="flex items-center justify-center cursor-pointer"
           >
             <Image
               src="/icon_mypage.svg"

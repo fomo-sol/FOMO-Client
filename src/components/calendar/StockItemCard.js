@@ -1,6 +1,9 @@
+"use client";
 import { memo } from "react";
+import { useRouter } from "next/navigation";
 
-const StockItemCard = memo(({ event, logo, time, id }) => {
+const StockItemCard = memo(({ event, logo, time, id, symbol }) => {
+  const router = useRouter();
   // 괄호 안의 심볼 제거하고 회사명만 추출
   const getCompanyName = (fullName) => {
     if (!fullName) return "Unknown";
@@ -10,8 +13,16 @@ const StockItemCard = memo(({ event, logo, time, id }) => {
 
   const companyName = getCompanyName(event);
 
+  const handleClick = () => {
+    if (symbol) {
+      router.push(`/earning/${symbol}`);
+    }
+  };
   return (
-    <div className="flex flex-col items-center gap-2 w-[56px] lg:w-[64px]">
+    <div
+      onClick={handleClick}
+      className="cursor-pointer flex flex-col items-center gap-2 w-[56px] lg:w-[64px]"
+    >
       <div className="w-[56px] h-[56px] lg:w-[64px] lg:h-[64px] bg-white border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
         <div className="p-2 w-full h-full">
           {logo ? (
