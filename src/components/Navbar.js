@@ -5,7 +5,7 @@ import NotificationPopup from "./common/NotificationPopup";
 import MyPageModal from "./common/MyPageModal";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import useAuth from "../../utils/useAuth";
+import useAuth from "@/utils/useAuth";
 
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
