@@ -138,12 +138,14 @@ export const transformCalendarData = (apiData, weekDates) => {
         event: item.event,
         time: item.time,
         logo: item.logo,
+        symbol: item.symbol,
       })),
       afterMarket: afterMarket.map((item, i) => ({
         id: `${dateKey}-after-${i}`,
         event: item.event,
         time: item.time,
         logo: item.logo,
+        symbol: item.symbol,
       })),
       notices,
     };

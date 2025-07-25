@@ -1,7 +1,12 @@
 import StockItemCard from "./StockItemCard";
 import { memo } from "react";
-
+import { useRouter } from "next/navigation";
 const CalendarColumn = memo(({ data, fixedHeight }) => {
+  const router = useRouter();
+
+  const handleClick = (symbol) => {
+    router.push(`/earning/${symbol}`);
+  };
   return (
     <div
       className={`bg-white rounded-xl shadow-md w-[280px] lg:w-[320px] px-3 py-3 font-[Pretendard] flex flex-col`}
@@ -25,7 +30,12 @@ const CalendarColumn = memo(({ data, fixedHeight }) => {
           {/* 장전 */}
           <div className="flex flex-col items-center gap-4 w-1/2">
             {data.preMarket.map((item) => (
-              <StockItemCard key={item.id} {...item} />
+              <StockItemCard
+                key={item.id}
+                {...item}
+                onClick={() => handleClick(item.symbol)}
+                symbol={item.symbol}
+              />
             ))}
           </div>
 
@@ -35,7 +45,12 @@ const CalendarColumn = memo(({ data, fixedHeight }) => {
           {/* 장후 */}
           <div className="flex flex-col items-center gap-4 w-1/2">
             {data.afterMarket.map((item) => (
-              <StockItemCard key={item.id} {...item} />
+              <StockItemCard
+                key={item.id}
+                {...item}
+                onClick={() => handleClick(item.symbol)}
+                symbol={item.symbol}
+              />
             ))}
           </div>
         </div>
