@@ -1,11 +1,12 @@
 "use client";
 import AlertCard from "@/components/alert/AlertCard";
 import AlertSidebar from "@/components/alert/AlertSidebar";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, Suspense } from "react";
 
 function AlertPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const idParam = searchParams.get("id");
   const selectedId = idParam ? parseInt(idParam) : null;
 
@@ -30,20 +31,30 @@ function AlertPageContent() {
     return `${month}월 ${day}일 ${ampm} ${hours}시 ${minutes}분`;
   };
 
+  const handleCardClick = (alert) => {
+    // FOMC가 아닌 경우에만 심볼로 이동
+    if (!alert.title.includes("FOMC") && alert.symbol) {
+      router.push(`/earning/${alert.symbol}`);
+    }
+  };
+
   useEffect(() => {
     const fetchCompanies = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies`);
-      const json = await res.json();
+      try {
+        const res = await fetch("/companylogo.json");
+        const companies = await res.json();
 
-      if (json.success) {
         const map = {};
-        json.data.forEach((c) => {
-          map[c.id.toString()] = {
-            name_kr: c.name_kr,
-            logo: c.logo,
+        companies.forEach((company) => {
+          map[company.id] = {
+            name_kr: company.name_kr,
+            logo: company.logo,
+            symbol: company.symbol,
           };
         });
         setCompanyMap(map);
+      } catch (error) {
+        console.error("❌ 회사 정보 불러오기 실패:", error);
       }
     };
 
@@ -80,7 +91,7 @@ function AlertPageContent() {
                 ? "#FF0540"
                 : "#636363";
 
-            const stockId = item.stock_id?.toString();
+            const stockId = item.stock_id;
             const company = companyMap[stockId];
 
             const title = status.includes("fomc")
@@ -100,6 +111,7 @@ function AlertPageContent() {
                 ? formatKoreanDate(item.created_at)
                 : "시간 정보 없음",
               stripColor,
+              symbol: company?.symbol || null,
             };
           });
 
@@ -156,6 +168,12 @@ function AlertPageContent() {
                   delete cardRefs.current[alert.id];
                 }
               }}
+              onClick={() => handleCardClick(alert)}
+              className={`cursor-pointer transition-transform duration-200 hover:scale-[1.02] ${
+                !alert.title.includes("FOMC") && alert.symbol
+                  ? "hover:shadow-lg"
+                  : ""
+              }`}
             >
               <AlertCard
                 iconSrc={alert.iconSrc}

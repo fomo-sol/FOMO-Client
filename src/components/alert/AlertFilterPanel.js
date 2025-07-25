@@ -50,6 +50,7 @@ export default function AlertFilterPanel({ filter, setFilter }) {
           <label className="flex items-center gap-2">
             <input
               type="radio"
+              className="cursor-pointer"
               name="alertFilter"
               checked={filter === "all"}
               onChange={() => setFilter("all")}
@@ -59,6 +60,7 @@ export default function AlertFilterPanel({ filter, setFilter }) {
           <label className="flex items-center gap-2">
             <input
               type="radio"
+              className="cursor-pointer"
               name="alertFilter"
               checked={filter === "custom"}
               onChange={() => setFilter("custom")}
