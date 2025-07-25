@@ -31,6 +31,22 @@ export default function FinanceList({
     }
   };
 
+  // 가장 최근 fin_release_date의 id로 자동 요청
+  const autoSelectLatestFinance = (financesList) => {
+    if (financesList.length === 0) return;
+
+    // fin_release_date 기준으로 내림차순 정렬 (최신순)
+    const sortedFinances = [...financesList].sort(
+      (a, b) => new Date(b.fin_release_date) - new Date(a.fin_release_date)
+    );
+
+    const latestFinance = sortedFinances[0];
+    if (latestFinance && latestFinance.id) {
+      console.log("Auto-selecting latest finance:", latestFinance);
+      handleFinanceClick(latestFinance.id);
+    }
+  };
+
   useEffect(() => {
     async function fetchFinances() {
       setLoading(true);
@@ -42,6 +58,8 @@ export default function FinanceList({
         const data = await res.json();
         if (data.success && data.data && Array.isArray(data.data.finances)) {
           setFinances(data.data.finances);
+          // 데이터 로드 후 자동으로 가장 최근 것 선택
+          autoSelectLatestFinance(data.data.finances);
         } else {
           setFinances([]);
         }
@@ -56,6 +74,8 @@ export default function FinanceList({
     if (skipFetch && financeData && Array.isArray(financeData.finances)) {
       setFinances(financeData.finances);
       setLoading(false);
+      // props로 받은 데이터도 자동으로 가장 최근 것 선택
+      autoSelectLatestFinance(financeData.finances);
     } else if (symbol && !skipFetch) {
       fetchFinances();
     }
@@ -83,7 +103,9 @@ export default function FinanceList({
         {visibleFinances.map((f) => (
           <div
             key={f.id}
-            className="grid grid-cols-4 py-2 px-2 bg-white/5 hover:bg-white/10 transition-all rounded text-white text-sm cursor-pointer"
+            className={`grid grid-cols-4 py-2 px-2 bg-white/5 hover:bg-white/10 transition-all rounded text-white text-sm cursor-pointer ${
+              selectedFinanceId === f.id ? "bg-[#93B9FF] text-black" : ""
+            }`}
             onClick={() => handleFinanceClick(f.id)}
           >
             <span>{f.fin_quarter}</span>
