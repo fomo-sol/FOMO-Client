@@ -3,15 +3,16 @@ import Image from "next/image";
 export default function AlertCard({
   iconSrc,
   title,
-  subtitle,
   description,
   time,
   stripColor,
 }) {
   return (
     <div
-      className="relative h-[106px] flex items-start gap-4 bg-[#F3F3F3] rounded-[8px] p-4 shadow-md"
-      style={{ boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}
+      className="relative flex items-start gap-4 bg-[#F3F3F3] rounded-[8px] p-4 shadow-md"
+      style={{
+        boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+      }}
     >
       {/* 왼쪽 색 스트립 */}
       <div
@@ -26,13 +27,13 @@ export default function AlertCard({
 
       {/* 텍스트 블럭 */}
       <div className="flex flex-col justify-center flex-1">
+        {/* ✅ 고정된 타이틀 */}
         <div className="text-[16px] font-semibold leading-[16px] text-black/90 font-['Segoe UI Variable']">
           {title}
         </div>
-        <div className="text-[18px] font-normal leading-[20px] text-black/90 font-['Segoe UI Variable'] w-[457px]">
-          {subtitle}
-        </div>
-        <div className="text-[#454545] text-[16px] font-normal leading-[20px] font-['Pretendard Variable']">
+
+        {/* 본문 */}
+        <div className="text-[16px] font-normal leading-[24px] text-black/90 font-['Pretendard Variable'] whitespace-pre-line">
           {description}
         </div>
       </div>
