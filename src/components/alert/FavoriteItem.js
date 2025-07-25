@@ -24,7 +24,7 @@ export default function FavoriteItem({ fav, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="group w-full flex items-center justify-between hover:bg-gray-100 px-2 py-2 rounded-md transition"
+      className="group w-full flex items-center cursor-pointer justify-between hover:bg-gray-100 px-2 py-2 rounded-md transition"
     >
       <div className="flex items-center gap-2 overflow-hidden max-w-[180px]">
         <img src={fav.logo} alt={fav.symbol} className="w-5 h-5" />

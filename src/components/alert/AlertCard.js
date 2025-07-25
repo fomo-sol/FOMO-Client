@@ -30,7 +30,7 @@ export default function AlertCard({
         {/* ✅ 상단 타이틀 + 날짜 */}
         <div className="flex justify-between items-start">
           <div className="text-[16px] font-semibold leading-[16px] text-black/90 font-['Segoe UI Variable']">
-            {title}
+            {title || "FOMC"}
           </div>
           <div className="text-[#697386] text-[13px] font-normal leading-[16px] font-['Pretendard Variable'] whitespace-nowrap ml-4">
             {time}
