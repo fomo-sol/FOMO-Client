@@ -10,6 +10,7 @@ import {
   fetchCalendarData,
   transformCalendarData,
 } from "@/services/calendar-service";
+import "./Calendarstyle.css";
 
 const CalendarPage = memo(() => {
   const [currentWeek, setCurrentWeek] = useState([]);
@@ -27,7 +28,6 @@ const CalendarPage = memo(() => {
         const transformedData = transformCalendarData(apiData, weekDates);
         setCalendarData(transformedData);
       } else {
-        // API 실패 시 빈 배열 표시
         setCalendarData([]);
         setError("데이터를 불러올 수 없습니다.");
       }
@@ -59,29 +59,25 @@ const CalendarPage = memo(() => {
   }, [currentWeek, loadCalendarData]);
 
   return (
-    <div className="font-[Pretendard] min-h-screen bg-[#040816] text-white overflow-hidden">
-      <div className="px-4 sm:px-6 lg:px-8 py-6">
-        <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
-          캘린더
-        </h1>
-        <p className="text-gray-400 text-sm lg:text-base mb-6">
-          주간 이벤트 및 FOMC 일정을 확인하세요
-        </p>
+    <div className="font-[Pretendard] bg-[#040816] text-white h-screen flex flex-col">
+      {/* 헤더 영역 (캘린더 제목 + 날짜 범위 컨트롤 우측 배치) */}
+      <div className="shrink-0 px-4 sm:px-5 lg:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        {/* 왼쪽: 타이틀과 설명 */}
+        <div>
+          <h1 className="text-3xl lg:text-4xl font-bold mb-1">캘린더</h1>
+          <p className="text-gray-400 text-sm lg:text-base">
+            주간 이벤트 및 FOMC 일정을 확인하세요
+          </p>
+        </div>
 
-        {/* 날짜 탐색 컨트롤 */}
-        <div className="flex items-center justify-center gap-6 mb-8 lg:mb-10">
+        {/* 오른쪽: 날짜 이동 컨트롤 */}
+        <div className="flex items-center gap-2 mt-4 sm:mt-0">
           <button
             onClick={handlePreviousWeek}
             disabled={loading}
-            className="text-white hover:text-blue-300 p-3 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
+            className="text-white hover:text-blue-300 p-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path
                 d="M15 18L9 12L15 6"
                 stroke="currentColor"
@@ -92,22 +88,16 @@ const CalendarPage = memo(() => {
             </svg>
           </button>
 
-          <span className="text-lg lg:text-xl font-semibold px-6 py-2 bg-white/10 rounded-full border border-white/20">
+          <span className="text-sm sm:text-base font-semibold px-3 py-1.5 bg-white/10 rounded-full border border-white/20 whitespace-nowrap">
             {formatWeekRange(currentWeek)}
           </span>
 
           <button
             onClick={handleNextWeek}
             disabled={loading}
-            className="text-white hover:text-blue-300 p-3 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
+            className="text-white hover:text-blue-300 p-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path
                 d="M9 18L15 12L9 6"
                 stroke="currentColor"
@@ -118,29 +108,62 @@ const CalendarPage = memo(() => {
             </svg>
           </button>
         </div>
+      </div>
 
-        {/* 로딩 상태 */}
+      {/* 고정된 요일/날짜 라벨 */}
+      <div className="overflow-x-auto pb-3">
+        <div className="flex justify-center gap-6 lg:gap-8 w-full max-w-[1800px] mx-auto px-6">
+          {calendarData.map((day, index) => (
+            <div
+              key={`label-${day.dayOfWeek}-${index}`}
+              className="min-w-[280px] max-w-[280px] lg:min-w-[245px] lg:max-w-[245px] text-center flex-shrink-0"
+            >
+              <h3
+                className={`text-[20px] lg:text-[22px] font-bold mb-3 ${
+                  day.isToday ? "text-blue-400" : "text-white"
+                }`}
+              >
+                {day.dayOfWeek}
+              </h3>
+              <div
+                className={`text-[14px] lg:text-[16px] font-medium ${
+                  day.isToday ? "text-blue-300" : "text-gray-300"
+                }`}
+              >
+                {day.formattedDate}
+              </div>
+              <div className="text-[14px] lg:text-[15px] font-medium text-gray-400 flex justify-center gap-22.5 mt-1">
+                <span>장전</span>
+                <span>장후</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 콘텐츠 영역 */}
+      <div className="flex-1 overflow-y-auto hide-scrollbar">
         {loading && (
           <div className="flex justify-center items-center py-12">
             <div className="text-white text-lg">데이터를 불러오는 중...</div>
           </div>
         )}
 
-        {/* 에러 메시지 */}
         {error && (
           <div className="flex justify-center items-center py-6">
             <div className="text-red-400 text-sm lg:text-base">{error}</div>
           </div>
         )}
 
-        {/* 캘린더 그리드 */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 justify-center max-w-[1800px] mx-auto">
-          {calendarData.map((day, index) => (
-            <CalendarColumn
-              key={`${day.dayOfWeek}-${day.preMarketDate}-${index}`}
-              data={day}
-            />
-          ))}
+        <div className="overflow-x-auto hide-scrollbar">
+          <div className="flex flex-row gap-6 lg:gap-8 justify-center max-w-[1800px] mx-auto px-6">
+            {calendarData.map((day, index) => (
+              <CalendarColumn
+                key={`${day.dayOfWeek}-${day.preMarketDate}-${index}`}
+                data={day}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
