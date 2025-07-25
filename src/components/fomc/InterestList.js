@@ -45,7 +45,7 @@ export default function InterestList({ selectedYear }) {
             onClick={() =>
               router.push(
                 `/fomc/${item.id}?div=decisions&date=${
-                  item.fed_release_date?.split("T")[0] || ""
+                  item.fed_release_date_str || ""
                 }&count=${idx + 1}`
               )
             }
@@ -67,8 +67,8 @@ export default function InterestList({ selectedYear }) {
             <span>{item.fed_forecast_rate ?? " -"}</span>
             <span>{item.fed_previous_rate ?? " -"}</span>
             <span>
-              {item.fed_release_date
-                ? item.fed_release_date.split("T")[0].replace(/-/g, ".")
+              {item.fed_release_date_str
+                ? item.fed_release_date_str.replace(/-/g, ".")
                 : "-"}
             </span>
           </div>

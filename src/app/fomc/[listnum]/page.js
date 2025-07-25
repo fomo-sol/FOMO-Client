@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import TabSection from "@/components/fomc/tabSection";
 import NasdaqGraph from "@/components/fomc/NasdaqGraph";
 import Sp500Graph from "@/components/fomc/Sp500Graph";
@@ -12,44 +12,249 @@ import GetChartView from "@/components/fomc/GetChartView";
 export default function FOMCItemPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState("연설");
-  const [activeLangTab, setActiveLangTab] = useState("한국어");
-  const [showSidebar, setShowSidebar] = useState(false);
+  const params = useParams();
 
   // URL 파라미터에서 count와 date 가져오기
   const count = searchParams.get("count") || "1";
   const dateParam = searchParams.get("date") || "2025.07.10";
+  const divType = searchParams.get("div") || "decisions";
+  const fomcId = params.listnum;
+
+  const [activeTab, setActiveTab] = useState(
+    divType === "minutes" ? "의사록" : "금리결정"
+  );
+  const [activeLangTab, setActiveLangTab] = useState("한국어");
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [fomcData, setFomcData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [minutesData, setMinutesData] = useState([]);
+  const [decisionsData, setDecisionsData] = useState([]);
+
+  // minutes 데이터 가져오기 (의사록 탭용)
+  useEffect(() => {
+    async function fetchMinutesData() {
+      try {
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/fomc/minutes?year=${new Date().getFullYear()}`
+        );
+        const data = await response.json();
+        if (data.success) {
+          setMinutesData(data.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching minutes data:", error);
+      }
+    }
+
+    fetchMinutesData();
+  }, []);
+
+  // decisions 데이터 가져오기 (금리결정/연설 탭용)
+  useEffect(() => {
+    async function fetchDecisionsData() {
+      try {
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/fomc/decisions?year=${new Date().getFullYear()}`
+        );
+        const data = await response.json();
+        if (data.success) {
+          setDecisionsData(data.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching decisions data:", error);
+      }
+    }
+
+    fetchDecisionsData();
+  }, []);
+
+  // API 데이터 가져오기
+  useEffect(() => {
+    async function fetchFOMCData() {
+      setLoading(true);
+      try {
+        const url =
+          divType === "minutes"
+            ? `${process.env.NEXT_PUBLIC_API_URL}/fomc/minutes/${fomcId}?date=${dateParam}`
+            : `${process.env.NEXT_PUBLIC_API_URL}/fomc/decisions/${fomcId}?date=${dateParam}`;
+
+        console.log("Fetching FOMC data from:", url);
+        console.log(
+          "fomcId:",
+          fomcId,
+          "divType:",
+          divType,
+          "dateParam:",
+          dateParam
+        );
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        console.log("API response:", data);
+
+        if (data.success) {
+          setFomcData(data.data);
+        } else {
+          console.error("Failed to fetch FOMC data:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching FOMC data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (fomcId) {
+      fetchFOMCData();
+    }
+  }, [fomcId, divType, dateParam]);
 
   // 날짜 포맷 변환 (2025-01-29 -> 2025.01.29)
   const formattedDate = dateParam.replace(/-/g, ".");
 
-  const fileMap = {
-    연설: {
-      한국어: "/fomc/20250618_statement_ko.txt",
-      영어: "/fomc/20250618_transcript_en.txt",
-      "AI 요약분석": "/fomc/20250618_transcript_summary_ko.html",
-    },
-    의사록: {
-      한국어: "/fomc/20250618_statement_ko.txt",
-      영어: "/fomc/2025-06-18_minutes_en.txt",
-      "AI 요약분석": "/fomc/20250618_minutes_summary_ko.html",
-    },
-    금리결정: {
-      한국어: "/fomc/20250618_imple_ko.txt",
-      영어: "/fomc/2025-06-18_statement_en.txt",
-      "AI 요약분석": "/fomc/20250618_imple_state_summary_ko.html",
-    },
-    경제전망: {
-      영어: "/fomc/FOMCpresconf20250129.pdf",
-    },
+  // 탭 클릭 핸들러 - 해당하는 API로 이동
+  const handleTabClick = (tabName) => {
+    if (tabName === "금리결정") {
+      if (divType === "minutes") {
+        // minutes 페이지에서 decisions로 이동
+        const currentYear = new Date(dateParam).getFullYear();
+        const currentCount = parseInt(count);
+
+        // 같은 연도의 decisions 데이터에서 해당 회차 찾기
+        const sameYearDecisions = decisionsData.filter((item) => {
+          const itemYear = new Date(item.fed_release_date_str).getFullYear();
+          return itemYear === currentYear;
+        });
+
+        // 날짜순 정렬 후 해당 회차의 decisions 찾기
+        const sortedDecisions = sameYearDecisions.sort(
+          (a, b) =>
+            new Date(a.fed_release_date_str) - new Date(b.fed_release_date_str)
+        );
+
+        const targetDecision = sortedDecisions[currentCount - 1];
+
+        if (targetDecision) {
+          router.push(
+            `/fomc/${targetDecision.id}?div=decisions&date=${targetDecision.fed_release_date_str}&count=${currentCount}`
+          );
+        } else {
+          console.error("Decisions data not found for the current count");
+        }
+      } else {
+        // decisions 페이지에서 탭만 변경
+        setActiveTab("금리결정");
+      }
+    } else if (tabName === "연설") {
+      if (divType === "minutes") {
+        // minutes 페이지에서 decisions로 이동 (연설은 decisions API에서 가져옴)
+        const currentYear = new Date(dateParam).getFullYear();
+        const currentCount = parseInt(count);
+
+        const sameYearDecisions = decisionsData.filter((item) => {
+          const itemYear = new Date(item.fed_release_date_str).getFullYear();
+          return itemYear === currentYear;
+        });
+
+        const sortedDecisions = sameYearDecisions.sort(
+          (a, b) =>
+            new Date(a.fed_release_date_str) - new Date(b.fed_release_date_str)
+        );
+
+        const targetDecision = sortedDecisions[currentCount - 1];
+
+        if (targetDecision) {
+          router.push(
+            `/fomc/${targetDecision.id}?div=decisions&date=${targetDecision.fed_release_date_str}&count=${currentCount}`
+          );
+        } else {
+          console.error("Decisions data not found for the current count");
+        }
+      } else {
+        // decisions 페이지에서 탭만 변경
+        setActiveTab("연설");
+      }
+    } else if (tabName === "의사록") {
+      if (divType === "decisions") {
+        // decisions 페이지에서 minutes로 이동
+        const currentYear = new Date(dateParam).getFullYear();
+        const currentCount = parseInt(count);
+
+        // 같은 연도의 minutes 데이터에서 해당 회차 찾기
+        const sameYearMinutes = minutesData.filter((item) => {
+          const itemYear = new Date(item.fomc_release_date_str).getFullYear();
+          return itemYear === currentYear;
+        });
+
+        // 날짜순 정렬 후 해당 회차의 minutes 찾기
+        const sortedMinutes = sameYearMinutes.sort(
+          (a, b) =>
+            new Date(a.fomc_release_date_str) -
+            new Date(b.fomc_release_date_str)
+        );
+
+        const targetMinutes = sortedMinutes[currentCount - 1];
+
+        if (targetMinutes) {
+          router.push(
+            `/fomc/${targetMinutes.id}?div=minutes&date=${targetMinutes.fomc_release_date_str}&count=${currentCount}`
+          );
+        } else {
+          console.error("Minutes data not found for the current count");
+        }
+      } else {
+        // minutes 페이지에서 탭만 변경
+        setActiveTab("의사록");
+      }
+    }
   };
 
-  const getFile = () => {
-    const langFiles = fileMap[activeTab];
-    return langFiles ? langFiles[activeLangTab] || langFiles["영어"] : null;
+  // 탭별 파일 매핑 (실제 API 데이터 기반)
+  const getFileMap = () => {
+    if (!fomcData) return {};
+
+    if (divType === "minutes") {
+      const script = fomcData.script;
+      return {
+        의사록: {
+          한국어: script?.minutes_release_content_kr || null,
+          영어: script?.minutes_release_content_en_pdf || null,
+          "AI 요약분석": script?.minutes_release_content_an || null,
+        },
+      };
+    } else {
+      // decisions API에서 가져온 데이터
+      const statements = fomcData.statements;
+      const speeches = fomcData.speeches;
+      return {
+        금리결정: {
+          한국어: statements?.decisions_release_content_kr_html_stat || null,
+          영어: statements?.decisions_release_content_en_html_stat || null,
+          "AI 요약분석": statements?.decisions_release_content_an || null,
+        },
+        연설: {
+          한국어: speeches?.fomc_speech_content_kr || null,
+          영어: speeches?.fomc_speech_content_en || null,
+          "AI 요약분석": speeches?.fomc_speech_content_an || null,
+        },
+      };
+    }
   };
 
-  const fileSrc = getFile();
+  const fileMap = getFileMap();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#040816] text-white font-[Pretendard] px-6 py-6 flex items-center justify-center">
+        <div>로딩중...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#040816] text-white font-[Pretendard] px-6 py-6">
@@ -61,7 +266,7 @@ export default function FOMCItemPage() {
             <div className="flex items-center gap-2 mb-2">
               <button
                 onClick={() => setShowSidebar((prev) => !prev)}
-                className="w-[29px] h-[28px] cursor-pointer flex-shrink-0"
+                className="cursor-pointer flex-shrink-0  rounded p-1 hover:bg-white/20 transition-colors"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -117,7 +322,12 @@ export default function FOMCItemPage() {
           {/* 오른쪽 영역 */}
           <div className="flex-1">
             <div className="mb-4">
-              <TabSection activeTab={activeTab} setActiveTab={setActiveTab} />
+              <TabSection
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                divType={divType}
+                onTabClick={handleTabClick}
+              />
             </div>
             <Content activeTab={activeTab} fileMap={fileMap} />
           </div>
