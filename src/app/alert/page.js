@@ -2,8 +2,7 @@
 import AlertCard from "@/components/alert/AlertCard";
 import AlertSidebar from "@/components/alert/AlertSidebar";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 
 function AlertPageContent() {
   const searchParams = useSearchParams();
@@ -14,9 +13,10 @@ function AlertPageContent() {
   const [companyMap, setCompanyMap] = useState({});
   const cardRefs = useRef({});
   const [filter, setFilter] = useState("all");
+
   const formatKoreanDate = (dateString) => {
     const date = new Date(dateString);
-    const month = date.getMonth() + 1; // 0-based
+    const month = date.getMonth() + 1;
     const day = date.getDate();
     let hours = date.getHours();
     const minutes = date.getMinutes();
@@ -30,7 +30,6 @@ function AlertPageContent() {
     return `${month}월 ${day}일 ${ampm} ${hours}시 ${minutes}분`;
   };
 
-  // ✅ 1. 기업 정보 먼저 불러오기
   useEffect(() => {
     const fetchCompanies = async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/companies`);
@@ -51,9 +50,8 @@ function AlertPageContent() {
     fetchCompanies();
   }, []);
 
-  // ✅ 2. 기업 정보가 준비된 이후에 알림 불러오기
   useEffect(() => {
-    if (Object.keys(companyMap).length === 0) return; // 기업 정보 준비될 때까지 대기
+    if (Object.keys(companyMap).length === 0) return;
 
     const fetchAlerts = async () => {
       try {
@@ -72,7 +70,7 @@ function AlertPageContent() {
 
         const json = await res.json();
         if (json.success) {
-          const mapped = json.data.map((item, idx) => {
+          const mapped = json.data.map((item) => {
             const status = item.status || "";
             const alertContent = item.alert_content || "";
             const stripColor =
@@ -82,26 +80,25 @@ function AlertPageContent() {
                 ? "#FF0540"
                 : "#636363";
 
-            const stockId = item.stock_id?.toString(); // 반드시 문자열로
+            const stockId = item.stock_id?.toString();
             const company = companyMap[stockId];
 
             const title = status.includes("fomc")
               ? "FOMC"
-              : company?.name_kr || "기업명 없음";
+              : company?.name_kr || "FOMC";
 
             const iconSrc = status.includes("fomc")
-              ? "/fomc.png"
-              : company?.logo || "/default.png";
+              ? "/FOMC.png"
+              : company?.logo || "/FOMC.png";
 
             return {
-              id: idx + 1,
+              id: item.id,
               iconSrc,
               title,
               description: alertContent,
               time: item.created_at
                 ? formatKoreanDate(item.created_at)
                 : "시간 정보 없음",
-
               stripColor,
             };
           });
@@ -114,23 +111,38 @@ function AlertPageContent() {
     };
 
     fetchAlerts();
-  }, [companyMap]); // companyMap이 준비된 이후에 실행됨
+  }, [companyMap]);
 
-  // 선택된 카드 스크롤
   useEffect(() => {
-    if (selectedId && cardRefs.current[selectedId]) {
-      cardRefs.current[selectedId].scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [selectedId]);
+    if (!selectedId || alerts.length === 0) return;
+
+    const isVisible = alerts.some(
+      (alert) =>
+        alert.id.toString() === selectedId &&
+        (filter === "all" || alert.stripColor === "#FF0540")
+    );
+
+    if (!isVisible) return;
+
+    const frame = requestAnimationFrame(() => {
+      const el = cardRefs.current[selectedId];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        el.classList.add("ring-2", "ring-[#FF0540]");
+        setTimeout(() => el.classList.remove("ring-2", "ring-[#FF0540]"), 2000);
+      } else {
+        console.warn("❌ 해당 ref가 없습니다:", selectedId);
+      }
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [selectedId, alerts.length, filter]);
 
   return (
     <div className="px-8 font-[Pretendard] min-h-screen">
       <h1 className="text-2xl font-bold mb-10">알림</h1>
-      <div className="flex gap-8">
-        <div className="flex flex-col gap-4 flex-[3]">
+      <div className="w-full max-w-[1200px] mx-auto flex gap-8 justify-between">
+        <div className="flex flex-col gap-4 w-[850px] pb-12">
           {(filter === "custom"
             ? alerts.filter((alert) => alert.stripColor === "#FF0540")
             : alerts
@@ -138,7 +150,11 @@ function AlertPageContent() {
             <div
               key={alert.id}
               ref={(el) => {
-                if (el) cardRefs.current[alert.id] = el;
+                if (el) {
+                  cardRefs.current[alert.id] = el;
+                } else {
+                  delete cardRefs.current[alert.id];
+                }
               }}
             >
               <AlertCard
@@ -151,7 +167,7 @@ function AlertPageContent() {
             </div>
           ))}
         </div>
-        <div className="flex-[1] flex justify-center">
+        <div className="w-[320px] flex justify-center">
           <AlertSidebar filter={filter} setFilter={setFilter} />
         </div>
       </div>

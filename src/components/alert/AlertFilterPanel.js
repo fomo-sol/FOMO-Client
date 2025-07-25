@@ -42,7 +42,8 @@ export default function AlertFilterPanel({ filter, setFilter }) {
   };
 
   return (
-    <div className="w-full h-[562px] flex-shrink-0 rounded-[12px] bg-white shadow-md text-[#040816] px-6 py-4 text-sm font-[Pretendard] space-y-6">
+    <div className="w-full rounded-[12px] bg-white shadow-md text-[#040816] px-6 py-4 text-sm font-[Pretendard] space-y-6">
+      {/* 알림 유형 (고정 영역) */}
       <div>
         <p className="mb-2 font-semibold">알림 유형</p>
         <div className="space-y-1">
@@ -67,21 +68,22 @@ export default function AlertFilterPanel({ filter, setFilter }) {
         </div>
       </div>
 
-      <div>
-        <p className="mb-2 font-semibold">관심 종목</p>
-        <div className="space-y-1">
-          {favorites.length === 0 ? (
-            <p className="text-gray-400">관심종목이 없습니다.</p>
-          ) : (
-            favorites.map((fav, idx) => (
-              <FavoriteItem
-                key={idx}
-                fav={fav}
-                onClick={() => router.push(`/earning/${fav.symbol}`)}
-              />
-            ))
-          )}
-        </div>
+      {/* 관심 종목 (스크롤 되는 영역) */}
+      <div className="favorites-scroll max-h-[400px] overflow-y-auto pr-2">
+        <p className="mb-2 font-semibold sticky top-0 bg-white z-10">
+          관심 종목
+        </p>
+        {favorites.length === 0 ? (
+          <p className="text-gray-400">관심종목이 없습니다.</p>
+        ) : (
+          favorites.map((fav, idx) => (
+            <FavoriteItem
+              key={idx}
+              fav={fav}
+              onClick={() => router.push(`/earning/${fav.symbol}`)}
+            />
+          ))
+        )}
       </div>
     </div>
   );
