@@ -14,6 +14,21 @@ function AlertPageContent() {
   const [companyMap, setCompanyMap] = useState({});
   const cardRefs = useRef({});
   const [filter, setFilter] = useState("all");
+  const formatKoreanDate = (dateString) => {
+    const date = new Date(dateString);
+    const month = date.getMonth() + 1; // 0-based
+    const day = date.getDate();
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    const isAM = hours < 12;
+    const ampm = isAM ? "오전" : "오후";
+
+    if (!isAM) hours = hours === 12 ? 12 : hours - 12;
+    if (isAM && hours === 0) hours = 12;
+
+    return `${month}월 ${day}일 ${ampm} ${hours}시 ${minutes}분`;
+  };
 
   // ✅ 1. 기업 정보 먼저 불러오기
   useEffect(() => {
@@ -84,8 +99,9 @@ function AlertPageContent() {
               title,
               description: alertContent,
               time: item.created_at
-                ? new Date(item.created_at).toLocaleString("ko-KR")
+                ? formatKoreanDate(item.created_at)
                 : "시간 정보 없음",
+
               stripColor,
             };
           });
@@ -98,9 +114,9 @@ function AlertPageContent() {
     };
 
     fetchAlerts();
-  }, [companyMap]); // ✅ companyMap이 준비된 이후에 실행됨
+  }, [companyMap]); // companyMap이 준비된 이후에 실행됨
 
-  // ✅ 선택된 카드 스크롤
+  // 선택된 카드 스크롤
   useEffect(() => {
     if (selectedId && cardRefs.current[selectedId]) {
       cardRefs.current[selectedId].scrollIntoView({

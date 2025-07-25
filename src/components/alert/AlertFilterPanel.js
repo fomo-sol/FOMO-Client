@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import "./slideText.css";
+import FavoriteItem from "./FavoriteItem";
 
 export default function AlertFilterPanel({ filter, setFilter }) {
   const [favorites, setFavorites] = useState([]);
@@ -11,28 +13,19 @@ export default function AlertFilterPanel({ filter, setFilter }) {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-
         const payload = JSON.parse(atob(token.split(".")[1]));
         const userId = payload.userId || payload.sub || payload.id;
 
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`API 응답 오류: ${res.status} - ${errText}`);
-        }
-
+        if (!res.ok)
+          throw new Error(`API 오류: ${res.status} - ${await res.text()}`);
         const json = await res.json();
-        console.log("🎯 즐겨찾기 응답:", json.data); // 여기에 관심 종목 배열
-
-        // 필요 시 상태로 저장
         setFavorites(json.data);
       } catch (err) {
         console.error("❌ 즐겨찾기 fetch 실패:", err);
@@ -42,8 +35,14 @@ export default function AlertFilterPanel({ filter, setFilter }) {
     fetchFavorites();
   }, []);
 
+  // ➕ 텍스트 줄넘침 여부 체크 함수
+  const shouldSlide = (el) => {
+    if (!el) return false;
+    return el.scrollWidth > el.clientWidth;
+  };
+
   return (
-    <div className="w-full h-[562px] flex-shrink-0 rounded-[12px] bg-[#FFFFFF] shadow-md text-[#040816] px-6 py-4 text-sm font-[Pretendard] space-y-6">
+    <div className="w-full h-[562px] flex-shrink-0 rounded-[12px] bg-white shadow-md text-[#040816] px-6 py-4 text-sm font-[Pretendard] space-y-6">
       <div>
         <p className="mb-2 font-semibold">알림 유형</p>
         <div className="space-y-1">
@@ -75,15 +74,11 @@ export default function AlertFilterPanel({ filter, setFilter }) {
             <p className="text-gray-400">관심종목이 없습니다.</p>
           ) : (
             favorites.map((fav, idx) => (
-              <button
+              <FavoriteItem
                 key={idx}
+                fav={fav}
                 onClick={() => router.push(`/earning/${fav.symbol}`)}
-                className="w-full flex items-center gap-2 hover:bg-gray-100 px-2 py-1 rounded-md transition"
-              >
-                <img src={fav.logo} alt={fav.symbol} className="w-5 h-5" />
-                <span className="font-semibold">{fav.name_kr}</span>
-                <span className="text-sm">{fav.symbol}</span>
-              </button>
+              />
             ))
           )}
         </div>
