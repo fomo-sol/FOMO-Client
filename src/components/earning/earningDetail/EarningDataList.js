@@ -77,7 +77,7 @@ export default function EarningDataList({
   }, [currentData]);
 
   return (
-    <div className="bg-gray-800 rounded-[10px] h-full shadow-md pt-4 pb-14 px-4 relative">
+    <div className="bg-gray-800 rounded-[10px] h-[100vh] shadow-md pt-4  px-4 relative">
       {/* 탭 선택 */}
       <div className="flex justify-start gap-[48px] mb-3 pl-[6px]">
         {["한국어", "영어", "AI 요약분석"].map((lang) => (

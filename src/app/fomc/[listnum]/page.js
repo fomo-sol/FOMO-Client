@@ -235,7 +235,7 @@ export default function FOMCItemPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#040816] text-white font-[Pretendard] px-6 py-6">
+    <div className=" bg-[#040816] text-white font-[Pretendard] px-6 py-6">
       <div className="max-w-[1440px] mx-auto">
         <div className="flex gap-6">
           {/* 왼쪽 영역 */}

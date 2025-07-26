@@ -158,7 +158,16 @@ function AlertPageContent() {
 
   return (
     <div className="px-8 font-[Pretendard] min-h-screen">
-      <h1 className="text-2xl font-bold mb-10">알림</h1>
+      {/* 헤더 영역 (알림 제목 + 설명) */}
+      <div className="shrink-0 px-4 sm:px-5 lg:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        {/* 왼쪽: 타이틀과 설명 */}
+        <div>
+          <h1 className="text-3xl lg:text-4xl font-bold mb-1">알림</h1>
+          <p className="text-gray-400 text-sm lg:text-base">
+            실시간 알림 및 FOMC 소식을 확인하세요
+          </p>
+        </div>
+      </div>
       <div className="w-full max-w-[1200px] mx-auto flex gap-8 justify-between">
         <div className="flex flex-col gap-4 w-[850px] pb-12">
           {(filter === "custom"
