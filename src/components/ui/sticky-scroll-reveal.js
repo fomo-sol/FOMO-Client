@@ -48,7 +48,7 @@ export const StickyScroll = ({ content, contentClassName }) => {
       animate={{
         backgroundColor: backgroundColors[0],
       }}
-      className="relative flex h-[37rem] justify-center space-x-10 overflow-y-auto rounded-md p-5"
+      className="relative flex h-[37rem] justify-center space-x-10 overflow-y-auto rounded-md p-10"
       style={{
         scrollbarWidth: "none", // Firefox
         msOverflowStyle: "none", // IE 10+
@@ -58,7 +58,7 @@ export const StickyScroll = ({ content, contentClassName }) => {
       <div className="div relative flex items-start px-4">
         <div className="max-w-md">
           {content.map((item, index) => (
-            <div key={item.title + index} className="my-20">
+            <div key={item.title + index} className="">
               <motion.h2
                 initial={{
                   opacity: 0,
@@ -66,10 +66,10 @@ export const StickyScroll = ({ content, contentClassName }) => {
                 animate={{
                   opacity: activeCard === index ? 1 : 0.3,
                 }}
-                className="text-2xl font-bold text-slate-100"
-              >
-                {item.title}
-              </motion.h2>
+                className="text-3xl font-bold text-slate-100"
+                dangerouslySetInnerHTML={{ __html: item.title }}
+              />
+
               <motion.p
                 initial={{
                   opacity: 0,
@@ -77,9 +77,18 @@ export const StickyScroll = ({ content, contentClassName }) => {
                 animate={{
                   opacity: activeCard === index ? 1 : 0.3,
                 }}
-                className="text-kg mt-10  text-slate-300"
+                className="text-lg mt-3 text-slate-300 my-20"
               >
-                {item.description}
+                {item.description
+                  .replace(/\|\|/g, "\n\n") // 두 번 엔터
+                  .replace(/\|/g, "\n") // 한 번 엔터
+                  .split("\n")
+                  .map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
               </motion.p>
             </div>
           ))}
