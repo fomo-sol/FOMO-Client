@@ -32,27 +32,21 @@ export const StickyScroll = ({ content, contentClassName }) => {
 
   const backgroundColors = [
     "#040816", // slate-900
-    "#040816", // black
-    "#040816", // neutral-900
   ];
-  const linearGradients = [
-    "linear-gradient(to bottom right, #06b6d4, #10b981)", // cyan-500 to emerald-500
-    "linear-gradient(to bottom right, #ec4899, #6366f1)", // pink-500 to indigo-500
-    "linear-gradient(to bottom right, #f97316, #eab308)", // orange-500 to yellow-500
-  ];
+  // const linearGradients = [
+  //   "linear-gradient(to bottom right, #06b6d4, #10b981)", // cyan-500 to emerald-500
+  //   "linear-gradient(to bottom right, #ec4899, #6366f1)", // pink-500 to indigo-500
+  //   "linear-gradient(to bottom right, #f97316, #eab308)", // orange-500 to yellow-500
+  // ];
 
-  const [backgroundGradient, setBackgroundGradient] = useState(
-    linearGradients[0]
-  );
-
-  useEffect(() => {
-    setBackgroundGradient(linearGradients[activeCard % linearGradients.length]);
-  }, [activeCard]);
+  // useEffect(() => {
+  //   setBackgroundGradient(linearGradients[activeCard % linearGradients.length]);
+  // }, [activeCard]);
 
   return (
     <motion.div
       animate={{
-        backgroundColor: backgroundColors[activeCard % backgroundColors.length],
+        backgroundColor: backgroundColors[0],
       }}
       className="relative flex h-[37rem] justify-center space-x-10 overflow-y-auto rounded-md p-5"
       style={{
@@ -62,7 +56,7 @@ export const StickyScroll = ({ content, contentClassName }) => {
       ref={ref}
     >
       <div className="div relative flex items-start px-4">
-        <div className="max-w-xl">
+        <div className="max-w-md">
           {content.map((item, index) => (
             <div key={item.title + index} className="my-20">
               <motion.h2
@@ -89,13 +83,13 @@ export const StickyScroll = ({ content, contentClassName }) => {
               </motion.p>
             </div>
           ))}
-          <div className="h-85" />
+          <div className="h-40" />
         </div>
       </div>
       <div
-        style={{ background: backgroundGradient }}
+        style={{ background: backgroundColors[0] }}
         className={cn(
-          "sticky top-10 hidden h-80 w-150 overflow-hidden rounded-md bg-white lg:block",
+          "sticky top-10 hidden overflow-hidden rounded-md bg-white lg:block ",
           contentClassName
         )}
       >
