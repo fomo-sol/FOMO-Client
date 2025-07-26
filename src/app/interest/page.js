@@ -15,15 +15,15 @@ const chunkStocks = (arr, size) => {
 
 function parseJwt(token) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
+        .split("")
         .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
         })
-        .join('')
+        .join("")
     );
     return JSON.parse(jsonPayload);
   } catch (e) {
@@ -174,7 +174,7 @@ export default function InterestPage() {
     const favoritePayload = selectedIds.map((id) => ({ stock_id: id }));
     console.log("✅ favoritePayload (body):", favoritePayload);
 
-    const postUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/favorites/${userId}`;
+    const postUrl = `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`;
     console.log("✅ POST URL:", postUrl);
 
     try {
@@ -205,17 +205,17 @@ export default function InterestPage() {
 
   return (
     <div className="relative h-screen font-[Pretendard]">
-      <div className="h-[calc(100vh-80px)] overflow-y-auto no-scrollbar px-6 pb-40 pt-12">
+      <div className="h-[calc(100vh-80px)] overflow-y-auto no-scrollbar px-6 pb-40 pt-6">
         <div className="text-center">
           <h1 className="text-[60px] font-semibold text-[#FFFEFE]">
             {username ? `${username}님, 환영합니다!` : "환영합니다!"}
           </h1>
-          <p className="mt-4 text-[20px] text-[#f7f7f7]">
+          <p className="mt-1 mb-12 text-[20px] text-[#f7f7f7]">
             관심 종목을 추가하고, 가장 빠른 한글 요약본을 받아보세요
           </p>
         </div>
 
-        <div className="flex flex-col gap-6 pb-24">
+        <div className="flex flex-col gap-12 pb-24">
           {rowsWithRecommendations.map((row, index) => (
             <AnimatePresence key={`${row.type}-${index}`}>
               {row.type === "recommend" ? (
