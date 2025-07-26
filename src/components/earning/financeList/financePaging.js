@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { formatRevenue } from "@/services/earning-service";
+import LoginModal from "@/components/common/LoginModal";
+import SignupModal from "@/components/common/SignupModal";
 
 export default function FinancePaging() {
   const ITEMS_PER_PAGE = 10;
@@ -16,11 +18,31 @@ export default function FinancePaging() {
   const [page, setPage] = useState(1);
   const [buttonGroup, setButtonGroup] = useState(0);
   const [hover, setHover] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
 
   const pageButtons = Array.from(
     { length: PAGE_BUTTONS_PER_GROUP },
     (_, i) => i + 1 + buttonGroup * PAGE_BUTTONS_PER_GROUP
   ).filter((p) => p <= maxPage);
+
+  // 로그인 필요 confirm 핸들러
+  const handleRequireLogin = () => {
+    if (window.confirm("로그인이 필요합니다. 로그인하시겠습니까?")) {
+      setShowLoginModal(true);
+    }
+  };
+
+  // 모달 간 전환 함수들
+  const handleSwitchToSignup = () => {
+    setShowLoginModal(false);
+    setShowSignupModal(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowSignupModal(false);
+    setShowLoginModal(true);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -58,6 +80,12 @@ export default function FinancePaging() {
   }, [page]);
 
   const toggleFavorite = async (item) => {
+    // 로그인 체크
+    if (!isLogin.current) {
+      handleRequireLogin();
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) return;
 
@@ -99,9 +127,9 @@ export default function FinancePaging() {
           ? "관심 목록에서 제거되었습니다"
           : "관심 목록에 추가되었습니다"
       );
-    } catch (e) {
-      console.error("즐겨찾기 토글 실패", e);
-      alert("관심 종목 변경에 실패했습니다.");
+    } catch (error) {
+      console.error("즐겨찾기 토글 실패:", error);
+      alert("관심 종목 변경 실패");
     }
   };
 
@@ -179,7 +207,10 @@ export default function FinancePaging() {
                   onMouseEnter={() => setHover(item.symbol)}
                   onMouseLeave={() => setHover(null)}
                   onClick={() => {
-                    if (!isLogin.current) return;
+                    if (!isLogin.current) {
+                      handleRequireLogin();
+                      return;
+                    }
                     const message = isFavorite
                       ? "정말 관심종목에서 삭제하시겠습니까?"
                       : "관심종목에 추가하시겠습니까?";
@@ -296,6 +327,22 @@ export default function FinancePaging() {
           ≫
         </button>
       </div>
+
+      {/* 로그인 모달 */}
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onSwitchToSignup={handleSwitchToSignup}
+        />
+      )}
+
+      {/* 회원가입 모달 */}
+      {showSignupModal && (
+        <SignupModal
+          onClose={() => setShowSignupModal(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      )}
     </>
   );
 }

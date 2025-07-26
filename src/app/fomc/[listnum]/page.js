@@ -29,6 +29,7 @@ export default function FOMCItemPage() {
   const [loading, setLoading] = useState(true);
   const [minutesData, setMinutesData] = useState([]);
   const [decisionsData, setDecisionsData] = useState([]);
+  const [selectedChartSymbol, setSelectedChartSymbol] = useState(null);
 
   // tabParam이 변경될 때 activeTab 업데이트
   useEffect(() => {
@@ -268,14 +269,14 @@ export default function FOMCItemPage() {
                   />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
                 FOMC | {count}차 ({formattedDate})
               </h1>
             </div>
 
             {/* 그래프 */}
-            <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
+            <div className="pb-1">
+              <h2 className="text-2xl pb-1 font-semibold text-[#5BE49B] mb-2">
                 S&P 500 SPY
               </h2>
               <div className="w-full flex items-center justify-center overflow-hidden mb-4">
@@ -284,11 +285,11 @@ export default function FOMCItemPage() {
             </div>
 
             <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
-                라이브 차트 불러오기
+              <h2 className="text-2xl pb-1 font-semibold text-[#5BE49B] mb-2">
+                {selectedChartSymbol ? selectedChartSymbol : "차트 불러오기"}
               </h2>
               <div className="w-full flex items-center justify-center overflow-hidden mb-4">
-                <GetChartView />
+                <GetChartView onSymbolSelect={setSelectedChartSymbol} />
               </div>
             </div>
           </div>
@@ -333,18 +334,18 @@ export default function FOMCItemPage() {
             aria-label="사이드바 닫기"
           >
             <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
             >
               <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 19l-7-7 7-7"
               />
             </svg>
           </button>

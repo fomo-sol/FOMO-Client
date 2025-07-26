@@ -22,15 +22,8 @@ export default function SignupModal({ onClose, onSwitchToLogin }) {
   };
 
   const handleChange = (e) => {
-    const { placeholder, value } = e.target;
-    const key =
-      placeholder === "User name"
-        ? "username"
-        : placeholder === "Email"
-        ? "email"
-        : "passwd";
-
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSignup = async () => {
@@ -119,6 +112,7 @@ export default function SignupModal({ onClose, onSwitchToLogin }) {
             placeholder="Username"
             value={formData.username}
             onChange={handleChange}
+            name="username"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSignup();
             }}
@@ -128,6 +122,7 @@ export default function SignupModal({ onClose, onSwitchToLogin }) {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
+            name="email"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSignup();
             }}
@@ -137,6 +132,7 @@ export default function SignupModal({ onClose, onSwitchToLogin }) {
             placeholder="Password"
             value={formData.passwd}
             onChange={handleChange}
+            name="passwd"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSignup();
             }}
@@ -146,6 +142,7 @@ export default function SignupModal({ onClose, onSwitchToLogin }) {
             placeholder="Confirm Password"
             value={confirmPasswd}
             onChange={(e) => setConfirmPasswd(e.target.value)}
+            name="confirmPasswd"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSignup();
             }}
@@ -153,7 +150,8 @@ export default function SignupModal({ onClose, onSwitchToLogin }) {
           <div className="pt-5">
             <button
               type="submit"
-              className="w-[338px] h-[42px] rounded-[15px] bg-[#171717] text-white font-medium hover:bg-[#333333] transition-colors cursor-pointer">
+              className="w-[338px] h-[42px] rounded-[15px] bg-[#171717] text-white font-medium hover:bg-[#333333] transition-colors cursor-pointer"
+            >
               Register
             </button>
           </div>

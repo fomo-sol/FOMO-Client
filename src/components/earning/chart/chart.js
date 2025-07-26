@@ -9,7 +9,7 @@ export default function StockChart({ symbol }) {
     <div>
       <div className="flex gap-2 mb-2 p-1">
         <button
-          className={`px-3 py-1 text- font-semibold rounded-[5px] transition-all duration-200 focus:outline-none
+          className={`px-3 py-1 cursor-pointer font-medium rounded-[5px] transition-all duration-200 focus:outline-none
       ${
         mode === "1day"
           ? "bg-white text-black shadow-lg scale-105"
@@ -20,7 +20,7 @@ export default function StockChart({ symbol }) {
           1day
         </button>
         <button
-          className={`px-3 py-1 text- font-semibold rounded-[5px] transition-all duration-200 focus:outline-none
+          className={`px-3 py-1 cursor-pointer font-medium rounded-[5px] transition-all duration-200 focus:outline-none
       ${
         mode === "live"
           ? "bg-white text-black shadow-lg scale-105"
