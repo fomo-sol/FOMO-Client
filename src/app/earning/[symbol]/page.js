@@ -119,7 +119,7 @@ export default function EarningReleasePage() {
           </div>
 
           {/* 오른쪽 영역 */}
-          <div className="flex-1">
+          <div className="flex-1 ">
             <EarningDataList earningData={earningData} />
           </div>
         </div>
