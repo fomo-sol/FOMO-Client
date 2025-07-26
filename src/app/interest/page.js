@@ -138,9 +138,7 @@ export default function InterestPage() {
 
   const handleDone = async () => {
     if (selectedList.length < 5) {
-      alert(
-        "관심 종목을 최소 5개 이상 선택해야 분석 결과를 받아보실 수 있습니다."
-      );
+      alert("관심 종목을 5개 이상 선택해주세요.");
       return;
     }
 
