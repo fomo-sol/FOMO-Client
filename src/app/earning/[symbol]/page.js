@@ -7,10 +7,13 @@ import { getStockData } from "@/services/earning-service";
 import FinanceList from "@/components/earning/earningDetail/FinanceList";
 import EarningDataList from "@/components/earning/earningDetail/EarningDataList";
 import EarningsCalendar from "@/components/earning/EarningsCalendar";
+import LoginModal from "@/components/common/LoginModal";
+import SignupModal from "@/components/common/SignupModal";
 import useAuth from "@/utils/useAuth";
 import { useMemo } from "react";
+
 export default function EarningReleasePage() {
-  const { favorites, setFavorites } = useAuth();
+  const { favorites, setFavorites, isLoggedIn } = useAuth();
 
   const { symbol } = useParams();
   const [stockData, setStockData] = useState([]);
@@ -20,13 +23,39 @@ export default function EarningReleasePage() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [favoriteSymbols, setFavoriteSymbols] = useState([]);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
 
   const isFavorite = useMemo(() => {
     if (!symbol || !favorites) return false;
     return favorites.some((f) => f.symbol === symbol);
   }, [favorites, symbol]);
 
+  // 로그인 필요 confirm 핸들러
+  const handleRequireLogin = () => {
+    if (window.confirm("로그인이 필요합니다. 로그인하시겠습니까?")) {
+      setShowLoginModal(true);
+    }
+  };
+
+  // 모달 간 전환 함수들
+  const handleSwitchToSignup = () => {
+    setShowLoginModal(false);
+    setShowSignupModal(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowSignupModal(false);
+    setShowLoginModal(true);
+  };
+
   const toggleFavorite = async (item) => {
+    // 로그인 체크
+    if (!isLoggedIn) {
+      handleRequireLogin();
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) return;
 
@@ -206,7 +235,7 @@ export default function EarningReleasePage() {
                   />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
+              <h1 className="text-3xl font-bold flex items-center gap-2">
                 {symbol}
                 <span
                   className="w-5 h-5 bg-contain bg-no-repeat bg-center cursor-pointer"
@@ -297,6 +326,22 @@ export default function EarningReleasePage() {
           <EarningsCalendar />
         </div>
       </div>
+
+      {/* 로그인 모달 */}
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onSwitchToSignup={handleSwitchToSignup}
+        />
+      )}
+
+      {/* 회원가입 모달 */}
+      {showSignupModal && (
+        <SignupModal
+          onClose={() => setShowSignupModal(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      )}
     </div>
   );
 }
