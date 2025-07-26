@@ -132,7 +132,7 @@ const CalendarPage = memo(() => {
                 >
                   {day.formattedDate}
                 </div>
-                <div className="text-[12px] sm:text-[13px] font-medium text-gray-400 flex justify-center gap-2 whitespace-nowrap">
+                <div className="text-[12px] sm:text-[13px] font-medium text-gray-400 flex justify-center gap-[6vw] whitespace-nowrap">
                   <span>장전</span>
                   <span>장후</span>
                 </div>
