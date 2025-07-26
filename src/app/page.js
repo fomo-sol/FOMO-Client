@@ -86,7 +86,7 @@ export default function Home() {
     <div>
       <div>
         <div
-          className="min-h-full bg-[#040816] flex flex-col items-center justify-start text-center pt-50 pb-70
+          className="min-h-full bg-[#040816] flex flex-col items-center justify-start text-center pt-[20vh] pb-70
     "
         >
           <h1 className="text-white text-7xl md:text-8xl font-semibold ">
