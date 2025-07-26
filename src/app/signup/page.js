@@ -1,84 +1,25 @@
 "use client";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import InputField from "@/components/common/inputField";
-import { registerUser, loginUser } from "@/services/user-service";
 
 export default function SignupPage() {
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    passwd: "",
-  });
+  useEffect(() => {
+    // 모달로 대체되었으므로 홈페이지로 리다이렉트
+    router.push("/");
+  }, [router]);
 
-  const handleChange = (e) => {
-    const { placeholder, value } = e.target;
-    const key =
-        placeholder === "User name"
-            ? "username"
-            : placeholder === "Email"
-                ? "email"
-                : "passwd";
-
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSignup = async () => {
-    try {
-      // 회원가입 요청
-      const signupRes = await registerUser(formData);
-      console.log("✅ 회원가입 성공:", signupRes);
-
-      // 이어서 로그인 요청
-      const loginRes = await loginUser({
-        email: formData.email,
-        passwd: formData.passwd,
-      });
-      console.log("✅ 로그인 성공:", loginRes);
-
-      // /interest로 리다이렉트
-      router.push("/interest");
-    } catch (err) {
-      console.error("❌ 회원가입 또는 로그인 실패:", err);
-    }
-  };
   return (
-      <div className="grid place-items-center pt-32 px-4">
-        <div className="w-[470px] h-[361px] bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center space-y-5">
-          <h2 className="text-[#353535] text-[25px] font-medium font-[Pretendard] text-center">
-            회원가입
-          </h2>
-
-          <div className="w-full max-w-[340px] space-y-3">
-            <InputField
-                type="text"
-                placeholder="User name"
-                value={formData.username}
-                onChange={handleChange}
-            />
-            <InputField
-                type="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
-            />
-            <InputField
-                type="password"
-                placeholder="Password"
-                value={formData.passwd}
-                onChange={handleChange}
-            />
-          </div>
-
-          <button
-              onClick={handleSignup}
-              className="w-[338px] h-[52px] rounded-full bg-[#171717] text-white font-semibold"
-          >
-            회원가입
-          </button>
-        </div>
+    <div className="grid place-items-center pt-32 px-4">
+      <div className="w-[470px] h-[361px] bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center space-y-5">
+        <h2 className="text-[#353535] text-[25px] font-medium font-[Pretendard] text-center">
+          페이지를 찾을 수 없습니다
+        </h2>
+        <p className="text-[#353535] text-center">
+          회원가입은 모달을 통해 진행됩니다.
+        </p>
       </div>
+    </div>
   );
 }

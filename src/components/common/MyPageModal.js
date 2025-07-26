@@ -59,6 +59,7 @@ export default function MyPageModal({ onClose }) {
       window.dispatchEvent(new Event("storage"));
       onClose();
       router.push("/");
+      alert("로그아웃 되었습니다");
     } catch (err) {
       console.error("로그아웃 실패:", err);
     }
@@ -82,12 +83,12 @@ export default function MyPageModal({ onClose }) {
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div
             ref={modalRef}
-            className="select-none w-[470px] h-[449px] bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center font-[Pretendard] relative"
+            className="select-none bg-[#EAEAEA] w-[470px] h-[449px] rounded-[5px] shadow-md flex flex-col items-center justify-center font-[Pretendard] relative "
           >
-            <h2 className="text-[25px] font-medium text-[#081835] mb-[4px]">
-              {userInfo.username}님
+            <h2 className="text-[25px] font-medium text-[#000000] mb-[4px]">
+              {userInfo.username}
             </h2>
-            <p className="text-[20px] text-[#081835] font-normal mb-[15px]">
+            <p className="text-[20px] text-[#000000] font-normal mb-[15px]">
               {userInfo.email}
             </p>
 
@@ -105,7 +106,7 @@ export default function MyPageModal({ onClose }) {
               className={`cursor-pointer w-[260px] py-[7px] rounded-full flex items-center justify-center gap-2 mb-2.5 transition-colors ${
                 userInfo.telegram_id
                   ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                  : "bg-white text-black hover:bg-gray-100"
+                  : "bg-white text-black hover:bg-gray-300"
               }`}
             >
               <Image
@@ -130,7 +131,7 @@ export default function MyPageModal({ onClose }) {
 
             <button
               onClick={onClose}
-              className="cursor-pointer absolute top-3 right-4 text-2xl font-bold text-[#333] hover:text-black transition-colors"
+              className="cursor-pointer absolute top-3 right-4 text-2xl font-bold text-[#000000] hover:text-gray-400 transition-colors"
             >
               ×
             </button>
