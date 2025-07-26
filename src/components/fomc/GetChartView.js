@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import StockChart from "@/components/earning/chart/chart";
 
-export default function GetChartView() {
+export default function GetChartView({ onSymbolSelect }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [search, setSearch] = useState("");
@@ -36,25 +36,37 @@ export default function GetChartView() {
     }
   }, [search, showModal]);
 
+  // 종목 선택 시 부모 컴포넌트에 알림
+  const handleSymbolSelect = (symbol) => {
+    setSelectedSymbol(symbol);
+    setShowModal(false);
+    if (onSymbolSelect) {
+      onSymbolSelect(symbol);
+    }
+  };
+
   return (
     <div className="w-full flex items-center justify-center bg-[#040816] rounded-lg relative">
       {!selectedSymbol ? (
-        <button
-          className="bg-gray-800 text-white cursor-pointer px-6 py-3 rounded-lg font-bold"
-          onClick={() => setShowModal(true)}
-        >
-          주식 차트 불러오기
-        </button>
-      ) : (
-        <div className="w-full flex flex-col items-center justify-center">
-          <div className="text-lg font-bold mb-2">{selectedSymbol}</div>
-          <StockChart symbol={selectedSymbol} />
+        <div className="pt-20">
           <button
-            className="mt-4 text-sm text-blue-400 cursor-pointer underline"
+            className="bg-gray-800 text-white cursor-pointer hover:bg-gray-600 px-6 py-3 rounded-lg font-bold"
             onClick={() => setShowModal(true)}
           >
-            다른 종목 선택
+            주식 차트 불러오기
           </button>
+        </div>
+      ) : (
+        <div className="w-full flex flex-col items-center justify-center">
+          <StockChart symbol={selectedSymbol} />
+          <div className="pt-6">
+            <button
+              className="px-3 py-1 cursor-pointer border-1 hover:text-gray-500 hover:bg-gray-950 border-gray600 font-medium rounded-[5px] transition-all duration-200 focus:outline-none"
+              onClick={() => setShowModal(true)}
+            >
+              다른 종목 선택
+            </button>
+          </div>
         </div>
       )}
 
@@ -99,10 +111,7 @@ export default function GetChartView() {
                   <div
                     key={stock.symbol}
                     className="py-2 px-2 hover:bg-blue-100 hover:text-black cursor-pointer rounded text-white flex items-center"
-                    onClick={() => {
-                      setSelectedSymbol(stock.symbol);
-                      setShowModal(false);
-                    }}
+                    onClick={() => handleSymbolSelect(stock.symbol)}
                   >
                     <span className="font-bold w-24">{stock.symbol}</span>
                     <span className="text-gray-400 ml-2 truncate">

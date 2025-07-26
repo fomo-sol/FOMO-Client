@@ -10,7 +10,7 @@ export default function Content({ activeTab, fileMap }) {
   }, [activeTab, activeLangTab, fileMap]);
 
   return (
-    <div className="bg-[#1A2642] rounded-[10px] shadow-md pt-2 pb-4 px-4 relative">
+    <div className="bg-gray-800 rounded-[10px] h-full shadow-md pt-2 pb-14 px-4 relative">
       {/* select tab */}
       <div className="flex justify-start gap-[48px] mb-3 pl-[6px]">
         {["한국어", "영어", "AI 요약분석"].map((lang) => (
@@ -19,21 +19,20 @@ export default function Content({ activeTab, fileMap }) {
               onClick={() => setActiveLangTab(lang)}
               className={`transition-all cursor-pointer ${
                 activeLangTab === lang
-                  ? "text-white font-bold"
-                  : "text-white/50"
-              }
-                text-sm`}
+                  ? "text-white font-bold text-xl"
+                  : "text-white/50 text-lg"
+              }`}
             >
               {lang}
             </button>
             {activeLangTab === lang && (
               <div
-                className="-mb-[7px]"
+                className="-mb-[4px]"
                 style={{
                   width: "37px",
-                  height: "2px",
+                  height: "5px",
                   backgroundColor: "#7CA9EF",
-                  borderRadius: "4px",
+                  borderRadius: "2px",
                 }}
               />
             )}
@@ -42,7 +41,7 @@ export default function Content({ activeTab, fileMap }) {
       </div>
 
       {/* 본문 */}
-      <div className="bg-white rounded-[10px] h-[600px] overflow-hidden text-[#040816]">
+      <div className="bg-white rounded-[10px] h-full overflow-hidden text-[#040816]">
         {fileSrc ? (
           <iframe
             src={fileSrc}
