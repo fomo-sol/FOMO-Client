@@ -7,23 +7,25 @@ export default function StockChart({ symbol }) {
 
   return (
     <div>
-      <div className="flex gap-2 mb-2">
+      <div className="flex gap-2 mb-2 p-1">
         <button
-          className={`px-2 py-1 rounded cursor-pointer font-bold text-sm transition-colors duration-150 ${
-            mode === "1day"
-              ? "bg-gray-800 text-white hover:bg-gray-700"
-              : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-          }`}
+          className={`px-3 py-1 text- font-semibold rounded-[5px] transition-all duration-200 focus:outline-none
+      ${
+        mode === "1day"
+          ? "bg-white text-black shadow-lg scale-105"
+          : "bg-gray-700 text-white hover:bg-gray-600 scale-95"
+      }`}
           onClick={() => setMode("1day")}
         >
           1day
         </button>
         <button
-          className={`px-2 py-1 rounded cursor-pointer font-bold text-sm transition-colors duration-150 ${
-            mode === "live"
-              ? "bg-gray-800 text-white hover:bg-gray-700"
-              : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-          }`}
+          className={`px-3 py-1 text- font-semibold rounded-[5px] transition-all duration-200 focus:outline-none
+      ${
+        mode === "live"
+          ? "bg-white text-black shadow-lg scale-105"
+          : "bg-gray-700 text-white hover:bg-gray-600 scale-95"
+      }`}
           onClick={() => setMode("live")}
         >
           실시간
