@@ -49,43 +49,44 @@ export default function FomcPage() {
   };
 
   return (
-    <div className="px-8 font-[Pretendard] min-h-screen">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold mt-6 mb-2">FOMC 리스트</h1>
-      </div>
+    <div className="font-[Pretendard] min-h-screen bg-[#040816] text-white overflow-hidden">
+      <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">FOMC 리스트</h1>
+        <p className="text-gray-400 text-sm lg:text-base mb-6">FOMC 일정 및 의사록을 확인하세요</p>
 
-      {/* 탭 + 연도 선택 */}
-      <div className="flex justify-between items-center border-b border-white/30 mb-2">
-        <div className="flex gap-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`pb-1 text-[20px] cursor-pointer font-semibold relative ${
-                activeTab === tab ? "text-white" : "text-gray-400"
-              }`}
-            >
-              {tab}
-              {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 w-full h-[2px] mb-[-9px] bg-[#93B9FF]" />
-              )}
-            </button>
-          ))}
+        {/* 탭 + 연도 선택 */}
+        <div className="flex justify-between items-center border-b border-white/30 mb-0">
+          <div className="flex gap-8">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`pb-1 text-[20px] cursor-pointer font-semibold relative ${
+                  activeTab === tab ? "text-white" : "text-gray-400"
+                }`}
+              >
+                {tab}
+                {activeTab === tab && (
+                  <div className="absolute bottom-0 left-0 w-full h-[2px] mb-[-9px] bg-[#93B9FF]" />
+                )}
+              </button>
+            ))}
+          </div>
+          <select
+            className="bg-[#F5F5F5] cursor-pointer text-black border-[3px] border-[#E0E0E0] rounded-[4px] px-2 py-1 w-[95px] mb-4"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
         </div>
-        <select
-          className="bg-[#F5F5F5] cursor-pointer text-black border-[3px] border-[#E0E0E0] rounded-[4px] px-2 py-1 w-[95px] mb-4"
-          value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
+        {/* 리스트 */}
+        {renderTabContent()}
       </div>
-      {/* 리스트 */}
-      {renderTabContent()}
     </div>
   );
 }
