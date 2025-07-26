@@ -25,9 +25,7 @@ export default function Home() {
       content: (
         <div className="flex h-full w-full items-center justify-center text-white">
           <img
-            src="/FOMC.png"
-            width={300}
-            height={300}
+            src="/fomc_r.png"
             className="h-full w-full object-cover"
             alt="FOMC demo"
           />
@@ -40,9 +38,7 @@ export default function Home() {
         "전문적인 금융 문서를 인공지능이 자동 번역하고 핵심만 요약해드립니다. 복잡한 내용도 한눈에 파악할 수 있어요.",
       content: (
         <img
-          src="/FOMC.png"
-          width={300}
-          height={300}
+          src="/earning.png"
           className="h-full w-full object-cover"
           alt="FOMC demo"
         />
@@ -54,7 +50,7 @@ export default function Home() {
         "당신의 관심 종목과 포트폴리오에 영향을 주는 뉴스만 골라서 알려드립니다. 더 똑똑한 투자 결정을 도와드려요.",
       content: (
         <img
-          src="/FOMC.png"
+          src="/alert.png"
           width={300}
           height={300}
           className="h-full w-full object-cover"
@@ -68,7 +64,7 @@ export default function Home() {
         "과거 FOMC 결과와 시장 반응, 기업 실적 흐름을 한눈에 분석할 수 있습니다. 투자 판단에 필요한 데이터를 시각화해 더 명확한 전략을 세울 수 있어요.",
       content: (
         <img
-          src="/FOMC.png"
+          src="/calendar.png"
           width={300}
           height={300}
           className="h-full w-full object-cover"
@@ -97,6 +93,7 @@ export default function Home() {
             FOMO
           </h1>
           <TypewriterEffectSmooth words={words} cursorClassName="bg-white" />
+          주식 정보에 한 발 늦었다고 생각한 당신에게
           <button
             className="bg-white text-[#040816] text-2xl font-semibold rounded-xl px-12 py-4 shadow hover:bg-gray-200 transition mt-10"
             onClick={handleStart}
