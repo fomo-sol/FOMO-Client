@@ -7,14 +7,78 @@ import { getStockData } from "@/services/earning-service";
 import FinanceList from "@/components/earning/earningDetail/FinanceList";
 import EarningDataList from "@/components/earning/earningDetail/EarningDataList";
 import EarningsCalendar from "@/components/earning/EarningsCalendar";
-
+import useAuth from "@/utils/useAuth";
+import { useMemo } from "react";
 export default function EarningReleasePage() {
+  const { favorites } = useAuth();
+
   const { symbol } = useParams();
   const [stockData, setStockData] = useState([]);
   const [financeData, setFinanceData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [earningData, setEarningData] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const [favoriteSymbols, setFavoriteSymbols] = useState([]);
+
+  const isFavorite = useMemo(() => {
+    if (!symbol || !favorites) return false;
+    return favorites.some((f) => f.symbol === symbol);
+  }, [favorites, symbol]);
+
+  const toggleFavorite = async (item) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = payload?.id || payload?.sub || payload?.userId;
+    if (!userId) {
+      console.error("❌ 유저 ID 없음 (JWT payload 확인 필요)");
+      return;
+    }
+
+    const stockId =
+      item?.stock?.id ||
+      favorites.find((f) => f.symbol === item.symbol)?.stock_id;
+
+    if (!stockId) {
+      console.error("❌ stock_id 없음", item);
+      return;
+    }
+
+    const isFavorite = favoriteSymbols.includes(item.symbol);
+    const method = isFavorite ? "DELETE" : "POST";
+    const bodyData = isFavorite
+      ? { stock_id: stockId }
+      : [{ stock_id: stockId }];
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`,
+        {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(bodyData),
+        }
+      );
+
+      if (!res.ok) throw new Error("API 응답 실패");
+
+      setFavoriteSymbols((prev) =>
+        isFavorite
+          ? prev.filter((s) => s !== item.symbol)
+          : [...prev, item.symbol]
+      );
+
+      alert(isFavorite ? "삭제됨" : "추가됨");
+    } catch (e) {
+      console.error("즐겨찾기 토글 실패", e);
+      alert("관심 종목 변경 실패");
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -32,7 +96,14 @@ export default function EarningReleasePage() {
         );
         const financeData = await financeRes.json();
         if (financeData.success && financeData.data) {
-          setFinanceData(financeData.data);
+          const matchedFavorite = favorites.find((f) => f.symbol === symbol);
+          setFinanceData({
+            ...financeData.data,
+            symbol,
+            stock: matchedFavorite
+              ? { id: matchedFavorite.stock_id }
+              : undefined,
+          });
         }
       } catch (e) {
         console.error(e);
@@ -89,7 +160,24 @@ export default function EarningReleasePage() {
                   />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold">{symbol}</h1>
+              <h1 className="text-2xl font-bold flex items-center gap-2">
+                {symbol}
+                <span
+                  className="w-5 h-5 bg-contain bg-no-repeat bg-center cursor-pointer"
+                  onClick={() => toggleFavorite(financeData)}
+                  onMouseEnter={() => setHovering(true)}
+                  onMouseLeave={() => setHovering(false)}
+                  style={{
+                    backgroundImage: hovering
+                      ? isFavorite
+                        ? "url('/star-off.png')" // 삭제 전환 아이콘
+                        : "url('/star-on.png')" // 추가 전환 아이콘
+                      : isFavorite
+                      ? "url('/star-on.png')" // 현재 즐겨찾기 상태
+                      : "url('/star-off.png')", // 현재 비즐겨찾기 상태
+                  }}
+                />
+              </h1>
             </div>
 
             {/* 차트 */}
