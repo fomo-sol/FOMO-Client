@@ -8,11 +8,11 @@ export default function AlertTelegramBanner() {
 
   return (
     <>
-      <div className="bg-[#FFFFFF] text-center text-[#040816] font-[Pretendard] px-4 py-2 rounded-[12px] w-full shadow-sm">
+      <div className="bg-[#FFFFFF] text-center text-[#040816] font-[Pretendard] px-5 py-4 rounded-[12px] w-full shadow-sm">
         <p className="text-base font-bold">모바일로 편하게!</p>
         <p className="text-sm">텔레그램 알림도 받아보세요</p>
         <button
-          className="mt-2 bg-[#E5E5E5] text-black text-sm rounded px-4 py-1 flex items-center gap-2 justify-center mx-auto"
+          className="mt-2 bg-[#E5E5E5] cursor-pointer text-black text-sm rounded px-4 py-1 flex items-center gap-2 justify-center mx-auto"
           onClick={() => setShowModal(true)}
         >
           <img src="/icon_telegram.png" alt="telegram" className="w-5 h-5" />

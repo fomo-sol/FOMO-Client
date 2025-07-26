@@ -16,7 +16,6 @@ export default function RootLayout({ children }) {
         <Navbar />
 
         <div className="px-16 py-2 justify-center">{children}</div>
-
       </body>
     </html>
   );

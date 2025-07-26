@@ -14,20 +14,20 @@ export default function MyPageModal({ onClose }) {
   const [userInfo, setUserInfo] = useState({
     username: "",
     email: "",
-    telegram_id: ""
+    telegram_id: "",
   });
 
   // 사용자 정보 가져오기
   useEffect(() => {
     getUserInfo()
-      .then(data => {
+      .then((data) => {
         setUserInfo({
           username: data.username,
           email: data.email,
-          telegram_id: data.telegram_id || ""
+          telegram_id: data.telegram_id || "",
         });
       })
-      .catch(err => {
+      .catch((err) => {
         // 401 에러 등 인증 실패 시 처리
         if (err.response && err.response.status === 401) {
           alert("로그인이 필요합니다. 다시 로그인 해주세요.");
@@ -82,23 +82,31 @@ export default function MyPageModal({ onClose }) {
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div
             ref={modalRef}
-            className="w-[470px] h-[449px] bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center font-[Pretendard] relative"
+            className="select-none w-[470px] h-[449px] bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center font-[Pretendard] relative"
           >
-            <h2 className="text-xl font-semibold text-black mb-1">{userInfo.username}</h2>
-            <p className="text-sm text-gray-600 mb-4">{userInfo.email}</p>
+            <h2 className="text-[25px] font-medium text-[#081835] mb-[4px]">
+              {userInfo.username}님
+            </h2>
+            <p className="text-[20px] text-[#081835] font-normal mb-[15px]">
+              {userInfo.email}
+            </p>
 
             <Image
-              src="/FOMO.png"
+              src="/FOMO_2.png"
               alt="Profile"
-              width={150}
-              height={150}
-              className="mb-4"
+              width={230}
+              height={230}
+              className="mb-[25px]"
             />
 
-            <button 
+            <button
               onClick={handleTelegramClick}
-              className="bg-white text-black w-[260px] py-2 rounded-full flex items-center justify-center gap-2 shadow-sm mb-2 cursor-pointer hover:bg-gray-100 transition-colors"
-              disabled={!!userInfo.telegram_id} // 이미 연동된 경우 비활성화(선택)
+              disabled={!!userInfo.telegram_id}
+              className={`cursor-pointer w-[260px] py-[7px] rounded-full flex items-center justify-center gap-2 mb-2.5 transition-colors ${
+                userInfo.telegram_id
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-white text-black hover:bg-gray-100"
+              }`}
             >
               <Image
                 src="/icon_telegram.png"
@@ -106,19 +114,23 @@ export default function MyPageModal({ onClose }) {
                 width={20}
                 height={20}
               />
-              {userInfo.telegram_id ? "텔레그램이 연동되었어요" : "텔레그램 연동하기"}
+              <span className="cursor-pointer text-[18px] font-normal">
+                {userInfo.telegram_id
+                  ? "텔레그램이 연동되었어요"
+                  : "텔레그램 알림받기"}
+              </span>
             </button>
 
             <button
               onClick={handleLogout}
-              className="bg-black text-white text-sm w-[260px] py-2 rounded-full hover:bg-gray-800 transition-colors"
+              className="cursor-pointer bg-black text-white text-[18px] font-normal w-[260px] py-[7px] rounded-full hover:bg-gray-800 transition-colors"
             >
               로그아웃
             </button>
 
             <button
               onClick={onClose}
-              className="absolute top-3 right-4 text-2xl font-bold text-[#333] hover:text-black transition-colors"
+              className="cursor-pointer absolute top-3 right-4 text-2xl font-bold text-[#333] hover:text-black transition-colors"
             >
               ×
             </button>
@@ -126,9 +138,7 @@ export default function MyPageModal({ onClose }) {
         </div>
       )}
 
-      {showTelegramModal && (
-        <TelegramModal onClose={handleTelegramClose} />
-      )}
+      {showTelegramModal && <TelegramModal onClose={handleTelegramClose} />}
     </>
   );
 }

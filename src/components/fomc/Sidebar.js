@@ -8,9 +8,14 @@ export default function FOMCSidebar() {
   const router = useRouter();
   const scrollRef = useRef(null);
 
-  const [selectedYear, setSelectedYear] = useState(
-    String(new Date().getFullYear())
-  );
+  const [selectedYear, setSelectedYear] = useState(() => {
+    // localStorage에서 저장된 연도 불러오기, 없으면 현재 연도
+    if (typeof window !== "undefined") {
+      const savedYear = localStorage.getItem("fomcSelectedYear");
+      return savedYear || String(new Date().getFullYear());
+    }
+    return String(new Date().getFullYear());
+  });
   const [decisions, setDecisions] = useState([]);
   const [minutes, setMinutes] = useState([]);
 
@@ -146,6 +151,12 @@ export default function FOMCSidebar() {
     years.push(String(y));
   }
 
+  // 연도 변경 시 localStorage에 저장
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
+    localStorage.setItem("fomcSelectedYear", year);
+  };
+
   return (
     <div>
       <h2 className="text-lg font-bold mb-3">FOMC 일정</h2>
@@ -161,7 +172,7 @@ export default function FOMCSidebar() {
             return (
               <div
                 key={item.id + item.type}
-                className="w-[110px] h-[150px] flex-shrink-0 rounded-[20px] bg-[#717171] flex flex-col items-center justify-center text-white text-sm font-semibold"
+                className="w-[110px] h-[150px] flex-shrink-0 rounded-[20px] transition-colors bg-gradient-to-r from-slate-700/30 to-slate-800/30 hover:from-slate-600/40 hover:to-slate-700/40 border border-slate-600/30 hover:border-slate-500/50 flex flex-col items-center justify-center text-white text-sm font-semibold cursor-pointer"
               >
                 <div className="text-lg mb-0.5">
                   {dateObj ? `${dateObj.getMonth() + 1}월` : "-"}
@@ -181,8 +192,8 @@ export default function FOMCSidebar() {
       <div className="flex items-center gap-3 mb-3 mt-2 border-b border-white pb-2">
         <select
           value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
-          className="bg-transparent border border-white rounded px-2 py-1 text-sm"
+          onChange={(e) => handleYearChange(e.target.value)}
+          className="bg-transparent cursor-pointer border border-white rounded px-2 py-1 text-sm"
         >
           {years.map((year) => (
             <option key={year} value={year}>
@@ -208,10 +219,34 @@ export default function FOMCSidebar() {
                 const d = event.fed_release_date_str
                   ? event.fed_release_date_str.replace(/-/g, ".")
                   : null;
-                const minutesObj = sortedMinutes[idx];
+
+                // 2020년도 의사록 데이터 조정
+                const year = event.fed_release_date_str
+                  ? new Date(event.fed_release_date_str).getFullYear()
+                  : null;
+                let minutesObj;
+
+                if (year === 2020) {
+                  // 2020년도: 2회차는 건너뛰고, 3회차부터는 한 칸씩 앞으로
+                  if (idx === 1) {
+                    // 2회차
+                    minutesObj = null; // "-" 표시
+                  } else if (idx >= 2) {
+                    // 3회차부터
+                    minutesObj = sortedMinutes[idx - 1]; // 한 칸 앞의 데이터 사용
+                  } else {
+                    // 1회차
+                    minutesObj = sortedMinutes[idx];
+                  }
+                } else {
+                  // 다른 연도는 기존 로직
+                  minutesObj = sortedMinutes[idx];
+                }
+
                 const minutesDate = minutesObj?.fomc_release_date_str
                   ? minutesObj.fomc_release_date_str.replace(/-/g, ".")
                   : null;
+
                 return (
                   <tr
                     key={event.id}
