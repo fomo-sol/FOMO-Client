@@ -76,7 +76,7 @@ export const fetchCalendarData = async (weekDates) => {
     const endDate = formatDateForAPI(weekDates[weekDates.length - 1]);
 
     const response = await fetch(
-      `http://localhost:4000/api/calendar/week?start=${startDate}&end=${endDate}`
+      `${process.env.NEXT_PUBLIC_API_URL}/calendar/week?start=${startDate}&end=${endDate}`
     );
     const result = await response.json();
 
