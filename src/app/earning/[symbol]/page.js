@@ -10,7 +10,7 @@ import EarningsCalendar from "@/components/earning/EarningsCalendar";
 import useAuth from "@/utils/useAuth";
 import { useMemo } from "react";
 export default function EarningReleasePage() {
-  const { favorites } = useAuth();
+  const { favorites, setFavorites } = useAuth();
 
   const { symbol } = useParams();
   const [stockData, setStockData] = useState([]);
@@ -37,22 +37,63 @@ export default function EarningReleasePage() {
       return;
     }
 
-    const stockId =
-      item?.stock?.id ||
-      favorites.find((f) => f.symbol === item.symbol)?.stock_id;
+    const isCurrentlyFavorite = favorites.some((f) => f.symbol === symbol);
+    const method = isCurrentlyFavorite ? "DELETE" : "POST";
+
+    // stock_id를 여러 경로에서 찾기
+    let stockId = null;
+
+    // 1. financeData에서 찾기
+    if (financeData?.stock?.id) {
+      stockId = financeData.stock.id;
+    }
+    // 2. favorites에서 현재 symbol의 stock_id 찾기
+    else if (favorites.find((f) => f.symbol === symbol)?.stock_id) {
+      stockId = favorites.find((f) => f.symbol === symbol).stock_id;
+    }
+    // 3. item에서 찾기
+    else if (item?.id || item?.stock_id) {
+      stockId = item.id || item.stock_id;
+    }
+    // 4. companylogo.json에서 symbol로 찾기
+    else {
+      try {
+        const response = await fetch("/companylogo.json");
+        const companyData = await response.json();
+        const company = companyData.find((c) => c.symbol === symbol);
+        if (company?.id) {
+          stockId = company.id;
+        }
+      } catch (error) {
+        console.error("companylogo.json 로드 실패:", error);
+      }
+    }
+
+    console.log("🔍 stock_id 찾기:", {
+      financeDataStockId: financeData?.stock?.id,
+      favoritesStockId: favorites.find((f) => f.symbol === symbol)?.stock_id,
+      itemId: item?.id,
+      itemStockId: item?.stock_id,
+      symbol,
+      finalStockId: stockId,
+    });
 
     if (!stockId) {
-      console.error("❌ stock_id 없음", item);
+      console.error("❌ stock_id 없음", {
+        financeData,
+        favorites,
+        item,
+        symbol,
+      });
+      alert("관심종목 추가/삭제에 필요한 stock_id를 찾을 수 없습니다.");
       return;
     }
 
-    const isFavorite = favoriteSymbols.includes(item.symbol);
-    const method = isFavorite ? "DELETE" : "POST";
-    const bodyData = isFavorite
-      ? { stock_id: stockId }
-      : [{ stock_id: stockId }];
-
     try {
+      const bodyData = isCurrentlyFavorite
+        ? { stock_id: stockId } // DELETE: 객체 그대로
+        : [{ stock_id: stockId }]; // POST: 배열로 감싸야 함
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`,
         {
@@ -67,13 +108,18 @@ export default function EarningReleasePage() {
 
       if (!res.ok) throw new Error("API 응답 실패");
 
-      setFavoriteSymbols((prev) =>
-        isFavorite
-          ? prev.filter((s) => s !== item.symbol)
-          : [...prev, item.symbol]
+      // 서버에서 최신 관심종목 목록을 다시 fetch해서 동기화
+      const favRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`
       );
+      const favData = await favRes.json();
+      setFavorites(favData.data || []);
 
-      alert(isFavorite ? "삭제됨" : "추가됨");
+      alert(
+        isCurrentlyFavorite
+          ? "관심 목록에서 제거되었습니다"
+          : "관심 목록에 추가되었습니다"
+      );
     } catch (e) {
       console.error("즐겨찾기 토글 실패", e);
       alert("관심 종목 변경 실패");
