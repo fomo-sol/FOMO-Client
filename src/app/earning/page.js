@@ -82,9 +82,9 @@ export default function EarningPage() {
                   }
                   setShowModal(true);
                 }}
-                className="bg-white text-black font-semibold px-4 py-1.5 cursor-pointer rounded hover:bg-gray-700 transition"
+                className="bg-white text-black font-medium px-4 py-1.5 cursor-pointer rounded hover:bg-gray-700 transition"
               >
-                Add Asset
+                관심종목 추가
               </button>
             </div>
           </div>
