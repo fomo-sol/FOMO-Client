@@ -26,21 +26,21 @@ export default function AlertCard({
       </div>
 
       {/* 텍스트 블럭 */}
-      <div className="flex flex-col justify-center flex-1">
-        {/* ✅ 고정된 타이틀 */}
-        <div className="text-[16px] font-semibold leading-[16px] text-black/90 font-['Segoe UI Variable']">
-          {title}
+      <div className="flex flex-col justify-center flex-1 gap-1">
+        {/* ✅ 상단 타이틀 + 날짜 */}
+        <div className="flex justify-between items-start">
+          <div className="text-[16px] font-semibold leading-[16px] text-black/90 font-['Segoe UI Variable']">
+            {title || "FOMC"}
+          </div>
+          <div className="text-[#697386] text-[13px] font-normal leading-[16px] font-['Pretendard Variable'] whitespace-nowrap ml-4">
+            {time}
+          </div>
         </div>
 
         {/* 본문 */}
         <div className="text-[16px] font-normal leading-[24px] text-black/90 font-['Pretendard Variable'] whitespace-pre-line">
           {description}
         </div>
-      </div>
-
-      {/* 시간 표시 */}
-      <div className="absolute bottom-2 right-4 text-[#697386] text-[14px] font-normal leading-[16px] font-['Pretendard Variable']">
-        {time}
       </div>
     </div>
   );
