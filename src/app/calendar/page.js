@@ -60,9 +60,8 @@ const CalendarPage = memo(() => {
 
   return (
     <div className="font-[Pretendard] bg-[#040816] text-white h-screen flex flex-col">
-      {/* 헤더 영역 (캘린더 제목 + 날짜 범위 컨트롤 우측 배치) */}
+      {/* 헤더 영역 */}
       <div className="shrink-0 px-4 sm:px-5 lg:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        {/* 왼쪽: 타이틀과 설명 */}
         <div>
           <h1 className="text-3xl lg:text-4xl font-bold mb-1">캘린더</h1>
           <p className="text-gray-400 text-sm lg:text-base">
@@ -70,7 +69,6 @@ const CalendarPage = memo(() => {
           </p>
         </div>
 
-        {/* 오른쪽: 날짜 이동 컨트롤 */}
         <div className="flex items-center gap-2 mt-4 sm:mt-0">
           <button
             onClick={handlePreviousWeek}
@@ -110,38 +108,41 @@ const CalendarPage = memo(() => {
         </div>
       </div>
 
-      {/* 고정된 요일/날짜 라벨 */}
-      <div className="overflow-x-auto pb-3">
-        <div className="flex justify-center gap-6 lg:gap-8 w-full max-w-[1800px] mx-auto px-6">
+      {/* 요일 라벨 */}
+      {/* 요일 라벨 */}
+      <div className="w-full px-4 sm:px-6 mt-3">
+        <div className="grid grid-cols-5 gap-x-2 sm:gap-x-4">
           {calendarData.map((day, index) => (
             <div
               key={`label-${day.dayOfWeek}-${index}`}
-              className="min-w-[280px] max-w-[280px] lg:min-w-[245px] lg:max-w-[245px] text-center flex-shrink-0"
+              className="text-center"
             >
-              <h3
-                className={`text-[20px] lg:text-[22px] font-bold mb-3 ${
-                  day.isToday ? "text-blue-400" : "text-white"
-                }`}
-              >
-                {day.dayOfWeek}
-              </h3>
-              <div
-                className={`text-[14px] lg:text-[16px] font-medium ${
-                  day.isToday ? "text-blue-300" : "text-gray-300"
-                }`}
-              >
-                {day.formattedDate}
-              </div>
-              <div className="text-[14px] lg:text-[15px] font-medium text-gray-400 flex justify-center gap-22.5 mt-1">
-                <span>장전</span>
-                <span>장후</span>
+              <div className="flex flex-col gap-1.5 py-2">
+                <h3
+                  className={`text-[16px] sm:text-[18px] font-bold ${
+                    day.isToday ? "text-blue-400" : "text-white"
+                  } whitespace-nowrap truncate`}
+                >
+                  {day.dayOfWeek}
+                </h3>
+                <div
+                  className={`text-[13px] sm:text-[14px] font-medium ${
+                    day.isToday ? "text-blue-300" : "text-gray-300"
+                  } whitespace-nowrap truncate`}
+                >
+                  {day.formattedDate}
+                </div>
+                <div className="text-[12px] sm:text-[13px] font-medium text-gray-400 flex justify-center gap-2 whitespace-nowrap">
+                  <span>장전</span>
+                  <span>장후</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* 콘텐츠 영역 */}
+      {/* 본문 */}
       <div className="flex-1 overflow-y-auto hide-scrollbar">
         {loading && (
           <div className="flex justify-center items-center py-12">
@@ -156,7 +157,7 @@ const CalendarPage = memo(() => {
         )}
 
         <div className="overflow-x-auto hide-scrollbar">
-          <div className="flex flex-row gap-6 lg:gap-8 justify-center max-w-[1800px] mx-auto px-6">
+          <div className="flex gap-4 sm:gap-6 px-4 sm:px-6 max-w-full">
             {calendarData.map((day, index) => (
               <CalendarColumn
                 key={`${day.dayOfWeek}-${day.preMarketDate}-${index}`}
