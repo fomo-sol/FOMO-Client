@@ -86,16 +86,19 @@ export default function Home() {
     <div>
       <div>
         <div
-          className="min-h-full bg-[#040816] flex flex-col items-center justify-start text-center pt-50 pb-70
+          className="min-h-full bg-[#040816] flex flex-col items-center justify-start text-center pt-[20vh] pb-70
     "
         >
           <h1 className="text-white text-7xl md:text-8xl font-semibold ">
             FOMO
           </h1>
+
           <TypewriterEffectSmooth words={words} cursorClassName="bg-white" />
-          주식 정보에 한 발 늦었다고 생각한 당신에게
+          <div className=" text-xl text-gray-200">
+            해외 주식 정보에 한 발 늦었다고 생각한 당신에게
+          </div>
           <button
-            className="bg-white text-[#040816] text-2xl font-semibold rounded-xl px-12 py-4 shadow hover:bg-gray-200 transition mt-10"
+            className="bg-white text-[#040816] text-2xl font-semibold rounded-[5px] px-12 py-4 shadow hover:bg-gray-200 transition mt-10"
             onClick={handleStart}
           >
             시작하기

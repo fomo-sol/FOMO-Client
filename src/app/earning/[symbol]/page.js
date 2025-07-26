@@ -94,9 +94,9 @@ export default function EarningReleasePage() {
 
             {/* 차트 */}
             <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
+              {/* <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
                 주가 차트
-              </h2>
+              </h2> */}
               <div className="w-full flex items-center justify-center overflow-hidden mb-4">
                 <StockChart symbol={symbol} />
               </div>
@@ -104,9 +104,7 @@ export default function EarningReleasePage() {
 
             {/* 재무 데이터 */}
             <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
-                재무 정보
-              </h2>
+              <h2 className="text-xl font-bold mb-2">재무 정보</h2>
               <div className="w-full">
                 <FinanceList
                   symbol={symbol}
@@ -119,7 +117,7 @@ export default function EarningReleasePage() {
           </div>
 
           {/* 오른쪽 영역 */}
-          <div className="flex-1">
+          <div className="flex-1 ">
             <EarningDataList earningData={earningData} />
           </div>
         </div>
