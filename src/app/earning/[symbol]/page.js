@@ -7,14 +7,124 @@ import { getStockData } from "@/services/earning-service";
 import FinanceList from "@/components/earning/earningDetail/FinanceList";
 import EarningDataList from "@/components/earning/earningDetail/EarningDataList";
 import EarningsCalendar from "@/components/earning/EarningsCalendar";
-
+import useAuth from "@/utils/useAuth";
+import { useMemo } from "react";
 export default function EarningReleasePage() {
+  const { favorites, setFavorites } = useAuth();
+
   const { symbol } = useParams();
   const [stockData, setStockData] = useState([]);
   const [financeData, setFinanceData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [earningData, setEarningData] = useState(null);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const [favoriteSymbols, setFavoriteSymbols] = useState([]);
+
+  const isFavorite = useMemo(() => {
+    if (!symbol || !favorites) return false;
+    return favorites.some((f) => f.symbol === symbol);
+  }, [favorites, symbol]);
+
+  const toggleFavorite = async (item) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = payload?.id || payload?.sub || payload?.userId;
+    if (!userId) {
+      console.error("❌ 유저 ID 없음 (JWT payload 확인 필요)");
+      return;
+    }
+
+    const isCurrentlyFavorite = favorites.some((f) => f.symbol === symbol);
+    const method = isCurrentlyFavorite ? "DELETE" : "POST";
+
+    // stock_id를 여러 경로에서 찾기
+    let stockId = null;
+
+    // 1. financeData에서 찾기
+    if (financeData?.stock?.id) {
+      stockId = financeData.stock.id;
+    }
+    // 2. favorites에서 현재 symbol의 stock_id 찾기
+    else if (favorites.find((f) => f.symbol === symbol)?.stock_id) {
+      stockId = favorites.find((f) => f.symbol === symbol).stock_id;
+    }
+    // 3. item에서 찾기
+    else if (item?.id || item?.stock_id) {
+      stockId = item.id || item.stock_id;
+    }
+    // 4. companylogo.json에서 symbol로 찾기
+    else {
+      try {
+        const response = await fetch("/companylogo.json");
+        const companyData = await response.json();
+        const company = companyData.find((c) => c.symbol === symbol);
+        if (company?.id) {
+          stockId = company.id;
+        }
+      } catch (error) {
+        console.error("companylogo.json 로드 실패:", error);
+      }
+    }
+
+    console.log("🔍 stock_id 찾기:", {
+      financeDataStockId: financeData?.stock?.id,
+      favoritesStockId: favorites.find((f) => f.symbol === symbol)?.stock_id,
+      itemId: item?.id,
+      itemStockId: item?.stock_id,
+      symbol,
+      finalStockId: stockId,
+    });
+
+    if (!stockId) {
+      console.error("❌ stock_id 없음", {
+        financeData,
+        favorites,
+        item,
+        symbol,
+      });
+      alert("관심종목 추가/삭제에 필요한 stock_id를 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      const bodyData = isCurrentlyFavorite
+        ? { stock_id: stockId } // DELETE: 객체 그대로
+        : [{ stock_id: stockId }]; // POST: 배열로 감싸야 함
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`,
+        {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(bodyData),
+        }
+      );
+
+      if (!res.ok) throw new Error("API 응답 실패");
+
+      // 서버에서 최신 관심종목 목록을 다시 fetch해서 동기화
+      const favRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`
+      );
+      const favData = await favRes.json();
+      setFavorites(favData.data || []);
+
+      alert(
+        isCurrentlyFavorite
+          ? "관심 목록에서 제거되었습니다"
+          : "관심 목록에 추가되었습니다"
+      );
+    } catch (e) {
+      console.error("즐겨찾기 토글 실패", e);
+      alert("관심 종목 변경 실패");
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -32,7 +142,14 @@ export default function EarningReleasePage() {
         );
         const financeData = await financeRes.json();
         if (financeData.success && financeData.data) {
-          setFinanceData(financeData.data);
+          const matchedFavorite = favorites.find((f) => f.symbol === symbol);
+          setFinanceData({
+            ...financeData.data,
+            symbol,
+            stock: matchedFavorite
+              ? { id: matchedFavorite.stock_id }
+              : undefined,
+          });
         }
       } catch (e) {
         console.error(e);
@@ -89,14 +206,31 @@ export default function EarningReleasePage() {
                   />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold">{symbol}</h1>
+              <h1 className="text-2xl font-bold flex items-center gap-2">
+                {symbol}
+                <span
+                  className="w-5 h-5 bg-contain bg-no-repeat bg-center cursor-pointer"
+                  onClick={() => toggleFavorite(financeData)}
+                  onMouseEnter={() => setHovering(true)}
+                  onMouseLeave={() => setHovering(false)}
+                  style={{
+                    backgroundImage: hovering
+                      ? isFavorite
+                        ? "url('/star-off.png')" // 삭제 전환 아이콘
+                        : "url('/star-on.png')" // 추가 전환 아이콘
+                      : isFavorite
+                      ? "url('/star-on.png')" // 현재 즐겨찾기 상태
+                      : "url('/star-off.png')", // 현재 비즐겨찾기 상태
+                  }}
+                />
+              </h1>
             </div>
 
             {/* 차트 */}
             <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
+              {/* <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
                 주가 차트
-              </h2>
+              </h2> */}
               <div className="w-full flex items-center justify-center overflow-hidden mb-4">
                 <StockChart symbol={symbol} />
               </div>
@@ -104,9 +238,7 @@ export default function EarningReleasePage() {
 
             {/* 재무 데이터 */}
             <div>
-              <h2 className="text-lg font-bold text-[#5BE49B] mb-2">
-                재무 정보
-              </h2>
+              <h2 className="text-xl font-bold mb-2">재무 정보</h2>
               <div className="w-full">
                 <FinanceList
                   symbol={symbol}
@@ -119,7 +251,7 @@ export default function EarningReleasePage() {
           </div>
 
           {/* 오른쪽 영역 */}
-          <div className="flex-1">
+          <div className="flex-1 ">
             <EarningDataList earningData={earningData} />
           </div>
         </div>

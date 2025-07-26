@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use, useRef } from "react";
 
 export default function EarningDataList({
   englishUrl,
@@ -9,6 +9,10 @@ export default function EarningDataList({
 }) {
   const [activeTab, setActiveTab] = useState("영어");
   const [loading, setLoading] = useState(false);
+
+  const [isExistEn, setIsExistEn] = useState(false);
+  const [isExistKr, setIsExistKr] = useState(false);
+  const [isExistAn, setIsExistAn] = useState(false);
 
   // earningData가 변경될 때마다 처리
   useEffect(() => {
@@ -27,8 +31,53 @@ export default function EarningDataList({
   const currentData =
     earningData && earningData.length > 0 ? earningData[0] : null;
 
+  useEffect(() => {
+    if (currentData?.stock_release_content_en) {
+      fetch(currentData.stock_release_content_en, {
+        method: "GET",
+        mode: "cors",
+      })
+        .then((response) => {
+          if (response.ok) {
+            setIsExistEn(true);
+          } else {
+            setIsExistEn(false);
+          }
+        })
+        .catch(() => setIsExistEn(false));
+    }
+    if (currentData?.stock_release_content_kr) {
+      fetch(currentData.stock_release_content_kr, {
+        method: "GET",
+        mode: "cors",
+      })
+        .then((response) => {
+          if (response.ok) {
+            setIsExistKr(true);
+          } else {
+            setIsExistKr(false);
+          }
+        })
+        .catch(() => setIsExistKr(false));
+    }
+    if (currentData?.stock_release_content_an) {
+      fetch(currentData.stock_release_content_an, {
+        method: "GET",
+        mode: "cors",
+      })
+        .then((response) => {
+          if (response.ok) {
+            setIsExistAn(true);
+          } else {
+            setIsExistAn(false);
+          }
+        })
+        .catch(() => setIsExistAn(false));
+    }
+  }, [currentData]);
+
   return (
-    <div className="bg-[#1A2642] rounded-[10px] shadow-md pt-2 pb-4 px-4 relative">
+    <div className="bg-gray-800 rounded-[10px] h-full shadow-md pt-4 pb-14 px-4 relative">
       {/* 탭 선택 */}
       <div className="flex justify-start gap-[48px] mb-3 pl-[6px]">
         {["한국어", "영어", "AI 요약분석"].map((lang) => (
@@ -36,19 +85,21 @@ export default function EarningDataList({
             <button
               onClick={() => handleTabClick(lang)}
               className={`transition-all cursor-pointer ${
-                activeTab === lang ? "text-white font-bold" : "text-white/50"
-              } text-sm`}
+                activeTab === lang
+                  ? "text-white font-bold text-xl"
+                  : "text-white/50 text-lg"
+              } `}
             >
               {lang}
             </button>
             {activeTab === lang && (
               <div
-                className="-mb-[7px]"
+                className="-mb-[4px]"
                 style={{
                   width: "37px",
-                  height: "2px",
+                  height: "5px",
                   backgroundColor: "#7CA9EF",
-                  borderRadius: "4px",
+                  borderRadius: "2px",
                 }}
               />
             )}
@@ -56,11 +107,11 @@ export default function EarningDataList({
         ))}
       </div>
       {/* 본문 */}
-      <div className="bg-white rounded-[10px] h-[600px] overflow-hidden text-[#040816]">
+      <div className="bg-white rounded-[10px] mt-2  h-full overflow-hidden text-[#040816]">
         {loading ? (
           <div className="text-center pt-20 text-gray-500">로딩중...</div>
         ) : activeTab === "영어" ? (
-          currentData?.stock_release_content_en ? (
+          currentData?.stock_release_content_en && isExistEn ? (
             <iframe
               src={currentData.stock_release_content_en}
               width="100%"
@@ -77,7 +128,7 @@ export default function EarningDataList({
             </div>
           )
         ) : activeTab === "한국어" ? (
-          currentData?.stock_release_content_kr ? (
+          currentData?.stock_release_content_kr && isExistKr ? (
             <iframe
               src={currentData.stock_release_content_kr}
               width="100%"
@@ -93,7 +144,7 @@ export default function EarningDataList({
               한국어 데이터가 없습니다.
             </div>
           )
-        ) : currentData?.stock_release_content_an ? (
+        ) : currentData?.stock_release_content_an && isExistAn ? (
           <iframe
             src={currentData.stock_release_content_an}
             width="100%"

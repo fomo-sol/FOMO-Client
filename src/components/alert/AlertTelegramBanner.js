@@ -1,10 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TelegramModal from "@/components/common/TelegramModal";
+import { getUserInfo } from "@/services/user-service";
 
 export default function AlertTelegramBanner() {
   const [showModal, setShowModal] = useState(false);
+  const [telegramId, setTelegramId] = useState("");
+
+  useEffect(() => {
+    getUserInfo()
+      .then((data) => {
+        setTelegramId(data.telegram_id || "");
+      })
+      .catch((err) => {
+        // 에러 무시(비로그인 등)
+      });
+  }, []);
 
   return (
     <>
@@ -14,9 +26,10 @@ export default function AlertTelegramBanner() {
         <button
           className="mt-2 bg-[#E5E5E5] cursor-pointer text-black text-sm rounded px-4 py-1 flex items-center gap-2 justify-center mx-auto"
           onClick={() => setShowModal(true)}
+          disabled={!!telegramId}
         >
           <img src="/icon_telegram.png" alt="telegram" className="w-5 h-5" />
-          텔레그램 알림받기
+          {telegramId ? "텔레그램이 연동되었어요" : "텔레그램 알림받기"}
         </button>
       </div>
 
