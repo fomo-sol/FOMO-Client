@@ -18,17 +18,22 @@ export default function FOMCItemPage() {
   const count = searchParams.get("count") || "1";
   const dateParam = searchParams.get("date") || "2025.07.10";
   const divType = searchParams.get("div") || "decisions";
+  const tabParam =
+    searchParams.get("tab") || (divType === "minutes" ? "의사록" : "금리결정");
   const fomcId = params.listnum;
 
-  const [activeTab, setActiveTab] = useState(
-    divType === "minutes" ? "의사록" : "금리결정"
-  );
+  const [activeTab, setActiveTab] = useState(tabParam);
   const [activeLangTab, setActiveLangTab] = useState("한국어");
   const [showSidebar, setShowSidebar] = useState(false);
   const [fomcData, setFomcData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [minutesData, setMinutesData] = useState([]);
   const [decisionsData, setDecisionsData] = useState([]);
+
+  // tabParam이 변경될 때 activeTab 업데이트
+  useEffect(() => {
+    setActiveTab(tabParam);
+  }, [tabParam]);
 
   // minutes 데이터 가져오기 (의사록 탭용)
   useEffect(() => {
@@ -117,95 +122,67 @@ export default function FOMCItemPage() {
   // 날짜 포맷 변환 (2025-01-29 -> 2025.01.29)
   const formattedDate = dateParam.replace(/-/g, ".");
 
-  // 탭 클릭 핸들러 - 해당하는 API로 이동
-  const handleTabClick = (tabName) => {
-    if (tabName === "금리결정") {
+  // 탭 클릭 핸들러 - 백엔드 API 사용
+  const handleTabClick = async (tabName) => {
+    if (tabName === "금리결정" || tabName === "연설") {
       if (divType === "minutes") {
         // minutes 페이지에서 decisions로 이동
-        const currentYear = new Date(dateParam).getFullYear();
-        const currentCount = parseInt(count);
-
-        // 같은 연도의 decisions 데이터에서 해당 회차 찾기
-        const sameYearDecisions = decisionsData.filter((item) => {
-          const itemYear = new Date(item.fed_release_date_str).getFullYear();
-          return itemYear === currentYear;
-        });
-
-        // 날짜순 정렬 후 해당 회차의 decisions 찾기
-        const sortedDecisions = sameYearDecisions.sort(
-          (a, b) =>
-            new Date(a.fed_release_date_str) - new Date(b.fed_release_date_str)
-        );
-
-        const targetDecision = sortedDecisions[currentCount - 1];
-
-        if (targetDecision) {
-          router.push(
-            `/fomc/${targetDecision.id}?div=decisions&date=${targetDecision.fed_release_date_str}&count=${currentCount}`
+        try {
+          console.log("Fetching decision for minutes date:", dateParam);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/fomc/minutes/${dateParam}/decision`
           );
-        } else {
-          console.error("Decisions data not found for the current count");
+          const data = await response.json();
+          console.log("API response for decision:", data);
+
+          if (data.success && data.data) {
+            const targetDecision = data.data;
+            console.log("Found target decision:", targetDecision);
+
+            // 기존 count 그대로 사용, tab 파라미터 추가
+            router.push(
+              `/fomc/${targetDecision.id}?div=decisions&date=${targetDecision.fed_release_date_str}&count=${count}&tab=${tabName}`
+            );
+          } else {
+            console.error(
+              "Decisions data not found for the current minutes date"
+            );
+            console.log("API response was:", data);
+          }
+        } catch (error) {
+          console.error("Error fetching decision by minutes date:", error);
         }
       } else {
         // decisions 페이지에서 탭만 변경
-        setActiveTab("금리결정");
-      }
-    } else if (tabName === "연설") {
-      if (divType === "minutes") {
-        // minutes 페이지에서 decisions로 이동 (연설은 decisions API에서 가져옴)
-        const currentYear = new Date(dateParam).getFullYear();
-        const currentCount = parseInt(count);
-
-        const sameYearDecisions = decisionsData.filter((item) => {
-          const itemYear = new Date(item.fed_release_date_str).getFullYear();
-          return itemYear === currentYear;
-        });
-
-        const sortedDecisions = sameYearDecisions.sort(
-          (a, b) =>
-            new Date(a.fed_release_date_str) - new Date(b.fed_release_date_str)
-        );
-
-        const targetDecision = sortedDecisions[currentCount - 1];
-
-        if (targetDecision) {
-          router.push(
-            `/fomc/${targetDecision.id}?div=decisions&date=${targetDecision.fed_release_date_str}&count=${currentCount}`
-          );
-        } else {
-          console.error("Decisions data not found for the current count");
-        }
-      } else {
-        // decisions 페이지에서 탭만 변경
-        setActiveTab("연설");
+        setActiveTab(tabName);
       }
     } else if (tabName === "의사록") {
       if (divType === "decisions") {
         // decisions 페이지에서 minutes로 이동
-        const currentYear = new Date(dateParam).getFullYear();
-        const currentCount = parseInt(count);
-
-        // 같은 연도의 minutes 데이터에서 해당 회차 찾기
-        const sameYearMinutes = minutesData.filter((item) => {
-          const itemYear = new Date(item.fomc_release_date_str).getFullYear();
-          return itemYear === currentYear;
-        });
-
-        // 날짜순 정렬 후 해당 회차의 minutes 찾기
-        const sortedMinutes = sameYearMinutes.sort(
-          (a, b) =>
-            new Date(a.fomc_release_date_str) -
-            new Date(b.fomc_release_date_str)
-        );
-
-        const targetMinutes = sortedMinutes[currentCount - 1];
-
-        if (targetMinutes) {
-          router.push(
-            `/fomc/${targetMinutes.id}?div=minutes&date=${targetMinutes.fomc_release_date_str}&count=${currentCount}`
+        try {
+          console.log("Fetching minutes for decision date:", dateParam);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/fomc/decisions/${dateParam}/minutes`
           );
-        } else {
-          console.error("Minutes data not found for the current count");
+          const data = await response.json();
+          console.log("API response for minutes:", data);
+
+          if (data.success && data.data) {
+            const targetMinutes = data.data;
+            console.log("Found target minutes:", targetMinutes);
+
+            // 기존 count 그대로 사용, tab 파라미터 추가
+            router.push(
+              `/fomc/${targetMinutes.id}?div=minutes&date=${targetMinutes.fomc_release_date_str}&count=${count}&tab=${tabName}`
+            );
+          } else {
+            console.error(
+              "Minutes data not found for the current decision date"
+            );
+            console.log("API response was:", data);
+          }
+        } catch (error) {
+          console.error("Error fetching minutes by decision date:", error);
         }
       } else {
         // minutes 페이지에서 탭만 변경
@@ -342,9 +319,9 @@ export default function FOMCItemPage() {
             onClick={() => setShowSidebar(false)}
           />
         )}
-
+        {/*bg-[#242932] 제거함, 여기 밑에 디자인 수정함 조정현*/}
         <div
-          className={`fixed top-0 left-0 h-full w-[412px] transition-transform duration-300 bg-[#242932] backdrop-blur-md shadow-lg p-4 pt-12 text-white pointer-events-auto ${
+          className={`fixed top-0 left-0 h-full w-[412px] transition-transform duration-300 backdrop-blur-md shadow-lg p-4 pt-12 text-white pointer-events-auto ${
             showSidebar ? "translate-x-0" : "-translate-x-full"
           }`}
           style={{ boxShadow: "0 4px 4px rgba(0, 0, 0, 0.25)" }}
@@ -352,22 +329,22 @@ export default function FOMCItemPage() {
         >
           <button
             onClick={() => setShowSidebar(false)}
-            className="absolute top-4 right-4 z-50 bg-black/50 cursor-pointer rounded-full p-1 text-white w-8 h-8 flex items-center justify-center"
+            className="absolute top-4 right-4 z-50 bg-slate-700/50 backdrop-blur-sm cursor-pointer rounded-full p-1 text-slate-200 w-8 h-8 flex items-center justify-center hover:bg-slate-600/60 hover:text-white transition-colors border border-slate-600/30"
             aria-label="사이드바 닫기"
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5l7 7-7 7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 19l-7-7 7-7"
               />
             </svg>
           </button>
