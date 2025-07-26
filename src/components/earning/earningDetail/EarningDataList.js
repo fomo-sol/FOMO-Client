@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 
 export default function EarningDataList({
   englishUrl,
@@ -77,7 +77,7 @@ export default function EarningDataList({
   }, [currentData]);
 
   return (
-    <div className="bg-[#1A2642] rounded-[10px] h-full shadow-md pt-2 pb-12 px-4 relative">
+    <div className="bg-gray-800 rounded-[10px] h-full shadow-md pt-4 pb-14 px-4 relative">
       {/* 탭 선택 */}
       <div className="flex justify-start gap-[48px] mb-3 pl-[6px]">
         {["한국어", "영어", "AI 요약분석"].map((lang) => (
@@ -85,19 +85,21 @@ export default function EarningDataList({
             <button
               onClick={() => handleTabClick(lang)}
               className={`transition-all cursor-pointer ${
-                activeTab === lang ? "text-white font-bold" : "text-white/50"
-              } text-sm`}
+                activeTab === lang
+                  ? "text-white font-bold text-xl"
+                  : "text-white/50 text-lg"
+              } `}
             >
               {lang}
             </button>
             {activeTab === lang && (
               <div
-                className="-mb-[7px]"
+                className="-mb-[4px]"
                 style={{
                   width: "37px",
-                  height: "2px",
+                  height: "5px",
                   backgroundColor: "#7CA9EF",
-                  borderRadius: "4px",
+                  borderRadius: "2px",
                 }}
               />
             )}
@@ -105,7 +107,7 @@ export default function EarningDataList({
         ))}
       </div>
       {/* 본문 */}
-      <div className="bg-white rounded-[10px] h-full overflow-hidden text-[#040816]">
+      <div className="bg-white rounded-[10px] mt-2  h-full overflow-hidden text-[#040816]">
         {loading ? (
           <div className="text-center pt-20 text-gray-500">로딩중...</div>
         ) : activeTab === "영어" ? (
