@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { formatRevenue } from "@/services/earning-service";
 import LoginModal from "@/components/common/LoginModal";
 import SignupModal from "@/components/common/SignupModal";
 
 export default function FinancePaging() {
+  const router = useRouter();
   const ITEMS_PER_PAGE = 10;
   const TOTAL_ITEMS = 500;
   const PAGE_BUTTONS_PER_GROUP = 10;
@@ -183,9 +185,7 @@ export default function FinancePaging() {
             <div
               key={item.id}
               className={`${rowClass} ${gridCols}`}
-              onClick={() =>
-                (window.location.href = `${process.env.NEXT_PUBLIC_CLIENT_URL}/earning/${item.symbol}`)
-              }
+              onClick={() => router.push(`/earning/${item.symbol}`)}
             >
               <span
                 className="flex justify-center gap-3 pl-2"
