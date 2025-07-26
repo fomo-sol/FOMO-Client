@@ -6,15 +6,15 @@ import { useState, useEffect } from "react";
 
 function parseJwt(token) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
+        .split("")
         .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
         })
-        .join('')
+        .join("")
     );
     return JSON.parse(jsonPayload);
   } catch (e) {
@@ -130,20 +130,22 @@ export default function InterestDonePage() {
         />
       ))}
 
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
+      <div className="relative z-10 flex flex-col items-center mt-[15vh] h-full px-4 text-center">
         <h1 className="text-[60px] font-semibold text-[#FFFEFE]">
           관심 종목 등록 완료
         </h1>
-        <p className="text-[30px] text-[#F7F7F7] mt-6">
+        <p className="text-[25px] text-[#F7F7F7] mt-[5vh]">
           FOMC 일정부터 실적 발표 요약까지 <br />
-          {username ? `${username}님 맞춤 알림으로 가장 빠르게 알려드릴게요` : "맞춤 알림으로 가장 빠르게 알려드릴게요"}
+          {username
+            ? `${username}님 맞춤 알림으로 가장 빠르게 알려드릴게요`
+            : "맞춤 알림으로 가장 빠르게 알려드릴게요"}
         </p>
-        <p className="text-[30px] text-[#F7F7F7] mt-4">
+        <p className="text-[25px] text-[#F7F7F7] mt-4">
           모바일 알림도 받아보시겠어요?
         </p>
 
         <button
-          className="mt-6 bg-white text-[#040816] text-[20px] font-normal px-6 py-3 rounded-full shadow-md"
+          className="mt-[8vh] bg-white text-[#040816] text-[20px] font-normal px-6 py-3 rounded-full shadow-md"
           onClick={() => setShowModal(true)}
         >
           텔레그램으로 알림받기
