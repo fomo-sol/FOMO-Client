@@ -26,7 +26,7 @@ export default function Home() {
         <div className="flex h-full w-full items-center justify-center text-white">
           <img
             src="/fomc_r.png"
-            className="h-full w-full object-cover"
+            className="w-200 h-auto object-cover"
             alt="FOMC demo"
           />
         </div>
@@ -39,7 +39,7 @@ export default function Home() {
       content: (
         <img
           src="/earning.png"
-          className="h-full w-full object-cover"
+          className="w-200 h-auto object-cover"
           alt="FOMC demo"
         />
       ),
@@ -53,7 +53,7 @@ export default function Home() {
           src="/alert.png"
           width={300}
           height={300}
-          className="h-full w-full object-cover"
+          className="w-200 h-auto object-cover"
           alt="FOMC demo"
         />
       ),
@@ -67,7 +67,7 @@ export default function Home() {
           src="/calendar.png"
           width={300}
           height={300}
-          className="h-full w-full object-cover"
+          className="w-200 h-auto object-cover"
           alt="FOMC demo"
         />
       ),
@@ -102,7 +102,7 @@ export default function Home() {
           </button>
         </div>
       </div>
-      <div className="absolute w-full left-0 h-[10rem]">
+      <div className="absolute w-full left-0 h-[10rem] pb-180">
         <StickyScroll content={content} />
       </div>
     </div>
