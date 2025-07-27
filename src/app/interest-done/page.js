@@ -3,7 +3,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import TelegramModal from "@/components/common/TelegramModal";
 import { useState, useEffect } from "react";
-
+import { useRouter } from "next/navigation";
 function parseJwt(token) {
   try {
     const base64Url = token.split(".")[1];
@@ -23,6 +23,7 @@ function parseJwt(token) {
 }
 
 export default function InterestDonePage() {
+  const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [username, setUsername] = useState("");
 
@@ -106,7 +107,7 @@ export default function InterestDonePage() {
   ];
 
   return (
-    <div className="relative w-full h-screen overflow-hidden font-[Pretendard]">
+    <div className="select-none relative w-full h-screen overflow-hidden font-[Pretendard]">
       {iconList.map((icon, idx) => (
         <motion.img
           key={idx}
@@ -145,10 +146,22 @@ export default function InterestDonePage() {
         </p>
 
         <button
-          className="mt-[8vh] bg-white text-[#040816] text-[20px] font-normal px-6 py-3 rounded-full shadow-md"
+          className="cursor-pointer mt-[4vh] bg-white text-[#040816] text-[18px] font-normal px-6 py-1.5 rounded-full shadow-md flex items-center gap-2"
           onClick={() => setShowModal(true)}
         >
-          텔레그램으로 알림받기
+          <Image
+            src="/icon_telegram.png"
+            alt="Telegram"
+            width={20}
+            height={20}
+          />
+          <span>텔레그램 알림받기</span>
+        </button>
+        <button
+          className="mt-3 text-white text-[17px] cursor-pointer transition hover:text-blue-500 hover:underline"
+          onClick={() => router.push("/calendar")}
+        >
+          캘린더에서 일정 확인하기 →
         </button>
       </div>
       {showModal && <TelegramModal onClose={() => setShowModal(false)} />}

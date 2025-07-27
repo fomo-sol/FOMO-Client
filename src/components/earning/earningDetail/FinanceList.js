@@ -92,18 +92,18 @@ export default function FinanceList({
   return (
     <div className="w-full mt-6">
       {/* 헤더 */}
-      <div className="grid grid-cols-4 text-sm font-semibold text-white/70 border-b border-white/20 pb-2 mb-2">
+      <div className="grid grid-cols-4 text-sm font-semibold text-white/70 border-b border-white/20 pb-2 mb-2 text-center">
         <span>분기</span>
         <span>발표일</span>
         <span>EPS (실적/예상)</span>
         <span>매출 (실적/예상)</span>
       </div>
       {/* 데이터 */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         {visibleFinances.map((f) => (
           <div
             key={f.id}
-            className={`grid grid-cols-4 py-2 px-2 bg-white/5 hover:bg-white/10 transition-all rounded text-white text-sm cursor-pointer ${
+            className={`grid grid-cols-4 py-2 bg-transparent hover:bg-white/10 transition-all rounded text-white text-sm cursor-pointer text-center ${
               selectedFinanceId === f.id ? "bg-[#93B9FF] text-black" : ""
             }`}
             onClick={() => handleFinanceClick(f.id)}
