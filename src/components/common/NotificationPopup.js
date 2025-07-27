@@ -181,7 +181,15 @@ export default function NotificationPopup({ onClose }) {
                 >
                   {/* 제목 라인 */}
                   <div className="flex items-center gap-2 text-sm font-semibold">
-                    <img src={item.icon} alt={item.title} className="w-4 h-4" />
+                    <img
+                      src={
+                        item.title === "FOMC"
+                          ? "https://pda-fomo-s3.s3.ap-northeast-2.amazonaws.com/image/FOMC.png"
+                          : item.icon
+                      }
+                      alt={item.title}
+                      className="w-4 h-4"
+                    />
                     {item.title}
                   </div>
 
