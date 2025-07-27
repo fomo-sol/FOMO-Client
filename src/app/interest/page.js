@@ -99,9 +99,22 @@ export default function InterestPage() {
       symbol,
     ]);
 
-    const candidates = (sectorMap[selectedCompany.sector] || []).filter(
-      (c) => !allExcluded.has(c.symbol)
-    );
+    // 선택한 종목의 rank 이후의 종목들만 추천 후보로 선정
+    const sectorCompanies = sectorMap[selectedCompany.sector] || [];
+    const selectedCompanyRank = selectedCompany.rank || 0;
+
+    // rank가 있는 경우: 선택한 종목보다 낮은 rank(높은 순위)의 종목들만 추천
+    // rank가 없는 경우: 기존 로직 유지
+    let candidates;
+    if (selectedCompanyRank > 0) {
+      candidates = sectorCompanies.filter(
+        (c) => !allExcluded.has(c.symbol) && (c.rank || 0) > selectedCompanyRank
+      );
+    } else {
+      // rank 정보가 없는 경우 기존 로직 사용
+      candidates = sectorCompanies.filter((c) => !allExcluded.has(c.symbol));
+    }
+
     const shuffled = [...candidates].sort(() => Math.random() - 0.5);
     const top5 = shuffled.slice(0, 5);
 
@@ -121,12 +134,22 @@ export default function InterestPage() {
 
       const selectedInRow = [...selectedList]
         .filter((s) => s.rowIndex === i)
-        .reverse();
+        .sort((a, b) => {
+          // 같은 행에서 선택된 종목들을 전체 selectedList에서의 순서로 정렬
+          const aIndex = selectedList.findIndex((s) => s.symbol === a.symbol);
+          const bIndex = selectedList.findIndex((s) => s.symbol === b.symbol);
+          return bIndex - aIndex; // 최신 선택이 먼저 오도록 역순 정렬
+        });
 
       selectedInRow.forEach((s) => {
         const rec = recommendations.find((r) => r.symbol === s.symbol);
         if (rec) {
-          result.push({ type: "recommend", data: rec.recList });
+          result.push({
+            type: "recommend",
+            data: rec.recList,
+            symbol: s.symbol, // 추천 종목의 원본 심볼 추가
+            rowIndex: i,
+          });
         }
       });
     }
@@ -215,7 +238,7 @@ export default function InterestPage() {
 
         <div className="flex flex-col gap-12 pb-24">
           {rowsWithRecommendations.map((row, index) => (
-            <AnimatePresence key={`${row.type}-${index}`}>
+            <AnimatePresence key={`${row.type}-${row.symbol || index}`}>
               {row.type === "recommend" ? (
                 <motion.div
                   initial={{ opacity: 0, x: -50, backgroundColor: "#1e2a44" }}
@@ -232,7 +255,7 @@ export default function InterestPage() {
                     <StockItemCard
                       key={stock.symbol}
                       stock={stock}
-                      onClick={() => toggleSelect(stock.symbol, index)}
+                      onClick={() => toggleSelect(stock.symbol, row.rowIndex)}
                       selected={isSelected(stock.symbol)}
                     />
                   ))}
