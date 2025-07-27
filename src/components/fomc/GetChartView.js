@@ -50,7 +50,7 @@ export default function GetChartView({ onSymbolSelect }) {
       {!selectedSymbol ? (
         <div className="pt-20">
           <button
-            className="bg-gray-800 text-white cursor-pointer hover:bg-gray-600 px-6 py-3 rounded-lg font-bold"
+            className="px-3 py-1 cursor-pointer border-1 hover:bg-gray-400 border-gray600 font-medium rounded-[5px] transition-all duration-200 bg-white text-black focus:outline-none"
             onClick={() => setShowModal(true)}
           >
             주식 차트 불러오기
@@ -61,7 +61,7 @@ export default function GetChartView({ onSymbolSelect }) {
           <StockChart symbol={selectedSymbol} />
           <div className="pt-6">
             <button
-              className="px-3 py-1 cursor-pointer border-1 hover:text-gray-500 hover:bg-gray-950 border-gray600 font-medium rounded-[5px] transition-all duration-200 focus:outline-none"
+              className="bg-gray-800 text-white cursor-pointer hover:bg-gray-600 px-6 py-3 rounded-lg font-bold"
               onClick={() => setShowModal(true)}
             >
               다른 종목 선택

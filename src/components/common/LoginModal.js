@@ -56,7 +56,7 @@ export default function LoginModal({ onClose, onSwitchToSignup }) {
       // ✅ storage 이벤트로 로그인 상태 반영되게 강제 트리거
       window.dispatchEvent(new Event("storage"));
 
-      alert("로그인에 성공하였습니다!");
+      // alert("로그인에 성공하였습니다!"); // 중복 alert 제거
       onClose(); // 모달 닫기
     } catch (error) {
       console.error("로그인 실패:", error.message);
@@ -81,7 +81,7 @@ export default function LoginModal({ onClose, onSwitchToSignup }) {
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div
         ref={modalRef}
-        className="w-[470px] h-auto bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center space-y-5 px-6 py-8"
+        className="w-[470px] h-auto bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center space-y-5 px-6 py-8 relative"
       >
         <h2 className="text-[#353535] text-[25px] font-medium pt-3 pb-2 font-[Pretendard] text-center">
           로그인

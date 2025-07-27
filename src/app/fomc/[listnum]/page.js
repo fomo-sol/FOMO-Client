@@ -286,7 +286,7 @@ export default function FOMCItemPage() {
 
             <div>
               <h2 className="text-2xl pb-1 font-semibold text-[#5BE49B] mb-2">
-                {selectedChartSymbol ? selectedChartSymbol : "차트 불러오기"}
+                {selectedChartSymbol ? selectedChartSymbol : ""}
               </h2>
               <div className="w-full flex items-center justify-center overflow-hidden mb-4">
                 <GetChartView onSymbolSelect={setSelectedChartSymbol} />

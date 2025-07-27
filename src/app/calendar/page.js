@@ -73,7 +73,7 @@ const CalendarPage = memo(() => {
           <button
             onClick={handlePreviousWeek}
             disabled={loading}
-            className="text-white hover:text-blue-300 p-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
+            className="text-white hover:text-blue-300 cursor-pointer p-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path
@@ -93,7 +93,7 @@ const CalendarPage = memo(() => {
           <button
             onClick={handleNextWeek}
             disabled={loading}
-            className="text-white hover:text-blue-300 p-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
+            className="text-white hover:text-blue-300 cursor-pointer p-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-full hover:bg-white/10"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path

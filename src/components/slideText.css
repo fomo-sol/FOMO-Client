@@ -1,0 +1,19 @@
+@keyframes slide-left {
+  0% {
+    transform: translateX(0%);
+  }
+  20% {
+    transform: translateX(0%);
+  }
+  80% {
+    transform: translateX(-40%);
+  }
+  100% {
+    transform: translateX(-40%);
+  }
+}
+
+.group:hover .group-hover-slide {
+  animation: slide-left 3.5s ease-in-out infinite;
+  white-space: nowrap;
+}

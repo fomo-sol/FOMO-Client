@@ -172,7 +172,7 @@ export default function FOMCSidebar() {
             return (
               <div
                 key={item.id + item.type}
-                className="w-[110px] h-[150px] flex-shrink-0 rounded-[20px] transition-colors bg-gradient-to-r from-slate-700/30 to-slate-800/30 hover:from-slate-600/40 hover:to-slate-700/40 border border-slate-600/30 hover:border-slate-500/50 flex flex-col items-center justify-center text-white text-sm font-semibold cursor-pointer"
+                className="w-[110px] h-[150px] flex-shrink-0 rounded-[20px] transition-colors bg-gradient-to-r from-slate-700/30 to-slate-800/30 hover:from-slate-600/40 hover:to-slate-700/40 border border-slate-600/30 hover:border-slate-500/50 flex flex-col items-center justify-center text-white text-sm font-semibold"
               >
                 <div className="text-lg mb-0.5">
                   {dateObj ? `${dateObj.getMonth() + 1}월` : "-"}

@@ -8,8 +8,11 @@ import SignupModal from "./common/SignupModal";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "@/utils/useAuth";
-import { requestFcmToken, handleForegroundMessage } from "@/services/fcm-service";
-
+import {
+  requestFcmToken,
+  handleForegroundMessage,
+} from "@/services/fcm-service";
+import "./slideText.css";
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMyPageModal, setShowMyPageModal] = useState(false);
@@ -26,16 +29,98 @@ export default function Navbar() {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
 
+  const [favoriteSymbols, setFavoriteSymbols] = useState([]);
+  const [hover, setHover] = useState(null);
+
+  const handleRequireLogin = () => {
+    if (window.confirm("로그인이 필요합니다. 로그인하시겠습니까?")) {
+      setShowLoginModal(true);
+    }
+  };
+
   // isLoggedIn이 변경될 때만 로그 출력
   useEffect(() => {
     console.log("[Navbar] isLoggedIn:", isLoggedIn);
   }, [isLoggedIn]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = payload.id;
+
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setFavoriteSymbols(data.data.map((item) => item.symbol));
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const toggleFavorite = async (item) => {
+    // 로그인 체크
+    if (!isLoggedIn) {
+      handleRequireLogin();
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = payload.id;
+    const isFavorite = favoriteSymbols.includes(item.symbol);
+
+    try {
+      const method = isFavorite ? "DELETE" : "POST";
+      console.log("⭐️ toggleFavorite item:", item);
+
+      const bodyData = isFavorite
+        ? { stock_id: item.id } // DELETE: 객체 그대로
+        : [{ stock_id: item.id }]; // POST: 배열로 감싸야 함
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/favorites/${userId}`,
+        {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(bodyData),
+        }
+      );
+
+      if (!res.ok) throw new Error("API 응답 실패");
+
+      // 상태 업데이트
+      setFavoriteSymbols((prev) =>
+        isFavorite
+          ? prev.filter((s) => s !== item.symbol)
+          : [...prev, item.symbol]
+      );
+
+      alert(
+        isFavorite
+          ? "관심 목록에서 제거되었습니다"
+          : "관심 목록에 추가되었습니다"
+      );
+    } catch (error) {
+      console.error("즐겨찾기 토글 실패:", error);
+      alert("관심 종목 변경 실패");
+    }
+  };
+
   // 로그인 상태에 따라 알림 개수 가져오기 및 FCM 설정
   useEffect(() => {
     if (isLoggedIn) {
       fetchNotificationCount();
-      
+
       // FCM 토큰 요청 및 포그라운드 메시지 핸들러 설정
       requestFcmToken();
       handleForegroundMessage((payload) => {
@@ -43,25 +128,28 @@ export default function Navbar() {
         // 새 알림이 오면 알림 개수 업데이트
         fetchNotificationCount();
       });
-      
+
       // 페이지가 포커스될 때만 업데이트
       const handleFocus = () => {
         fetchNotificationCount();
       };
-      
+
       // 페이지 가시성이 변경될 때 업데이트
       const handleVisibilityChange = () => {
         if (!document.hidden) {
           fetchNotificationCount();
         }
       };
-      
-      window.addEventListener('focus', handleFocus);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      
+
+      window.addEventListener("focus", handleFocus);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
       return () => {
-        window.removeEventListener('focus', handleFocus);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener("focus", handleFocus);
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
       };
     } else {
       setNotificationCount(0);
@@ -230,6 +318,24 @@ export default function Navbar() {
     setShowLoginModal(true);
   };
 
+  const spanRef = useRef(null); // 보여지는 실제 span
+  const measureRef = useRef(null); // 크기 측정용 span
+  const [isOverflow, setIsOverflow] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (measureRef.current && spanRef.current) {
+        const fullWidth = measureRef.current.scrollWidth;
+        const containerWidth = spanRef.current.clientWidth;
+        setIsOverflow(fullWidth > containerWidth);
+      }
+    };
+
+    // 약간 delay 주거나 RAF 사용
+    const raf = requestAnimationFrame(checkOverflow);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
     <>
       <nav
@@ -251,7 +357,7 @@ export default function Navbar() {
               />
               <input
                 className="bg-white text-[#040816] rounded-2xl focus:outline-none text-center text-sm pl-8 pr-4 py-1 w-32 md:w-40"
-                style={{ minWidth: "100px", maxWidth: "200px" }}
+                style={{ minWidth: "12.5rem", maxWidth: "200px" }}
                 placeholder="종목 검색"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -276,30 +382,85 @@ export default function Navbar() {
                   }}
                 >
                   {filteredCompanies.length > 0 ? (
-                    filteredCompanies.slice(0, 25).map((company) => (
-                      <div
-                        key={company.id}
-                        onClick={() => handleCompanyClick(company.symbol)}
-                        className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
-                      >
-                        <img
-                          src={company.logo}
-                          alt={company.name}
-                          className="w-6 h-6 rounded"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                          }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-gray-900 truncate">
-                            {company.name_kr}
+                    filteredCompanies.slice(0, 25).map((company) => {
+                      const isFavorite = favoriteSymbols.includes(
+                        company.symbol
+                      );
+                      return (
+                        <div
+                          key={company.id}
+                          onClick={() => handleCompanyClick(company.symbol)}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
+                        >
+                          <img
+                            src={company.logo}
+                            alt={company.name}
+                            className="w-6 h-6 rounded"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className="text-sm font-medium text-gray-900 truncate group"
+                              style={{ overflow: "hidden" }}
+                            >
+                              <span className="inline-block group-hover-slide">
+                                {company.name_kr}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-500 truncate">
+                              {company.symbol}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500 truncate">
-                            {company.symbol}
-                          </div>
+                          {/* 별표 있어서 관심종목 추가할 수 있게 */}
+                          {/* 로그인 되야 버튼 보이도록 */}
+                          {isLoggedIn && (
+                            <button
+                              className="text-blue-500 hover:text-blue-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // 관심종목 추가 로직
+                                console.log(
+                                  `Add ${company.symbol} to favorites (not implemented)`
+                                );
+                              }}
+                            >
+                              <div
+                                className="w-4 h-4 cursor-pointer bg-contain bg-no-repeat bg-center"
+                                style={{
+                                  backgroundImage: `url(${
+                                    hover === company.symbol
+                                      ? isFavorite
+                                        ? "/star-off.png"
+                                        : "/star-on.png"
+                                      : isFavorite
+                                      ? "/star-on.png"
+                                      : "/star-off.png"
+                                  })`,
+                                }}
+                                onMouseEnter={() => setHover(company.symbol)}
+                                onMouseLeave={() => setHover(null)}
+                                onClick={() => {
+                                  if (!isLoggedIn) {
+                                    handleRequireLogin();
+                                    return;
+                                  }
+                                  const message = isFavorite
+                                    ? "정말 관심종목에서 삭제하시겠습니까?"
+                                    : "관심종목에 추가하시겠습니까?";
+                                  if (window.confirm(message))
+                                    toggleFavorite(company);
+                                }}
+                                title={
+                                  isFavorite ? "관심종목 삭제" : "관심종목 추가"
+                                }
+                              />{" "}
+                            </button>
+                          )}{" "}
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="px-4 py-2 text-gray-500 text-sm">
                       검색 결과가 없습니다.
@@ -361,11 +522,13 @@ export default function Navbar() {
               }}
               className="flex items-center cursor-pointer justify-center"
             >
-              <Image 
-                src={notificationCount > 0 ? "/icon_alert2.svg" : "/icon_alert.svg"} 
-                alt="Alert" 
-                width={25.5} 
-                height={25.5} 
+              <Image
+                src={
+                  notificationCount > 0 ? "/icon_alert2.svg" : "/icon_alert.svg"
+                }
+                alt="Alert"
+                width={25.5}
+                height={25.5}
               />
             </button>
 
