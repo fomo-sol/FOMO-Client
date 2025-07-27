@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import StockLiveChart from "./StockLiveChart";
 import { Render1DayChart } from "@/components/earning/chart/Render1DayChart";
 
-export default function StockChart({ symbol }) {
+export default function StockChart({ symbol, fomcDates = [] }) {
   const [mode, setMode] = useState("1day");
 
   return (
@@ -32,7 +32,11 @@ export default function StockChart({ symbol }) {
         </button>
       </div>
       {mode === "1day" ? (
-        <Render1DayChart key={`1day-${symbol}`} symbol={symbol} />
+        <Render1DayChart
+          key={`1day-${symbol}`}
+          symbol={symbol}
+          fomcDates={fomcDates}
+        />
       ) : (
         <StockLiveChart key={`live-${symbol}`} symbol={symbol} />
       )}

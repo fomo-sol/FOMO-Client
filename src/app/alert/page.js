@@ -14,6 +14,8 @@ function AlertPageContent() {
   const [companyMap, setCompanyMap] = useState({});
   const cardRefs = useRef({});
   const [filter, setFilter] = useState("all");
+  const [displayCount, setDisplayCount] = useState(5);
+  const ITEMS_PER_PAGE = 5;
 
   const formatKoreanDate = (dateString) => {
     const date = new Date(dateString);
@@ -36,6 +38,10 @@ function AlertPageContent() {
     if (!alert.title.includes("FOMC") && alert.symbol) {
       router.push(`/earning/${alert.symbol}`);
     }
+  };
+
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => prev + ITEMS_PER_PAGE);
   };
 
   useEffect(() => {
@@ -167,32 +173,49 @@ function AlertPageContent() {
           {(filter === "custom"
             ? alerts.filter((alert) => alert.stripColor === "#FF0540")
             : alerts
-          ).map((alert) => (
-            <div
-              key={alert.id}
-              ref={(el) => {
-                if (el) {
-                  cardRefs.current[alert.id] = el;
-                } else {
-                  delete cardRefs.current[alert.id];
-                }
-              }}
-              onClick={() => handleCardClick(alert)}
-              className={`cursor-pointer transition-transform duration-200 hover:scale-[1.02] ${
-                !alert.title.includes("FOMC") && alert.symbol
-                  ? "hover:shadow-lg"
-                  : ""
-              }`}
-            >
-              <AlertCard
-                iconSrc={alert.iconSrc}
-                title={alert.title}
-                description={alert.description}
-                time={alert.time}
-                stripColor={alert.stripColor}
-              />
+          )
+            .slice(0, displayCount)
+            .map((alert) => (
+              <div
+                key={alert.id}
+                ref={(el) => {
+                  if (el) {
+                    cardRefs.current[alert.id] = el;
+                  } else {
+                    delete cardRefs.current[alert.id];
+                  }
+                }}
+                onClick={() => handleCardClick(alert)}
+                className={`cursor-pointer transition-transform duration-200 hover:scale-[1.02] ${
+                  !alert.title.includes("FOMC") && alert.symbol
+                    ? "hover:shadow-lg"
+                    : ""
+                }`}
+              >
+                <AlertCard
+                  iconSrc={alert.iconSrc}
+                  title={alert.title}
+                  description={alert.description}
+                  time={alert.time}
+                  stripColor={alert.stripColor}
+                />
+              </div>
+            ))}
+
+          {/* 더보기 버튼 */}
+          {displayCount <
+            (filter === "custom"
+              ? alerts.filter((alert) => alert.stripColor === "#FF0540").length
+              : alerts.length) && (
+            <div className="text-center py-4">
+              <button
+                onClick={handleLoadMore}
+                className="bg-white text-black cursor-pointer px-6 py-2 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                더보기
+              </button>
             </div>
-          ))}
+          )}
         </div>
         <div className="w-[320px] flex justify-center">
           <AlertSidebar filter={filter} setFilter={setFilter} />
