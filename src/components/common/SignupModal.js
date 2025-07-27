@@ -94,7 +94,7 @@ export default function SignupModal({ onClose, onSwitchToLogin }) {
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div
         ref={modalRef}
-        className="w-[470px] h-auto bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center space-y-5 px-6 py-8"
+        className="w-[470px] h-auto bg-[#EAEAEA] rounded-[5px] shadow-md flex flex-col items-center justify-center space-y-5 px-6 py-8 relative"
       >
         <h2 className="text-[#353535] text-[25px] py-1 font-medium font-[Pretendard] text-center">
           회원가입

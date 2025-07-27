@@ -8,6 +8,7 @@ import SignupModal from "./common/SignupModal";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "@/utils/useAuth";
+import { requestFcmToken, handleForegroundMessage } from "@/services/fcm-service";
 
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -18,6 +19,7 @@ export default function Navbar() {
   const [companies, setCompanies] = useState([]);
   const [filteredCompanies, setFilteredCompanies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [notificationCount, setNotificationCount] = useState(0);
   const alertRef = useRef(null);
   const mypageRef = useRef(null);
   const searchRef = useRef(null);
@@ -37,6 +39,7 @@ export default function Navbar() {
   useEffect(() => {
     console.log("[Navbar] isLoggedIn:", isLoggedIn);
   }, [isLoggedIn]);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -111,6 +114,44 @@ export default function Navbar() {
     }
   };
 
+  // 로그인 상태에 따라 알림 개수 가져오기 및 FCM 설정
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchNotificationCount();
+      
+      // FCM 토큰 요청 및 포그라운드 메시지 핸들러 설정
+      requestFcmToken();
+      handleForegroundMessage((payload) => {
+        console.log("📩 Navbar에서 FCM 메시지 수신:", payload);
+        // 새 알림이 오면 알림 개수 업데이트
+        fetchNotificationCount();
+      });
+      
+      // 페이지가 포커스될 때만 업데이트
+      const handleFocus = () => {
+        fetchNotificationCount();
+      };
+      
+      // 페이지 가시성이 변경될 때 업데이트
+      const handleVisibilityChange = () => {
+        if (!document.hidden) {
+          fetchNotificationCount();
+        }
+      };
+      
+      window.addEventListener('focus', handleFocus);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      return () => {
+        window.removeEventListener('focus', handleFocus);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
+    } else {
+      setNotificationCount(0);
+    }
+  }, [isLoggedIn]);
+
+
   // companylogo.json 데이터 로드
   useEffect(() => {
     fetch("/companylogo.json")
@@ -162,6 +203,104 @@ export default function Navbar() {
   // 로그인 필요 시 모달 표시
   const handleLoginRequired = () => {
     setShowLoginModal(true);
+  };
+
+  // 알림 개수 가져오기
+  const fetchNotificationCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const userId = payload.userId || payload.sub || payload.id;
+
+      const resCompany = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/companies`
+      );
+      const jsonCompany = await resCompany.json();
+      const companyMap = {};
+      jsonCompany.data.forEach((c) => {
+        companyMap[c.id.toString()] = {
+          name_kr: c.name_kr,
+          logo: c.logo,
+        };
+      });
+
+      const resAlert = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/notifications?filter=all&userId=${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const jsonAlert = await resAlert.json();
+
+      if (jsonAlert.success) {
+        const mapped = jsonAlert.data.map((item) => {
+          const status = item.status || "";
+          const alertContent = item.alert_content || "";
+
+          const stockId = item.stock_id?.toString();
+          const company = companyMap[stockId];
+
+          const title = status.includes("fomc")
+            ? "FOMC"
+            : company?.name_kr || "FOMC";
+
+          const iconSrc = status.includes("fomc")
+            ? "/fomc.png"
+            : company?.logo || "/fomc.png";
+
+          return {
+            id: item.id,
+            icon: iconSrc,
+            title,
+            time: item.created_at
+              ? formatKoreanTime(item.created_at)
+              : "시간 없음",
+            description: alertContent,
+          };
+        });
+
+        const read = getReadNotifications();
+        const unreadOnly = mapped.filter((n) => !read.includes(n.id));
+        setNotificationCount(unreadOnly.length);
+      }
+    } catch (err) {
+      console.error("❌ 알림 개수 로딩 실패:", err);
+    }
+  };
+
+  // 읽은 알림 가져오기
+  const getReadNotifications = () => {
+    if (typeof window === "undefined") return [];
+    try {
+      return JSON.parse(localStorage.getItem("readNotifications") || "[]");
+    } catch {
+      return [];
+    }
+  };
+
+  // 시간 포맷팅 함수
+  const formatKoreanTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const isToday =
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate();
+
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes().toString().padStart(2, "0");
+    const ampm = hour >= 12 ? "오후" : "오전";
+    const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+
+    const dayPrefix = isToday ? "오늘" : `${month}월 ${day}일`;
+    return `${dayPrefix} ${ampm} ${hour12}:${minute}`;
   };
 
   // 모달 간 전환 함수들
@@ -374,7 +513,12 @@ export default function Navbar() {
               }}
               className="flex items-center cursor-pointer justify-center"
             >
-              <Image src="/icon_alert.svg" alt="Alert" width={22} height={22} />
+              <Image 
+                src={notificationCount > 0 ? "/icon_alert2.svg" : "/icon_alert.svg"} 
+                alt="Alert" 
+                width={25.5} 
+                height={25.5} 
+              />
             </button>
 
             {showNotifications && (

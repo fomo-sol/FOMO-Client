@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { createChart } from "lightweight-charts";
 import { getStockDataByDate, getStockData } from "@/services/earning-service";
 
-export function Render1DayChart({ symbol }) {
+export function Render1DayChart({ symbol, fomcDates = [] }) {
   // 기존 1day 차트의 모든 코드 (useRef, useEffect 등)
   // ... 기존 chart.js의 1day 차트 코드 전체를 이 함수로 이동 ...
   const chartContainerRef = useRef(null);
@@ -14,6 +14,7 @@ export function Render1DayChart({ symbol }) {
   const trendLinesRef = useRef([]);
   const maLineRefs = useRef([]); // MA 시리즈들
   const logicalRangeRef = useRef(null);
+  const fomcLinesRef = useRef([]); // FOMC 수직선들
 
   const [tooltip, setTooltip] = useState(null);
   const [localStockData, setLocalStockData] = useState([]);
@@ -25,6 +26,56 @@ export function Render1DayChart({ symbol }) {
     60: true,
     120: true,
   });
+  const [fomcVisible, setFomcVisible] = useState({
+    fed: true, // 금리 결정
+    minutes: true, // 의사록
+  });
+
+  // FOMC 날짜를 차트에 마커로 표시하는 함수
+  function drawFomcMarkers() {
+    if (!chartRef.current || !lineOpenRef.current || !fomcDates.length) return;
+
+    // 오늘 날짜(yyyy-mm-dd)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split("T")[0];
+
+    // 마커 데이터 생성
+    const markers = fomcDates
+      .map((dateObj) => {
+        const date = dateObj.fed_release_date || dateObj.minutes_release_date;
+        if (!date) return null;
+        const dateStr = new Date(date).toISOString().split("T")[0];
+        if (dateStr > todayStr) return null; // 미래 날짜 제외
+
+        // 토글 상태 확인
+        if (dateObj.fed_release_date && !fomcVisible.fed) return null;
+        if (dateObj.minutes_release_date && !fomcVisible.minutes) return null;
+
+        return {
+          time: dateStr,
+          position: "belowBar",
+          color: dateObj.fed_release_date ? "#ff0000" : "#00ff00", // 더 눈에 띄는 색상
+          shape: "circle",
+        };
+      })
+      .filter(Boolean);
+
+    // 마커 추가
+    lineOpenRef.current.setMarkers(markers);
+  }
+
+  // fomcVisible이 바뀔 때마다 마커 즉시 업데이트
+  useEffect(() => {
+    if (chartRef.current && lineOpenRef.current) {
+      drawFomcMarkers();
+    }
+  }, [fomcVisible]);
+
+  // fomcDates, localStockData가 바뀔 때마다 마커 추가
+  useEffect(() => {
+    drawFomcMarkers();
+  }, [fomcDates, localStockData]);
 
   // symbol이 바뀔 때마다 데이터 fetch
   useEffect(() => {
@@ -255,7 +306,7 @@ export function Render1DayChart({ symbol }) {
       chartRef.current.remove();
       chartRef.current = null;
     };
-  }, [symbol]);
+  }, [symbol, fomcDates]);
 
   // MA 토글에 따라 visible 옵션 동기화
   useEffect(() => {
@@ -305,7 +356,7 @@ export function Render1DayChart({ symbol }) {
         maLineRefs.current[idx].setData(maData);
       }
     });
-  }, [localStockData]);
+  }, [localStockData, fomcDates]);
 
   function formatVolume(value) {
     if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
@@ -339,6 +390,40 @@ export function Render1DayChart({ symbol }) {
           </label>
         ))}
       </div>
+
+      {/* FOMC 이벤트 토글 */}
+      {fomcDates.length > 0 && (
+        <div className="absolute right-18 z-10 bg-black/40 rounded">
+          <label className="flex items-center gap-1 cursor-pointer select-none">
+            <span
+              className="inline-block w-3 h-3 rounded-full"
+              style={{ background: "#ff0000" }}
+            />
+            <span className="text-xs text-white w-12">금리 결정</span>
+            <input
+              type="checkbox"
+              checked={fomcVisible.fed}
+              onChange={() => setFomcVisible((v) => ({ ...v, fed: !v.fed }))}
+              className="accent-red-500 cursor-pointer"
+            />
+          </label>
+          <label className="flex items-center gap-1 cursor-pointer select-none">
+            <span
+              className="inline-block w-3 h-3 rounded-full"
+              style={{ background: "#00ff00" }}
+            />
+            <span className="text-xs text-white w-12">의사록</span>
+            <input
+              type="checkbox"
+              checked={fomcVisible.minutes}
+              onChange={() =>
+                setFomcVisible((v) => ({ ...v, minutes: !v.minutes }))
+              }
+              className="accent-green-500 cursor-pointer"
+            />
+          </label>
+        </div>
+      )}
       <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
       {tooltip && (
         <div
