@@ -211,7 +211,7 @@ export default function FOMCItemPage() {
       const speeches = fomcData.speeches;
       return {
         금리결정: {
-          한국어: statements?.decisions_release_content_kr_html_stat || null,
+          한국어: statements?.decisions_release_content_kr_html_impl || null,
           영어: statements?.decisions_release_content_en_html_stat || null,
           "AI 요약분석": statements?.decisions_release_content_an || null,
         },
