@@ -8,8 +8,11 @@ import SignupModal from "./common/SignupModal";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "@/utils/useAuth";
-import { requestFcmToken, handleForegroundMessage } from "@/services/fcm-service";
-
+import {
+  requestFcmToken,
+  handleForegroundMessage,
+} from "@/services/fcm-service";
+import "./slideText.css";
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMyPageModal, setShowMyPageModal] = useState(false);
@@ -39,7 +42,6 @@ export default function Navbar() {
   useEffect(() => {
     console.log("[Navbar] isLoggedIn:", isLoggedIn);
   }, [isLoggedIn]);
-
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -118,7 +120,7 @@ export default function Navbar() {
   useEffect(() => {
     if (isLoggedIn) {
       fetchNotificationCount();
-      
+
       // FCM 토큰 요청 및 포그라운드 메시지 핸들러 설정
       requestFcmToken();
       handleForegroundMessage((payload) => {
@@ -126,31 +128,33 @@ export default function Navbar() {
         // 새 알림이 오면 알림 개수 업데이트
         fetchNotificationCount();
       });
-      
+
       // 페이지가 포커스될 때만 업데이트
       const handleFocus = () => {
         fetchNotificationCount();
       };
-      
+
       // 페이지 가시성이 변경될 때 업데이트
       const handleVisibilityChange = () => {
         if (!document.hidden) {
           fetchNotificationCount();
         }
       };
-      
-      window.addEventListener('focus', handleFocus);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      
+
+      window.addEventListener("focus", handleFocus);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
       return () => {
-        window.removeEventListener('focus', handleFocus);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener("focus", handleFocus);
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
       };
     } else {
       setNotificationCount(0);
     }
   }, [isLoggedIn]);
-
 
   // companylogo.json 데이터 로드
   useEffect(() => {
@@ -397,8 +401,13 @@ export default function Navbar() {
                             }}
                           />
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-gray-900 truncate">
-                              {company.name_kr}
+                            <div
+                              className="text-sm font-medium text-gray-900 truncate group"
+                              style={{ overflow: "hidden" }}
+                            >
+                              <span className="inline-block group-hover-slide">
+                                {company.name_kr}
+                              </span>
                             </div>
                             <div className="text-xs text-gray-500 truncate">
                               {company.symbol}
@@ -513,11 +522,13 @@ export default function Navbar() {
               }}
               className="flex items-center cursor-pointer justify-center"
             >
-              <Image 
-                src={notificationCount > 0 ? "/icon_alert2.svg" : "/icon_alert.svg"} 
-                alt="Alert" 
-                width={25.5} 
-                height={25.5} 
+              <Image
+                src={
+                  notificationCount > 0 ? "/icon_alert2.svg" : "/icon_alert.svg"
+                }
+                alt="Alert"
+                width={25.5}
+                height={25.5}
               />
             </button>
 
