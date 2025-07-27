@@ -81,6 +81,18 @@ export default function Home() {
     }
   };
 
+  const handleScrollDown = () => {
+    const stickyScrollSection = document.querySelector(
+      ".sticky-scroll-section"
+    );
+    if (stickyScrollSection) {
+      stickyScrollSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
   return (
     <div>
       <div>
@@ -102,9 +114,30 @@ export default function Home() {
           >
             시작하기
           </button>
+
+          {/* 스크롤 다운 버튼 */}
+          <button
+            className="mt-25 cursor-pointer p-3 text-white hover:text-blue-400 transition-colors duration-300 animate-bounce"
+            onClick={handleScrollDown}
+            aria-label="아래로 스크롤"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M7 13l5 5 5-5" />
+              <path d="M7 6l5 5 5-5" />
+            </svg>
+          </button>
         </div>
       </div>
-      <div className="absolute w-full left-0 h-[10rem] pb-180">
+      <div className="absolute w-full left-0 h-[10rem] pb-180 sticky-scroll-section">
         <StickyScroll content={content} />
       </div>
     </div>
