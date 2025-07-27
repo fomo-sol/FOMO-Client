@@ -55,8 +55,9 @@ export function Render1DayChart({ symbol, fomcDates = [] }) {
         return {
           time: dateStr,
           position: "belowBar",
-          color: dateObj.fed_release_date ? "#ff0000" : "#00ff00", // 더 눈에 띄는 색상
+          color: dateObj.fed_release_date ? "#ff0000" : "#0EB4FC", // 더 눈에 띄는 색상
           shape: "circle",
+          zIndex: 1000, // 마커를 최상위에 표시
         };
       })
       .filter(Boolean);
@@ -410,7 +411,7 @@ export function Render1DayChart({ symbol, fomcDates = [] }) {
           <label className="flex items-center gap-1 cursor-pointer select-none">
             <span
               className="inline-block w-3 h-3 rounded-full"
-              style={{ background: "#00ff00" }}
+              style={{ background: "#0EB4FC" }}
             />
             <span className="text-xs text-white w-12">의사록</span>
             <input
@@ -419,7 +420,7 @@ export function Render1DayChart({ symbol, fomcDates = [] }) {
               onChange={() =>
                 setFomcVisible((v) => ({ ...v, minutes: !v.minutes }))
               }
-              className="accent-green-500 cursor-pointer"
+              className="accent-[#0EB4FC] cursor-pointer"
             />
           </label>
         </div>
