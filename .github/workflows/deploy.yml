@@ -20,4 +20,5 @@ jobs:
             git reset --hard origin/main
             npm install
             npm run build
-            pm2 restart fomo-client || pm2 start npm --name "fomo-client" -- start
+            pm2 restart fomo-client || NODE_ENV=production pm2 start npm --name "fomo-client" -- start
+
