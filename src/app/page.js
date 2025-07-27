@@ -25,7 +25,7 @@ export default function Home() {
       content: (
         <div className="flex h-full w-full items-center justify-center text-white">
           <img
-            src="/fomc_r.png"
+            src="/landing_fomc.png"
             className="w-180 h-auto object-cover"
             alt="FOMC demo"
           />
@@ -38,7 +38,7 @@ export default function Home() {
         "관심 종목의 실적 발표는 주가의 분기점입니다|| 불필요한 해석과 복잡한 자료 분석 없이| 한글 요약으로 핵심만 빠르게 전달해드립니다",
       content: (
         <img
-          src="/earning.png"
+          src="/landing_earning.png"
           className="w-180 h-auto object-cover"
           alt="FOMC demo"
         />
@@ -51,7 +51,7 @@ export default function Home() {
         "브라우저와 텔레그램으로 |원하는 정보만 선택적으로 수신하세요|| 중요 발표를 실시간으로 받아 기회를 놓치지 마세요",
       content: (
         <img
-          src="/alert.png"
+          src="/landing_alarm.png"
           width={300}
           height={300}
           className="w-180 h-auto object-cover"
@@ -65,7 +65,7 @@ export default function Home() {
         "다가오는 FOMC 일정과 실적 발표를 한 화면에서 확인하세요|| 시장의 주요 이벤트를 미리 파악하고| 전략적으로 대응할 수 있습니다",
       content: (
         <img
-          src="/calendar.png"
+          src="/landing_calendar.png"
           width={300}
           height={300}
           className="w-180 h-auto object-cover"
