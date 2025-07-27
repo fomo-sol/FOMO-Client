@@ -23,13 +23,11 @@ export default function Home() {
       description:
         "시장을 움직이는 FOMC 발표, 새벽에 놓치셨나요?|| FOMC 금리 발표와 실적 발표 직후| 핵심만 추린 한글 번역과 요약으로 빠르게 확인하세요",
       content: (
-        <div className="flex h-full w-full items-center justify-center text-white">
-          <img
-            src="/landing_fomc.png"
-            className="w-180 h-auto object-cover"
-            alt="FOMC demo"
-          />
-        </div>
+        <img
+          src="/landing_fomc.png"
+          className="w-180 h-auto object-cover"
+          alt="FOMC demo"
+        />
       ),
     },
     {
