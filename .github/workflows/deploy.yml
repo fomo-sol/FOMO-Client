@@ -1,0 +1,23 @@
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and deploy client
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/fomo-app/client
+            echo "${{ secrets.ENV_FILE_CLIENT }}" > .env.local
+            git fetch
+            git reset --hard origin/main
+            npm install
+            npm run build
+            pm2 restart fomo-client || pm2 start npm --name "fomo-client" -- start
