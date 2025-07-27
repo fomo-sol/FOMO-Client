@@ -60,28 +60,20 @@ export const StickyScroll = ({ content, contentClassName }) => {
           {content.map((item, index) => (
             <div key={item.title + index} className="">
               <motion.h2
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
-                }}
-                className="text-3xl font-bold text-slate-100"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: activeCard === index ? 1 : 0.3 }}
+                className="mt-40 text-3xl font-bold text-slate-100"
                 dangerouslySetInnerHTML={{ __html: item.title }}
               />
 
               <motion.p
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
-                }}
-                className="text-lg mt-3 text-slate-300 my-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: activeCard === index ? 1 : 0.3 }}
+                className="mt-10 text-lg text-slate-300 my-20"
               >
                 {item.description
-                  .replace(/\|\|/g, "\n\n") // 두 번 엔터
-                  .replace(/\|/g, "\n") // 한 번 엔터
+                  .replace(/\|\|/g, "\n\n")
+                  .replace(/\|/g, "\n")
                   .split("\n")
                   .map((line, i) => (
                     <span key={i}>
