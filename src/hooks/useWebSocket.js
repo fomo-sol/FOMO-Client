@@ -31,7 +31,7 @@ export function useWebSocket(symbol, onMessage) {
     globalWebSocket.isConnecting = true;
 
     try {
-      const ws = new WebSocket("ws://localhost:4000/wsClient");
+      const ws = new WebSocket(`ws://${process.env.NEXT_PUBLIC_WS_URL}/wsClient`);
       globalWebSocket.ws = ws;
 
       ws.onopen = () => {

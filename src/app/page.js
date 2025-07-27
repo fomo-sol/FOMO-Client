@@ -99,7 +99,7 @@ export default function Home() {
             해외 주식 정보에 한 발 늦었다고 생각한 당신에게
           </div>
           <button
-            className="bg-white text-[#040816] text-2xl font-semibold rounded-[5px] px-[2.3vw] py-[1.3vh] shadow hover:bg-gray-200 transition mt-10"
+            className="bg-white text-[#040816] cursor-pointer text-2xl font-semibold rounded-[5px] px-[2.3vw] py-[1.3vh] shadow hover:bg-gray-200 transition mt-10"
             onClick={handleStart}
           >
             시작하기

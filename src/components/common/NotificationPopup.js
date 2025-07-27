@@ -161,7 +161,7 @@ export default function NotificationPopup({ onClose }) {
                       prev.filter((n) => n.id !== item.id)
                     );
                   }}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-black text-xs"
+                  className="absolute top-4 cursor-pointer right-4 text-gray-400 hover:text-black text-xs"
                   aria-label="알림 삭제"
                 >
                   ✕

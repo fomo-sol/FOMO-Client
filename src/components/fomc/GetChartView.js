@@ -61,7 +61,7 @@ export default function GetChartView({ onSymbolSelect }) {
           <StockChart symbol={selectedSymbol} />
           <div className="pt-6">
             <button
-              className="px-3 py-1 cursor-pointer border-1 hover:text-gray-500 hover:bg-gray-950 border-gray600 font-medium rounded-[5px] transition-all duration-200 focus:outline-none"
+              className="px-3 py-1 cursor-pointer border-1 hover:bg-gray-400 border-gray600 font-medium rounded-[5px] transition-all duration-200 bg-white text-black focus:outline-none"
               onClick={() => setShowModal(true)}
             >
               다른 종목 선택

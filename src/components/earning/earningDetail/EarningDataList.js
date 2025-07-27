@@ -124,7 +124,7 @@ export default function EarningDataList({
             />
           ) : (
             <div className="text-center pt-20 text-gray-500">
-              영어 원문 데이터가 없습니다.
+              영어 원문이 아직 준비되지 않았습니다.
             </div>
           )
         ) : activeTab === "한국어" ? (
@@ -141,7 +141,7 @@ export default function EarningDataList({
             />
           ) : (
             <div className="text-center pt-20 text-gray-500">
-              한국어 데이터가 없습니다.
+              번역본이 아직 준비되지 않았습니다.
             </div>
           )
         ) : currentData?.stock_release_content_an && isExistAn ? (
@@ -157,7 +157,7 @@ export default function EarningDataList({
           />
         ) : (
           <div className="text-center pt-20 text-gray-500">
-            AI 요약/분석 데이터가 없습니다.
+              요약이 준비되지 않았습니다.
           </div>
         )}
       </div>

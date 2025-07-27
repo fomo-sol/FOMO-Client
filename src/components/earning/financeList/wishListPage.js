@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import useAuth from "@/utils/useAuth";
 import { formatRevenue } from "@/services/earning-service";
 
 export default function WishListPage() {
+  const router = useRouter();
   const { user, setFavorites } = useAuth();
   const [earnings, setEarnings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,9 +91,7 @@ export default function WishListPage() {
             <div
               key={item.id}
               className={`${rowClass} ${gridCols}`}
-              onClick={() =>
-                (window.location.href = `${process.env.NEXT_PUBLIC_CLIENT_URL}/earning/${item.symbol}`)
-              }
+              onClick={() => router.push(`/earning/${item.symbol}`)}
             >
               <span
                 className="flex justify-center items-center"
