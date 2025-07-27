@@ -15,5 +15,10 @@ const nextConfig = {
       },
     ],
   },
+  // 프로덕션 환경에서 Dev Tools 비활성화
+  devIndicators: {
+    buildActivity: false,
+    buildActivityPosition: "bottom-right",
+  },
 };
 export default nextConfig;

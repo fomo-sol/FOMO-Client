@@ -285,7 +285,7 @@ export default function InterestPage() {
       <div className="fixed bottom-0 left-0 w-full h-20 bg-[#040816]/70 backdrop-blur-md flex justify-center items-center border-t border-white/10 shadow-md">
         <button
           onClick={handleDone}
-          className="bg-white text-black px-6 py-2 rounded-full font-semibold shadow"
+          className="bg-white text-black cursor-pointer px-6 py-2 rounded-full font-semibold shadow"
         >
           완료
         </button>

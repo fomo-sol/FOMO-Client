@@ -229,7 +229,7 @@ export default function NotificationPopup({ onClose }) {
               router.push("/alert");
               onClose();
             }}
-            className="text-xs px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100 text-[#040816] font-medium transition"
+            className="text-xs px-4 py-2 bg-white border cursor-pointer border-gray-300 rounded hover:bg-gray-100 text-[#040816] font-medium transition"
           >
             전체 알림 보기
           </button>
