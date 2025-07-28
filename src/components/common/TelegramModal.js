@@ -102,12 +102,13 @@ export default function TelegramModal({ onClose }) {
             <p className="mb-4 text-gray-600">QR 로딩 중...</p>
         )}
 
-        <div className="flex items-center justify-center gap-2 bg-white px-4 py-2 rounded w-[445px] h-[35px]">
-          <p className="text-sm truncate text-gray-700">{telegramUrl || "로딩 중..."}</p>
-          <button ref={copyBtnRef} onClick={handleCopy} className="hover:opacity-70 transition-opacity p-0 w-6 h-6 flex items-center justify-center">
-            <Image src="/link_icon.png" alt="copy" width={16} height={16} />
-          </button>
-        </div>
+<div
+  ref={copyBtnRef}
+  className="group flex items-center justify-center gap-2 bg-white px-4 py-2 rounded w-[445px] h-[35px] relative cursor-pointer"
+  onClick={handleCopy}
+>
+  <p className="text-sm truncate text-gray-700">{telegramUrl || "로딩 중..."}</p>
+</div>
 
         {/* 토스트 메시지 */}
         {toastVisible && (
